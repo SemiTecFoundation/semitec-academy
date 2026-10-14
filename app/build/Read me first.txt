@@ -1,0 +1,32 @@
+SemiTec Academy — how to start it on a Mac
+==========================================
+
+1. Drag "SemiTec Academy" onto the Applications folder in this window.
+
+2. This build is not notarised by Apple, so macOS will refuse to start it and say
+   "Apple could not verify..." or "...is damaged and can't be opened".
+   The app is fine — only the "downloaded from the internet" mark stops it.
+
+   Open Terminal (Launchpad, search for "Terminal") and run this one line:
+
+       xattr -dr com.apple.quarantine "/Applications/SemiTec Academy.app"
+
+   Copy it exactly, including the quotation marks, and press Return.
+   Nothing is printed when it works.
+
+3. Start SemiTec Academy from Applications or Launchpad. It opens normally from now on.
+   Repeat step 2 each time you replace the app with a newer version.
+
+Without Terminal
+----------------
+Double-click the app so macOS blocks it once, then open
+System Settings > Privacy & Security, scroll down to "SemiTec Academy was blocked..."
+and click "Open Anyway", then confirm with your password.
+
+On macOS 15 and newer, Control-clicking the app and choosing "Open" does not work any more —
+Apple removed that shortcut.
+
+Your courses and progress are stored in Documents/SemiTec Academy and are kept when you update.
+
+Full instructions: https://github.com/SemiTecFoundation/semitec-academy/blob/main/docs/INSTALLING.md
+Questions: info@semitec.org

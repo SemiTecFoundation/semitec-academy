@@ -82,8 +82,15 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with: { path: artifacts }
+      - name: Render the release notes for this version
+        run: |
+          # every release carries the install instructions, above the generated changelog
+          sed "s/{{VERSION}}/${GITHUB_REF_NAME#v}/g" .github/release-notes.md > notes.md
+          grep -q '{{VERSION}}' notes.md && { echo "placeholder left unreplaced"; exit 1; } || true
+          head -5 notes.md
       - name: Collect installers and checksums
         run: |
           mkdir -p release
@@ -97,5 +104,6 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: release/*
-          generate_release_notes: true
+          body_path: notes.md          # install instructions …
+          generate_release_notes: true  # … then the generated changelog underneath
           fail_on_unmatched_files: true
