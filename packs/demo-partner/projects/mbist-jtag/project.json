@@ -1,0 +1,625 @@
+{
+  "format": 1,
+  "id": "mbist-jtag",
+  "title": "JTAG-Accessible Memory BIST on the AMD AUP ZU3",
+  "subtitle": "",
+  "summary": "Modern chips contain hundreds or thousands of embedded memories, and memories take a large share of the chip area. Because memory cells are the densest structures on silicon, they are where manufacturing defects most often appear. Every memory must therefore be tested after production, and often again in the field. Chips include **MBIST**: on-chip hardware that applies test algorithms to the memories, compares the results and reports pass/fail and the failing locations.",
+  "language": "en",
+  "category": "diploma",
+  "workType": "Bachelor diploma project",
+  "level": "Bachelor",
+  "slots": 1,
+  "durationWeeks": 30,
+  "duration": "2 semesters (30 weeks)",
+  "supervisors": [
+    "Arman Manukyan, PhD"
+  ],
+  "mentor": "",
+  "partner": "",
+  "areas": [
+    "Design for testability",
+    "Memory testing",
+    "Test access (IEEE 1149.1",
+    "IEEE 1687)",
+    "Digital design",
+    "FPGA",
+    "Functional verification"
+  ],
+  "keywords": [
+    "Memory BIST",
+    "March tests",
+    "fault injection",
+    "JTAG",
+    "IEEE 1687 (IJTAG)",
+    "at-speed test",
+    "clock-domain crossing",
+    "SystemVerilog",
+    "SVA"
+  ],
+  "tools": "AMD AUP ZU3 board (Zynq UltraScale+ MPSoC), Vivado (Simulator, IP Packager, IP Integrator), Vitis",
+  "prerequisites": "Digital logic and FSMs, an HDL (Verilog/SystemVerilog), C programming",
+  "goals": [
+    "**Specify the system:** memories under test, fault types, March algorithms, controller instruction format, TAP instructions, the IEEE 1687 network (SIBs and TDRs) and the clock modes.",
+    "**Design the test IPs** in SystemVerilog and package each as a Vivado IP: TAP controller, SIB and TDR cells, programmable BIST controller, collars, fault-injection wrappers, clock/mode controller, functional traffic generator.",
+    "**Support at least five algorithms** (MATS+, March X, March C$-$, March SS, checkerboard) as microcode programs, the **eleven fault types** of “Fault models”, and **three modes**: functional, BIST-slow, BIST-at-speed.",
+    "**Cross clock domains safely** between TCK, the BIST clock and the functional clock, and prove it in simulation and with Vivado's CDC report.",
+    "**Verify each IP** with its own self-checking testbench, and the complete system end to end through the JTAG pins with a class-based, constrained-random environment, reference models, assertions and functional coverage.",
+    "**Run the fault-coverage experiment** on the board over JTAG: at least 50 random faults per fault type, every algorithm, all memories, slow and at-speed. Compare the results with the theory.",
+    "**Implement the system** on the AUP ZU3 with the at-speed clock meeting timing (target 250 MHz confirm target frequency)."
+  ],
+  "outcomes": [
+    "explain memory fault models and why March tests detect them;",
+    "explain and implement the IEEE 1149.1 TAP and an IEEE 1687 network;",
+    "design a programmable controller (instruction format, sequencer) in SystemVerilog;",
+    "design clock-domain crossings and glitch-free clock switching on an FPGA;",
+    "package designs as reusable IP and assemble them in IP Integrator;",
+    "build a layered, class-based SystemVerilog testbench with reference models, SVA and functional coverage;",
+    "plan and analyse an experiment, and present the results as tables and plots."
+  ],
+  "weeks": [
+    {
+      "week": 1,
+      "phase": "Onboarding",
+      "tasks": "Install Vivado/Vitis, board files, repository; “hello world” on the board. Warm-up 1 (TAP state machine)",
+      "doneWhen": "Tools run; Warm-up 1 passes"
+    },
+    {
+      "week": 2,
+      "phase": "Onboarding",
+      "tasks": "Warm-up 2 (RAM and FIFO); read",
+      "doneWhen": "Warm-up 2 passes"
+    },
+    {
+      "week": 3,
+      "phase": "Onboarding",
+      "tasks": "Warm-up 3 (hard-coded MATS+); Warm-up 4 (first fault injection)",
+      "doneWhen": "Warm-ups 3–4 pass"
+    },
+    {
+      "week": 4,
+      "phase": "Onboarding",
+      "tasks": "Warm-up 5 (bit-banged JTAG from the PS, IDCODE); read on fault models",
+      "doneWhen": "All warm-ups accepted"
+    },
+    {
+      "week": 5,
+      "phase": "Specification",
+      "tasks": "T1.1 memories, fault types, algorithms, expected-detection table; T1.3 instruction format, collar interface",
+      "doneWhen": "Specification reviewed"
+    },
+    {
+      "week": 6,
+      "phase": "Specification",
+      "tasks": "T1.2 verification plan; T1.4 TAP, IEEE 1687 network, clocks and modes",
+      "doneWhen": "Specification approved"
+    },
+    {
+      "week": 7,
+      "phase": "BIST core",
+      "tasks": "T2.1 memories; fault wrapper (SAF, TF); T3.1 faulty-memory model",
+      "doneWhen": "SAF/TF behave as the model"
+    },
+    {
+      "week": 8,
+      "phase": "BIST core",
+      "tasks": "T2.1 coupling, address and SPD faults; four fault slots",
+      "doneWhen": "All fault types implemented"
+    },
+    {
+      "week": 9,
+      "phase": "BIST core",
+      "tasks": "T3.2 wrapper testbench with random traffic and all fault types",
+      "doneWhen": "Wrapper verified; code review 1"
+    },
+    {
+      "week": 10,
+      "phase": "BIST core",
+      "tasks": "T2.2 collar: multiplexer, address/data generators",
+      "doneWhen": "Collar runs one element"
+    },
+    {
+      "week": 11,
+      "phase": "BIST core",
+      "tasks": "T2.2 comparator and fail log; T3.2 collar testbench",
+      "doneWhen": "Collar testbench passes"
+    },
+    {
+      "week": 12,
+      "phase": "BIST core",
+      "tasks": "T2.3 programmable controller; T3.1 March interpreter",
+      "doneWhen": "Controller runs a program on collar models"
+    },
+    {
+      "week": 13,
+      "phase": "BIST core",
+      "tasks": "T3.2 controller testbench + SVA",
+      "doneWhen": "BIST core verified; code review 2"
+    },
+    {
+      "week": 14,
+      "phase": "Buffer",
+      "tasks": "Catch up on open items; read and",
+      "doneWhen": "Nothing behind schedule"
+    },
+    {
+      "week": 15,
+      "phase": "Buffer",
+      "tasks": "Catch up; sketch the network model and the end-to-end environment",
+      "doneWhen": "Plan for test access agreed"
+    },
+    {
+      "week": 16,
+      "phase": "Test access and clocks",
+      "tasks": "T2.4 TAP controller (full); T2.5 SIB and TDR cells; T3.1 network model",
+      "doneWhen": "IDCODE and SIB paths work in simulation"
+    },
+    {
+      "week": 17,
+      "phase": "Test access and clocks",
+      "tasks": "T2.5 all TDRs (clock, BIST, per-memory) with CDC handshakes; T3.2 network testbench",
+      "doneWhen": "TDR writes/reads reach the instruments"
+    },
+    {
+      "week": 18,
+      "phase": "Test access and clocks",
+      "tasks": "T2.6 clock/mode IP and traffic generator; T3.2 clock/CDC testbench",
+      "doneWhen": "Mode switching verified; code review 3"
+    },
+    {
+      "week": 19,
+      "phase": "Integration and end-to-end verification",
+      "tasks": "T2.7 package IPs; block design; top-level integration",
+      "doneWhen": "System simulates end to end through JTAG"
+    },
+    {
+      "week": 20,
+      "phase": "Integration and end-to-end verification",
+      "tasks": "T3.3 JTAG BFM, network layer, sequences, scoreboard",
+      "doneWhen": "First end-to-end random test passes"
+    },
+    {
+      "week": 21,
+      "phase": "Integration and end-to-end verification",
+      "tasks": "T3.3 SVA and coverage; all modes and fault types; T3.4 regression script",
+      "doneWhen": "Regression runs with several seeds"
+    },
+    {
+      "week": 22,
+      "phase": "Integration and end-to-end verification",
+      "tasks": "Coverage closure; CDC report; fix bugs; freeze RTL and testbench",
+      "doneWhen": "Coverage goals met; CDC clean"
+    },
+    {
+      "week": 23,
+      "phase": "Hardware, tester and experiment",
+      "tasks": "T4.1 constraints, implementation, at-speed timing closure",
+      "doneWhen": "Bitstream with timing met"
+    },
+    {
+      "week": 24,
+      "phase": "Hardware, tester and experiment",
+      "tasks": "T4.2 software tester: JTAG, network and test layers, UART menu",
+      "doneWhen": "BIST controlled over JTAG on the board"
+    },
+    {
+      "week": 25,
+      "phase": "Hardware, tester and experiment",
+      "tasks": "T4.3 fault-coverage campaign, slow and at-speed; tables and plots",
+      "doneWhen": "Coverage tables measured"
+    },
+    {
+      "week": 26,
+      "phase": "Document and defense",
+      "tasks": "Write introduction, background (fault models, March tests, JTAG/IEEE 1687), architecture",
+      "doneWhen": "Chapters to supervisor"
+    },
+    {
+      "week": 27,
+      "phase": "Document and defense",
+      "tasks": "Write verification and experiment chapters",
+      "doneWhen": "Chapters to supervisor"
+    },
+    {
+      "week": 28,
+      "phase": "Document and defense",
+      "tasks": "Complete draft: conclusion, abstract, references",
+      "doneWhen": "Full draft submitted"
+    },
+    {
+      "week": 29,
+      "phase": "Document and defense",
+      "tasks": "Revisions after feedback; defense slides",
+      "doneWhen": "Slides draft"
+    },
+    {
+      "week": 30,
+      "phase": "Document and defense",
+      "tasks": "Final document; demo rehearsal",
+      "doneWhen": "Ready for the defense"
+    }
+  ],
+  "milestones": [
+    {
+      "weeks": [
+        1,
+        4
+      ],
+      "work": "Onboarding: tools, reading, five warm-up exercises (“Getting Started”)",
+      "milestone": "Warm-ups accepted"
+    },
+    {
+      "weeks": [
+        5,
+        6
+      ],
+      "work": "Specification: memories, faults, algorithms, instruction format, TAP and IEEE 1687 network, clocks and modes; verification plan",
+      "milestone": "Specification and verification plan approved"
+    },
+    {
+      "weeks": [
+        7,
+        9
+      ],
+      "work": "Memories + fault-injection wrapper (incl. SPD); faulty-memory model; wrapper testbench",
+      "milestone": "Wrapper matches the model; code review 1"
+    },
+    {
+      "weeks": [
+        10,
+        13
+      ],
+      "work": "Collar and programmable controller; March interpreter; unit testbenches + SVA",
+      "milestone": "BIST core verified; code review 2"
+    },
+    {
+      "weeks": [
+        14,
+        15
+      ],
+      "work": "Buffer (holidays, exams): catch up; read on IEEE 1687 and CDC",
+      "milestone": "Nothing behind schedule"
+    },
+    {
+      "weeks": [
+        16,
+        18
+      ],
+      "work": "TAP, IEEE 1687 network, TDRs with CDC handshakes, clock/mode IP; network model; unit testbenches",
+      "milestone": "Test access verified; code review 3"
+    },
+    {
+      "weeks": [
+        19,
+        22
+      ],
+      "work": "IP packaging, top-level integration; end-to-end environment through JTAG; regression; coverage closure; CDC report",
+      "milestone": "Coverage goals met; RTL and testbench frozen"
+    },
+    {
+      "weeks": [
+        23,
+        25
+      ],
+      "work": "Implementation and at-speed timing; software tester; fault-coverage campaign (slow and at-speed)",
+      "milestone": "Coverage tables measured; demo on the board"
+    },
+    {
+      "weeks": [
+        26,
+        28
+      ],
+      "work": "Writing the diploma document (including analysis of the experiment)",
+      "milestone": "Full draft to the supervisor (week 28)"
+    },
+    {
+      "weeks": [
+        29,
+        30
+      ],
+      "work": "Revisions, slides, demo rehearsal",
+      "milestone": "Final document and presentation ready"
+    }
+  ],
+  "deliverables": [
+    {
+      "title": "Warm-up exercises (code + testbenches)",
+      "form": "git repository",
+      "when": "week 4",
+      "dueWeek": 4,
+      "who": "Student"
+    },
+    {
+      "title": "Specification: memories, faults, algorithms, instruction format, TAP instructions, IEEE 1687 network, clock modes",
+      "form": "Markdown/PDF in the repository",
+      "when": "week 6",
+      "dueWeek": 6,
+      "who": "Student"
+    },
+    {
+      "title": "Verification plan",
+      "form": "document in the repository",
+      "when": "week 6",
+      "dueWeek": 6,
+      "who": "Student"
+    },
+    {
+      "title": "SystemVerilog RTL packaged as Vivado IPs; block design",
+      "form": "git repository, README",
+      "when": "week 22",
+      "dueWeek": 22,
+      "who": "Student"
+    },
+    {
+      "title": "Reference model, testbenches, assertions, coverage model, regression script",
+      "form": "git repository; regression and coverage reports",
+      "when": "week 22",
+      "dueWeek": 22,
+      "who": "Student"
+    },
+    {
+      "title": "Vivado build script; software tester (JTAG, network and test layers, campaign runner)",
+      "form": "git repository with build instructions",
+      "when": "week 25",
+      "dueWeek": 25,
+      "who": "Student"
+    },
+    {
+      "title": "Fault-coverage results",
+      "form": "CSV + tables and plots, analysis",
+      "when": "week 25",
+      "dueWeek": 25,
+      "who": "Student"
+    },
+    {
+      "title": "Implementation results",
+      "form": "timing (at-speed), utilization and CDC reports",
+      "when": "week 25",
+      "dueWeek": 25,
+      "who": "Student"
+    },
+    {
+      "title": "Diploma document",
+      "form": "PDF (diploma-project template)",
+      "when": "draft week 28, final week 30",
+      "dueWeek": 30,
+      "who": "Student"
+    },
+    {
+      "title": "Defense presentation and demo",
+      "form": "slides + live demo or video",
+      "when": "week 30",
+      "dueWeek": 30,
+      "who": "Student"
+    }
+  ],
+  "assessment": [
+    {
+      "criterion": "Architecture and RTL",
+      "weight": "25%",
+      "pass": "MVP IPs work",
+      "good": "Clean, parameterised, packaged IPs; correct CDC and clock switching",
+      "excellent": "+ hard-wired controller comparison, external JTAG or ICL/PDL"
+    },
+    {
+      "criterion": "Verification",
+      "weight": "30%",
+      "pass": "Unit testbenches self-checking; top level passes directed tests",
+      "good": "Reference model, constrained-random env, SVA, coverage goals met",
+      "excellent": "+ full coverage closure explained, UVM version, or bugs found and documented"
+    },
+    {
+      "criterion": "Experiment and analysis",
+      "weight": "20%",
+      "pass": "Coverage tables measured",
+      "good": "Compared with theory; backgrounds, modes and diagnosis analysed",
+      "excellent": "Clear insight into why each algorithm and mode fails or succeeds, with examples"
+    },
+    {
+      "criterion": "Hardware integration",
+      "weight": "10%",
+      "pass": "Runs on board through the software tester",
+      "good": "At-speed timing met, ILA validation",
+      "excellent": "+ an extension (repair, MISR, 1500 wrappers)"
+    },
+    {
+      "criterion": "Work process",
+      "weight": "5%",
+      "pass": "Milestones mostly met",
+      "good": "Regular commits, weekly notes, tracker kept up to date",
+      "excellent": "Independent, anticipates problems"
+    },
+    {
+      "criterion": "Document and defense",
+      "weight": "10%",
+      "pass": "Complete document",
+      "good": "Clear structure, figures, results",
+      "excellent": "Publication-quality text and demo"
+    }
+  ],
+  "learning": [
+    {
+      "group": "Memory testing",
+      "topic": "Memory organisation and why memories fail",
+      "level": "understand",
+      "usedFor": "context, fault models",
+      "sources": "van de Goor 1991; Bushnell 2000, memory test chapter"
+    },
+    {
+      "group": "Memory testing",
+      "topic": "Functional fault models (SAF, TF, CF, AF)",
+      "level": "apply",
+      "usedFor": "fault wrapper, reference model",
+      "sources": "van de Goor 1991; Hamdioui 2004"
+    },
+    {
+      "group": "Memory testing",
+      "topic": "March notation and algorithms",
+      "level": "apply",
+      "usedFor": "programs, controller",
+      "sources": "van de Goor 1993; Suk 1981"
+    },
+    {
+      "group": "Memory testing",
+      "topic": "Word-oriented memories and data backgrounds",
+      "level": "apply",
+      "usedFor": "data generator, experiment",
+      "sources": "van de Goor 1991"
+    },
+    {
+      "group": "Memory testing",
+      "topic": "Fault coverage and its analysis",
+      "level": "apply",
+      "usedFor": "experiment",
+      "sources": "van de Goor 1991; Hamdioui 2002"
+    },
+    {
+      "group": "BIST architecture",
+      "topic": "Memory BIST architectures: controller, collars, distributed control",
+      "level": "understand",
+      "usedFor": "system architecture",
+      "sources": "Wang 2006, memory test chapter; Zorian 1993"
+    },
+    {
+      "group": "BIST architecture",
+      "topic": "Built-in self-repair, MISR, IEEE 1500",
+      "level": "aware",
+      "usedFor": "extensions",
+      "sources": "Wang 2006; IEEE: IEEE Standard Testability Method for 2005"
+    },
+    {
+      "group": "Test access",
+      "topic": "IEEE 1149.1 TAP: state machine, IR/DR, BYPASS, IDCODE",
+      "level": "apply",
+      "usedFor": "TAP controller, JTAG layer",
+      "sources": "Parker 2016; IEEE: IEEE Standard for Test Access 2013; Wang 2006, boundary-scan chapter"
+    },
+    {
+      "group": "Test access",
+      "topic": "IEEE 1687: SIBs, TDRs, scan-path reconfiguration",
+      "level": "apply",
+      "usedFor": "network, network model",
+      "sources": "Rearick 2005; IEEE: IEEE Standard for Access and 2014"
+    },
+    {
+      "group": "Test access",
+      "topic": "ICL and PDL",
+      "level": "aware",
+      "usedFor": "optional ICL/PDL description",
+      "sources": "IEEE: IEEE Standard for Access and 2014"
+    },
+    {
+      "group": "Clocks",
+      "topic": "FPGA clocking: MMCM, global buffers, glitch-free switching",
+      "level": "apply",
+      "usedFor": "clock/mode IP",
+      "sources": "AMD: UltraScale Architecture Clocking Resources User; AMD: Clocking Wizard LogiCORE IP Product"
+    },
+    {
+      "group": "Clocks",
+      "topic": "Clock-domain crossing: synchronizers, handshakes, reset sync",
+      "level": "apply",
+      "usedFor": "TDR update/capture, mode switch",
+      "sources": "Cummings 2008"
+    },
+    {
+      "group": "Clocks",
+      "topic": "At-speed testing and timing-related faults",
+      "level": "understand",
+      "usedFor": "BIST-at-speed mode, SPD faults",
+      "sources": "Wang 2006; Bushnell 2000"
+    },
+    {
+      "group": "SystemVerilog design",
+      "topic": "Synthesizable SystemVerilog: packages, interfaces, structs, enums",
+      "level": "apply",
+      "usedFor": "all RTL",
+      "sources": "Sutherland 2006"
+    },
+    {
+      "group": "SystemVerilog design",
+      "topic": "Small programmable controllers (fetch, decode, sequence)",
+      "level": "apply",
+      "usedFor": "BIST controller",
+      "sources": "Harris 2016, ch. 7 (concepts)"
+    },
+    {
+      "group": "SystemVerilog design",
+      "topic": "Inferred block RAM and LUTRAM",
+      "level": "apply",
+      "usedFor": "memories under test",
+      "sources": "AMD: UltraScale Architecture Memory Resources User; AMD: UltraScale Architecture Configurable Logic Block"
+    },
+    {
+      "group": "SystemVerilog design",
+      "topic": "Packaging IP and IP Integrator",
+      "level": "apply",
+      "usedFor": "IP system",
+      "sources": "AMD: Vivado Design Suite User Guide:; AMD: Vivado Design Suite User Guide:"
+    },
+    {
+      "group": "Verification",
+      "topic": "Classes, randomization, constraints",
+      "level": "apply",
+      "usedFor": "testbenches, random programs and faults",
+      "sources": "Spear 2012, ch. 5–6"
+    },
+    {
+      "group": "Verification",
+      "topic": "Layered testbench, scoreboard, reference model",
+      "level": "apply",
+      "usedFor": "top-level environment",
+      "sources": "Spear 2012, ch. 8, 11"
+    },
+    {
+      "group": "Verification",
+      "topic": "SystemVerilog Assertions",
+      "level": "apply",
+      "usedFor": "protocol and design checks",
+      "sources": "Cerny 2015"
+    },
+    {
+      "group": "Verification",
+      "topic": "Functional coverage",
+      "level": "apply",
+      "usedFor": "coverage plan",
+      "sources": "Spear 2012, ch. 9"
+    },
+    {
+      "group": "Verification",
+      "topic": "UVM concepts",
+      "level": "aware",
+      "usedFor": "optional UVM environment",
+      "sources": "Salemi 2013"
+    },
+    {
+      "group": "Zynq platform and tools",
+      "topic": "Zynq UltraScale+ PS/PL, EMIO / AXI GPIO",
+      "level": "understand",
+      "usedFor": "tester connection",
+      "sources": "AMD: Zynq UltraScale+ Device Technical Reference; AMD: AXI GPIO LogiCORE IP Product"
+    },
+    {
+      "group": "Zynq platform and tools",
+      "topic": "Vivado Simulator, batch mode and coverage",
+      "level": "apply",
+      "usedFor": "regression",
+      "sources": "AMD: Vivado Design Suite User Guide:"
+    },
+    {
+      "group": "Zynq platform and tools",
+      "topic": "Timing analysis and closure; CDC report",
+      "level": "apply",
+      "usedFor": "at-speed implementation",
+      "sources": "AMD: Vivado Design Suite User Guide:"
+    },
+    {
+      "group": "Zynq platform and tools",
+      "topic": "Vitis bare-metal application, GPIO bit-banging",
+      "level": "apply",
+      "usedFor": "software tester, campaign",
+      "sources": "AMD: Vitis Unified Software Platform Documentation:"
+    }
+  ],
+  "brief": "brief.pdf",
+  "version": "0.1"
+}

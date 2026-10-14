@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#12305a"/><stop offset="1" stop-color="#1f6feb"/>
+    </linearGradient>
+    <linearGradient id="chip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dce8ff"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="184" fill="url(#bg)"/>
+  <g fill="#9fc2ff">
+    <!-- pins -->
+    <rect x="352" y="258" width="34" height="70" rx="12"/><rect x="434" y="258" width="34" height="70" rx="12"/><rect x="516" y="258" width="34" height="70" rx="12"/><rect x="598" y="258" width="34" height="70" rx="12"/>
+    <rect x="352" y="696" width="34" height="70" rx="12"/><rect x="434" y="696" width="34" height="70" rx="12"/><rect x="516" y="696" width="34" height="70" rx="12"/><rect x="598" y="696" width="34" height="70" rx="12"/>
+    <rect x="258" y="352" width="70" height="34" rx="12"/><rect x="258" y="434" width="70" height="34" rx="12"/><rect x="258" y="516" width="70" height="34" rx="12"/><rect x="258" y="598" width="70" height="34" rx="12"/>
+    <rect x="696" y="352" width="70" height="34" rx="12"/><rect x="696" y="434" width="70" height="34" rx="12"/><rect x="696" y="516" width="70" height="34" rx="12"/><rect x="696" y="598" width="70" height="34" rx="12"/>
+  </g>
+  <rect x="312" y="312" width="400" height="400" rx="56" fill="url(#chip)"/>
+  <!-- mortarboard -->
+  <path d="M512 380 L652 440 L512 500 L372 440 Z" fill="#12305a"/>
+  <path d="M432 470 L432 548 Q512 600 592 548 L592 470 L512 505 Z" fill="#1f6feb"/>
+  <path d="M640 446 L640 540" stroke="#12305a" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="640" cy="552" r="16" fill="#f2b400"/>
+  <text x="512" y="660" text-anchor="middle" font-family="Helvetica, Arial, 'DejaVu Sans', sans-serif" font-weight="800" font-size="74" fill="#12305a" letter-spacing="6">SA</text>
+</svg>

@@ -1,0 +1,51 @@
+# Releasing SemiTec Academy (installers)
+
+Installers are made with **electron-builder** (configuration: `build` in `app/package.json`, icons in
+`app/build/`). Output: `Products/Academy/installers/<version>/`.
+
+| Command (in `app/`) | Makes | Build on |
+|---|---|---|
+| `npm run dist:win` | `SemiTec-Academy-Setup-<v>.exe` — **one-click NSIS installer**: per-user, no admin, no questions, Start-menu + desktop shortcut, `.stlp` association, starts the app | Windows; or Linux / macOS with Wine |
+| `npm run dist:mac` | `SemiTec-Academy-<v>-mac-arm64.dmg` / `-x64.dmg` + `.zip` | **macOS only** (DMG and signing need Apple tools) |
+| `npm run dist:linux` | `.AppImage` + `.deb` (x64) | Linux |
+| `bash tools/build-installers.sh` | fresh `npm ci`, tests, then the installers for the current system | any |
+
+`node_modules` must be installed **on the system that builds** (`npm ci`): Electron downloads a
+binary for that system. The Cowork / Linux copy of `node_modules` cannot build a Mac DMG.
+
+**All three at once:** `ci/build-installers.yml` is a GitHub Actions workflow that builds on real
+Windows, macOS and Linux machines (push a tag `academy-v<version>`); copy it to `.github/workflows/`.
+
+## Checklist
+1. Raise `app/package.json → version`; update `src/shared/versions.js` if content formats changed
+   (VERSIONING.md); README versions table; ROADMAP.
+2. `npm test` (66 end-to-end checks).
+3. Build the installers; test a built app: `E2E_EXECUTABLE=<unpacked app binary> npm test`
+   (e.g. `../installers/<v>/linux-unpacked/semitec-academy`).
+4. Release the `academy-templates:package` skill for the same version (its CHANGELOG, `bundle-skill`).
+5. Publish the files with short release notes (what's new, minimum versions); keep the old ones.
+
+## Signing (removes the Windows / macOS warnings)
+Unsigned installers work, but Windows SmartScreen and macOS Gatekeeper warn on first start
+(INSTALLING.md says how to continue).
+
+- **Windows:** an OV / EV code-signing certificate (or Azure Trusted Signing). Set `WIN_CSC_LINK`
+  (path or base64 of the `.pfx`) and `WIN_CSC_KEY_PASSWORD`, then `npm run dist:win`.
+- **macOS:** Apple Developer Program membership → a *Developer ID Application* certificate. Set
+  `CSC_LINK` / `CSC_KEY_PASSWORD`, remove `"identity": "-"` from `build.mac`, and for notarisation set
+  `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID` and add `"notarize": true` to `build.mac`.
+  Without a certificate `"identity": "-"` signs ad-hoc (required to run on Apple-chip Macs).
+- Never commit certificates or passwords; keep them in the CI secrets or the release machine's keychain.
+- Package signing keys (`.stlp`) are separate — see KEYS.md.
+
+## Before the first public release
+- Replace the placeholders `academy@semitec-foundation.invalid` (author, Linux maintainer) and
+  `https://semitec-foundation.invalid/academy` (homepage) in `app/package.json` with real addresses.
+- Remove the development package key from `app/trusted-keys/` (KEYS.md).
+
+## How the 1.5.0 installers were made
+Built on Linux: AppImage / deb natively, the Windows installer with Wine, the macOS apps as `.app`
+bundles zipped with their symlinks and signed ad-hoc with `rcodesign` (no DMG — that needs macOS).
+The Linux build passed all 66 end-to-end checks as a packaged app; the Windows and macOS builds were
+not started on real Windows / macOS machines yet — do that before giving them to students, or rebuild
+them natively (`dist:mac` on a Mac gives the proper DMG).

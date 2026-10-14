@@ -1,0 +1,214 @@
+{
+  "specVersion": 1,
+  "pack": {
+    "id": "org.semitec.fpga-starter",
+    "version": "1.6.0",
+    "title": "FPGA Starter Track",
+    "description": "A first track for students of the SemiTec Foundation: learn how the interactive trainings work, understand shift registers, build two designs on the board, read real diploma project briefs — and take on a diploma project.",
+    "language": "en",
+    "publisher": "SemiTec Foundation",
+    "publisherLogo": "publisher-logo.svg",
+    "authors": [
+      "Arman Manukyan, PhD"
+    ],
+    "cover": "cover.svg",
+    "certificate": "certificate.json"
+  },
+  "schedule": {
+    "weeks": 7,
+    "entries": [
+      {
+        "weeks": [
+          1,
+          2
+        ],
+        "title": "Start here",
+        "items": [
+          "feature-tour",
+          "design-flow",
+          "vivado-quick-reference"
+        ],
+        "note": "Learn how trainings work; skim the Vivado reference."
+      },
+      {
+        "week": 3,
+        "title": "Shift registers — theory",
+        "items": [
+          "shift-registers",
+          "shift-register-animation"
+        ]
+      },
+      {
+        "weeks": [
+          4,
+          5
+        ],
+        "title": "Lab 1: shift register on the board",
+        "items": [
+          "lab-01-shift-register"
+        ],
+        "note": "Write a lab report with the template."
+      },
+      {
+        "week": 6,
+        "title": "Lab 2: buttons and counters",
+        "items": [
+          "lab-02-counter"
+        ]
+      },
+      {
+        "week": 7,
+        "title": "Diploma project briefs",
+        "items": [
+          "ecc-brief",
+          "mbist-brief"
+        ],
+        "note": "Choose a project you would like to do next."
+      }
+    ]
+  },
+  "trainings": [
+    {
+      "id": "feature-tour",
+      "title": "How interactive trainings work",
+      "source": "../../../Skills/AcademyTemplates/skills/training",
+      "description": "All interactive features in 10 short topics",
+      "estimatedTime": "1 h"
+    },
+    {
+      "id": "shift-registers",
+      "title": "Shift registers",
+      "source": "trainings/shift-registers",
+      "description": "Theory for Lab 1",
+      "estimatedTime": "30 min"
+    }
+  ],
+  "labs": [
+    {
+      "id": "lab-01-shift-register",
+      "source": "../../../Skills/AcademyTemplates/skills/lab-manual/examples/lab-01-shift-register/lab",
+      "description": "SystemVerilog, simulation, LEDs and buttons — manual and files from the lab-manual template"
+    },
+    {
+      "id": "lab-02-counter",
+      "source": "labs/lab-02-counter",
+      "description": "Synchroniser, debouncer, edge detector"
+    }
+  ],
+  "readings": [
+    {
+      "id": "digital-logic-refresher",
+      "title": "Digital logic refresher",
+      "source": "readings/digital-logic-refresher/digital-logic-refresher.md",
+      "description": "Gates, flip-flops, binary numbers",
+      "estimatedTime": "10 min",
+      "prerequisite": true
+    },
+    {
+      "id": "vivado-quick-reference",
+      "title": "Vivado quick reference",
+      "source": "readings/vivado-quick-reference/vivado-quick-reference.md",
+      "description": "Design flow, Tcl commands, SystemVerilog reminders",
+      "estimatedTime": "10 min"
+    },
+    {
+      "id": "ecc-brief",
+      "title": "Project brief: ECC-protected sensor data memory",
+      "source": "readings/ecc-brief.pdf",
+      "estimatedTime": "30 min"
+    },
+    {
+      "id": "mbist-brief",
+      "title": "Project brief: JTAG-accessible memory BIST",
+      "source": "readings/mbist-brief.pdf",
+      "estimatedTime": "30 min"
+    }
+  ],
+  "videos": [
+    {
+      "id": "design-flow",
+      "title": "The FPGA design flow in 25 seconds",
+      "source": "videos/design-flow.mp4",
+      "estimatedTime": "1 min"
+    },
+    {
+      "id": "shift-register-animation",
+      "title": "Shift register, edge by edge",
+      "source": "videos/shift-register.mp4",
+      "estimatedTime": "1 min"
+    }
+  ],
+  "materials": [
+    {
+      "id": "lab1-starter",
+      "title": "Lab 1 starter files",
+      "source": "files/lab1-starter.zip",
+      "description": "shift4.sv and testbench skeletons",
+      "for": "lab-01-shift-register"
+    },
+    {
+      "id": "constraints",
+      "title": "Example constraints (XDC)",
+      "source": "files/aup-zu3-leds-buttons.xdc",
+      "description": "LEDs, button, switch, clock",
+      "for": "lab-01-shift-register"
+    },
+    {
+      "id": "board-overview",
+      "title": "Board overview",
+      "source": "files/board-overview.svg",
+      "for": "lab-02-counter"
+    },
+    {
+      "id": "lab-report-template",
+      "title": "Lab report template (Markdown)",
+      "source": "files/lab-report-template.md",
+      "description": "Copy it and fill it in for every lab",
+      "for": "lab-01-shift-register"
+    }
+  ],
+  "projects": [
+    {
+      "id": "ecc-sensor-memory",
+      "source": "projects/ecc-sensor-memory",
+      "description": "Bachelor diploma project, 30 weeks: sensors, ECC memory, verification, Zynq",
+      "category": "diploma"
+    }
+  ],
+  "modules": [
+    {
+      "id": "start",
+      "title": "Start here",
+      "items": [
+        "feature-tour",
+        "design-flow"
+      ]
+    },
+    {
+      "id": "shift",
+      "title": "Shift registers",
+      "items": [
+        "vivado-quick-reference",
+        "shift-registers",
+        "shift-register-animation",
+        "lab-01-shift-register"
+      ]
+    },
+    {
+      "id": "inputs",
+      "title": "Buttons and counters",
+      "items": [
+        "lab-02-counter"
+      ]
+    },
+    {
+      "id": "reading",
+      "title": "Diploma projects",
+      "items": [
+        "ecc-brief",
+        "mbist-brief",
+        "ecc-sensor-memory"
+      ]
+    }
+  ]
+}

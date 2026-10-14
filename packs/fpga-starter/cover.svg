@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#12305a"/><stop offset="1" stop-color="#1f6feb"/></linearGradient></defs>
+  <rect width="600" height="340" fill="url(#g)"/>
+  <g stroke="#ffffff" stroke-opacity=".18" stroke-width="2" fill="none">
+    <path d="M0 260 H120 V200 H260 V250 H420 V170 H600"/><path d="M0 300 H80 V280 H340 V300 H600"/><path d="M60 0 V90 H200 V40 H360 V110 H600"/>
+  </g>
+  <g transform="translate(220 95)">
+    <rect width="160" height="150" rx="14" fill="#0b1b33" stroke="#9ec1ff" stroke-width="3"/>
+    <g fill="#9ec1ff">
+      <rect x="-14" y="18" width="14" height="6"/><rect x="-14" y="42" width="14" height="6"/><rect x="-14" y="66" width="14" height="6"/><rect x="-14" y="90" width="14" height="6"/><rect x="-14" y="114" width="14" height="6"/>
+      <rect x="160" y="18" width="14" height="6"/><rect x="160" y="42" width="14" height="6"/><rect x="160" y="66" width="14" height="6"/><rect x="160" y="90" width="14" height="6"/><rect x="160" y="114" width="14" height="6"/>
+    </g>
+    <text x="80" y="82" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800" fill="#ffffff">FPGA</text>
+    <text x="80" y="108" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#9ec1ff">starter track</text>
+  </g>
+  <g font-family="Segoe UI, Arial, sans-serif" fill="#ffffff"><circle cx="476" cy="66" r="6" fill="#62e08a"/><circle cx="498" cy="66" r="6" fill="#ffd84d"/><circle cx="520" cy="66" r="6" fill="#ff5a5a"/></g>
+</svg>

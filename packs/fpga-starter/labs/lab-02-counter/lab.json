@@ -1,0 +1,105 @@
+{
+  "title": "Lab 2: A debounced button counter",
+  "summary": "Count button presses on the LEDs. You will meet **bouncing** and fix it with a debouncer and an edge detector.",
+  "difficulty": "beginner",
+  "estimatedTime": "1.5 h",
+  "equipment": [
+    "AMD AUP-ZU3 (or any FPGA board)",
+    "Vivado 2024.2+"
+  ],
+  "objectives": [
+    "Build a counter with enable",
+    "Synchronise and debounce an asynchronous input",
+    "Detect a rising edge"
+  ],
+  "steps": [
+    {
+      "id": "counter",
+      "title": "A 4-bit counter",
+      "md": "Write `counter4.sv`: on every clock with `en = 1` the value increases by one.",
+      "code": "always_ff @(posedge clk)\n  if (rst) cnt <= '0;\n  else if (en) cnt <= cnt + 1;"
+    },
+    {
+      "id": "naive",
+      "title": "Try it without debouncing",
+      "md": "Connect the button directly to `en` (system clock 100 MHz) and press it. Write down what the LEDs do.",
+      "hint": "The counter runs while the button is held — and jumps by random amounts."
+    },
+    {
+      "id": "sync",
+      "title": "Synchronise the button",
+      "md": "Add a **two flip-flop synchroniser** in front of everything that uses the button."
+    },
+    {
+      "id": "debounce",
+      "title": "Debounce",
+      "md": "Accept a new level only after it was stable for **10 ms** (1 000 000 clocks at 100 MHz)."
+    },
+    {
+      "id": "edge",
+      "title": "Rising-edge detector",
+      "md": "Make `en` a one-clock pulse when the debounced button goes from 0 to 1.",
+      "code": "assign en = btn_db & ~btn_db_q;"
+    },
+    {
+      "id": "board",
+      "title": "Test on the board",
+      "md": "Each press must now add exactly **one**. Count 0 → 15 → 0."
+    }
+  ],
+  "quiz": {
+    "title": "Lab 2 check",
+    "passThreshold": 0.75,
+    "questions": [
+      {
+        "id": "q1",
+        "type": "single",
+        "text": "Why does the counter jump when the button is used directly?",
+        "options": [
+          "The button bounces and `en` is high for millions of clocks",
+          "The LEDs are too slow",
+          "The counter has too few bits"
+        ],
+        "correct": [
+          0
+        ],
+        "review": [
+          "naive"
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "order",
+        "text": "Order the blocks from the button pin to the counter.",
+        "items": [
+          "Synchroniser",
+          "Debouncer",
+          "Edge detector",
+          "Counter"
+        ],
+        "review": [
+          "sync",
+          "debounce",
+          "edge"
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "single",
+        "text": "How many clocks of 100 MHz are 10 ms?",
+        "options": [
+          "1 000 000",
+          "100 000",
+          "10 000 000"
+        ],
+        "correct": [
+          0
+        ],
+        "shuffle": false,
+        "review": [
+          "debounce"
+        ]
+      }
+    ]
+  }
+}

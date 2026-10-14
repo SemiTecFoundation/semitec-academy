@@ -1,0 +1,23 @@
+{
+  "enabled": true,
+  "title": "Certificate of Completion",
+  "presented": "This certificate is presented to",
+  "body": "for completing **{training}** with an average quiz score of **{score}**.",
+  "issuer": "SemiTec Foundation",
+  "logoText": "SF",
+  "signatures": [
+    {
+      "name": "Arman Manukyan, PhD",
+      "role": "Training supervisor"
+    }
+  ],
+  "idPrefix": "SF-SR-",
+  "topicsList": true,
+  "sealText": "Verified",
+  "style": {
+    "design": "modern",
+    "font": "sans",
+    "accent": "#12305a",
+    "accent2": "#c9a227"
+  }
+}

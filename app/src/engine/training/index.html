@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Training</title>
+  <!-- Template engine styles (layout + components). Do not edit for look & feel: use a theme. -->
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/certificate.css">
+  <!-- Theme = colours, fonts, radii. Switch in training.json ("theme") or in the View menu. -->
+  <link rel="stylesheet" id="theme-css" href="css/themes/foundation.css">
+</head>
+<body class="layout-sidebar">
+  <!-- Integration: a platform may define window.TRAINING_CONFIG here (mode, user, progress adapter).
+       See INTEGRATION.md. Example:
+  <script>window.TRAINING_CONFIG = { mode: "platform", user: { id: "42", name: "Anna" }, progressUrl: "/api/progress/{trainingId}/{userId}" };</script> -->
+  <div id="app" aria-live="polite">
+    <div class="boot">Loading training…</div>
+  </div>
+  <noscript>This training needs JavaScript.</noscript>
+  <script src="js/md.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/blocks.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/certificate.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

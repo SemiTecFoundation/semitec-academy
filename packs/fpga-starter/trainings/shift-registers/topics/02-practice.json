@@ -1,0 +1,147 @@
+{
+  "id": "practice",
+  "title": "Shift Registers in Practice",
+  "duration": "15 min",
+  "summary": "Write one in HDL and see where they are used.",
+  "subsections": [
+    {
+      "id": "hdl",
+      "title": "In SystemVerilog and VHDL",
+      "blocks": [
+        {
+          "type": "tabs",
+          "tabs": [
+            {
+              "label": "SystemVerilog",
+              "blocks": [
+                {
+                  "type": "code",
+                  "language": "systemverilog",
+                  "code": "always_ff @(posedge clk)\n  if (rst) q <= '0;\n  else     q <= {q[2:0], d_in};"
+                }
+              ]
+            },
+            {
+              "label": "VHDL",
+              "blocks": [
+                {
+                  "type": "code",
+                  "language": "vhdl",
+                  "code": "process(clk) begin\n  if rising_edge(clk) then\n    if rst = '1' then q <= (others => '0');\n    else q <= q(2 downto 0) & d_in; end if;\n  end if;\nend process;"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "timing",
+      "title": "Watch it run",
+      "blocks": [
+        {
+          "type": "svg",
+          "src": "assets/clock-wave.svg",
+          "controls": true,
+          "caption": "The output follows the input one clock edge later"
+        }
+      ]
+    },
+    {
+      "id": "uses",
+      "title": "Where they are used",
+      "blocks": [
+        {
+          "type": "categorize",
+          "prompt": "Which uses need **serial → parallel** and which **parallel → serial**?",
+          "categories": [
+            {
+              "id": "s2p",
+              "label": "Serial → parallel"
+            },
+            {
+              "id": "p2s",
+              "label": "Parallel → serial"
+            }
+          ],
+          "items": [
+            {
+              "text": "UART receiver",
+              "category": "s2p"
+            },
+            {
+              "text": "UART transmitter",
+              "category": "p2s"
+            },
+            {
+              "text": "SPI master sending a command",
+              "category": "p2s"
+            },
+            {
+              "text": "Reading a JTAG data register (TDO)",
+              "category": "p2s"
+            },
+            {
+              "text": "Collecting ADC bits from SPI",
+              "category": "s2p"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "quiz": {
+    "questions": [
+      {
+        "id": "q1",
+        "type": "single",
+        "text": "In `q <= {q[2:0], d_in};` which bit receives `d_in`?",
+        "options": [
+          "q[0]",
+          "q[3]",
+          "all bits"
+        ],
+        "correct": [
+          0
+        ],
+        "shuffle": false,
+        "review": [
+          "hdl"
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "multiple",
+        "text": "Which blocks use a **parallel → serial** shift register?",
+        "options": [
+          "UART transmitter",
+          "UART receiver",
+          "SPI master sending a command"
+        ],
+        "correct": [
+          0,
+          2
+        ],
+        "review": [
+          "uses"
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "truefalse",
+        "text": "The flip-flop output changes at the rising clock edge.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "correct": [
+          0
+        ],
+        "shuffle": false,
+        "review": [
+          "timing"
+        ]
+      }
+    ]
+  }
+}

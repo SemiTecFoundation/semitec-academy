@@ -1,0 +1,164 @@
+{
+  "name": "semitec-academy",
+  "productName": "SemiTec Academy",
+  "version": "1.6.0",
+  "description": "Desktop learning app of the SemiTec Foundation: install course packs (.stlp) with trainings, readings and labs; local accounts and progress.",
+  "author": {
+    "name": "SemiTec Foundation",
+    "email": "academy@semitec-foundation.invalid"
+  },
+  "license": "UNLICENSED",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "sync-engine": "node tools/sync-engine.js",
+    "test": "node test/e2e.js",
+    "dist": "electron-builder --publish never",
+    "dist:win": "electron-builder --win nsis --x64 --publish never",
+    "dist:mac": "electron-builder --mac dmg zip --arm64 --x64 --publish never",
+    "dist:linux": "electron-builder --linux AppImage deb --x64 --publish never"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.17",
+    "fflate": "^0.8.2",
+    "marked": "^18.1.1",
+    "pdfjs-dist": "^5.4.0",
+    "sql.js": "^1.13.0"
+  },
+  "devDependencies": {
+    "electron": "^44.0.0",
+    "electron-builder": "^26.0.0",
+    "playwright": "^1.56.0"
+  },
+  "build": {
+    "appId": "org.semitec.academy",
+    "productName": "SemiTec Academy",
+    "copyright": "© SemiTec Foundation",
+    "directories": {
+      "buildResources": "build",
+      "output": "../installers/${version}"
+    },
+    "artifactName": "SemiTec-Academy-${version}-${os}-${arch}.${ext}",
+    "files": [
+      "src/**",
+      "trusted-keys/**",
+      "package.json",
+      "!**/*.map",
+      "!node_modules/**/{test,tests,__tests__,docs,example,examples,types}/**",
+      "!node_modules/@napi-rs/**",
+      "!node_modules/pdfjs-dist/{legacy,web,image_decoders,types}/**",
+      "!node_modules/pdfjs-dist/build/*.min.mjs",
+      "!node_modules/pdfjs-dist/build/pdf.sandbox*",
+      "!node_modules/sql.js/dist/{*.zip,sql-asm*,*debug*,*browser*,worker.*}"
+    ],
+    "asar": true,
+    "fileAssociations": [
+      {
+        "ext": "stlp",
+        "name": "SemiTec Learning Package",
+        "description": "SemiTec Learning Package",
+        "role": "Viewer",
+        "icon": "stlp",
+        "mimeType": "application/x-semitec-learning-package"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "runAfterFinish": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "SemiTec Academy",
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "SemiTec-Academy-Setup-${version}.${ext}",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "uninstallDisplayName": "SemiTec Academy"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "category": "public.app-category.education",
+      "icon": "build/icon.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "darkModeSupport": true,
+      "identity": "-"
+    },
+    "dmg": {
+      "title": "SemiTec Academy ${version}",
+      "artifactName": "SemiTec-Academy-${version}-mac-${arch}.${ext}",
+      "contents": [
+        {
+          "x": 150,
+          "y": 190
+        },
+        {
+          "x": 410,
+          "y": 190,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 560,
+        "height": 380
+      }
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "category": "Education",
+      "icon": "build/icon.png",
+      "maintainer": "SemiTec Foundation <academy@semitec-foundation.invalid>",
+      "synopsis": "Desktop learning app of the SemiTec Foundation",
+      "mimeTypes": [
+        "application/x-semitec-learning-package"
+      ],
+      "syncDesktopName": true
+    },
+    "deb": {
+      "artifactName": "semitec-academy_${version}_${arch}.${ext}"
+    },
+    "publish": null
+  },
+  "homepage": "https://semitec-foundation.invalid/academy",
+  "desktopName": "semitec-academy.desktop"
+}

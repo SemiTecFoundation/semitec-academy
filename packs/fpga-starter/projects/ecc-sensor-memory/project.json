@@ -1,0 +1,572 @@
+{
+  "format": 1,
+  "id": "ecc-sensor-memory",
+  "title": "ECC-Protected Sensor Data Memory on the AMD AUP ZU3",
+  "subtitle": "",
+  "summary": "Memories in real electronic systems are not perfect. Radiation, voltage noise and ageing can flip stored bits (*soft errors*). Automotive, aerospace, medical and server systems therefore protect their memories with an ECC: extra check bits are stored next to the data, so that when a word is read, a single flipped bit can be **corrected** and a double flip **detected**. The same idea protects DDR memory in servers, caches in processors and on-chip memories in safety-critical FPGAs and ASICs.",
+  "language": "en",
+  "category": "diploma",
+  "workType": "Bachelor diploma project",
+  "level": "Bachelor",
+  "slots": 1,
+  "durationWeeks": 30,
+  "duration": "2 semesters (about 30 weeks)",
+  "supervisors": [
+    "Arman Manukyan, PhD"
+  ],
+  "mentor": "",
+  "partner": "",
+  "areas": [
+    "Digital design",
+    "FPGA",
+    "Error-correcting codes",
+    "Functional verification",
+    "Embedded systems"
+  ],
+  "keywords": [
+    "SystemVerilog",
+    "SECDED",
+    "Hamming code",
+    "I2C",
+    "SPI",
+    "AXI4-Lite",
+    "Zynq UltraScale+",
+    "SVA",
+    "functional coverage"
+  ],
+  "tools": "AMD AUP ZU3 board (Zynq UltraScale+ MPSoC), Vivado (incl. Vivado Simulator), Vitis",
+  "prerequisites": "Digital logic and FSMs, an HDL (Verilog/SystemVerilog), C programming, basic probability",
+  "goals": [
+    "**Select and specify the sensors:** choose the sensor chips to emulate (at least two, with different buses) and write a short specification of each emulator from the real datasheet.",
+    "**Design the RTL** in SystemVerilog: sensor emulators, I²C and SPI masters, sample packer, (39,32) SECDED encoder and decoder, ECC-protected BRAM ring buffer, fault injection and an AXI4-Lite register interface.",
+    "**Verify each module** with its own self-checking testbench (unit level), including assertions on the bus protocols.",
+    "**Verify the top-level design** with a class-based, constrained-random SystemVerilog environment with a scoreboard, assertions and functional coverage; reach the coverage goals of “Coverage goals”.",
+    "**Prove the ECC behaviour:** 100% of injected single-bit errors corrected and 100% of injected double-bit errors detected, in simulation and on the board.",
+    "**Integrate with the Zynq PS:** synthesize and implement the design for the AUP ZU3 with no timing violations, and read the stored samples and error counters from a Vitis application."
+  ],
+  "outcomes": [
+    "read a sensor datasheet and turn it into an RTL specification and register map;",
+    "design synthesizable SystemVerilog with clear interfaces, FSMs and parameterised modules;",
+    "explain and implement Hamming SECDED encoding and decoding;",
+    "build a layered, class-based SystemVerilog testbench with constrained-random stimulus, a scoreboard, SVA and functional coverage, and run a regression;",
+    "integrate custom RTL with the Zynq PS over AXI4-Lite and write a bare-metal Vitis application;",
+    "close timing and analyse resource usage in Vivado."
+  ],
+  "weeks": [
+    {
+      "week": 1,
+      "phase": "Onboarding",
+      "tasks": "Install Vivado/Vitis, board files, repository; “hello world” on the board. Warm-up 1 (FSM)",
+      "doneWhen": "Tools run; Warm-up 1 passes"
+    },
+    {
+      "week": 2,
+      "phase": "Onboarding",
+      "tasks": "Warm-up 2 (RAM and FIFO); read on classes and randomization",
+      "doneWhen": "Warm-up 2 passes"
+    },
+    {
+      "week": 3,
+      "phase": "Onboarding",
+      "tasks": "Warm-up 3 (SPI loop-back + SVA); Warm-up 4 (Hamming code)",
+      "doneWhen": "Warm-ups 3–4 pass"
+    },
+    {
+      "week": 4,
+      "phase": "Onboarding",
+      "tasks": "Warm-up 5 (AXI4-Lite IP on the board); read TMP102 / ADXL345 datasheets",
+      "doneWhen": "All warm-ups accepted"
+    },
+    {
+      "week": 5,
+      "phase": "Specification",
+      "tasks": "T1.1 sensor choice and emulator specifications",
+      "doneWhen": "Specs reviewed"
+    },
+    {
+      "week": 6,
+      "phase": "Specification",
+      "tasks": "T1.2 verification plan; T1.3 record format and register map",
+      "doneWhen": "Specification approved"
+    },
+    {
+      "week": 7,
+      "phase": "ECC memory",
+      "tasks": "T2.5 SECDED encoder/decoder; start T3.1 reference model",
+      "doneWhen": "Encoder/decoder simulate"
+    },
+    {
+      "week": 8,
+      "phase": "ECC memory",
+      "tasks": "T3.1 exhaustive ECC testbench; start T2.6 ring buffer",
+      "doneWhen": "0 mismatches over all 1- and 2-bit errors"
+    },
+    {
+      "week": 9,
+      "phase": "ECC memory",
+      "tasks": "T2.6 error counters and fault injection + unit tests",
+      "doneWhen": "ECC memory verified; code review 1"
+    },
+    {
+      "week": 10,
+      "phase": "Sensors and buses",
+      "tasks": "T2.1 TMP102 emulator; I²C BFM",
+      "doneWhen": "Emulator answers address/pointer reads"
+    },
+    {
+      "week": 11,
+      "phase": "Sensors and buses",
+      "tasks": "T2.3 I²C master; T3.2 I²C tests + SVA",
+      "doneWhen": "I²C testbenches pass"
+    },
+    {
+      "week": 12,
+      "phase": "Sensors and buses",
+      "tasks": "T2.2 ADXL345 emulator; SPI BFM; T2.3 SPI master",
+      "doneWhen": "DEVID and burst read work"
+    },
+    {
+      "week": 13,
+      "phase": "Sensors and buses",
+      "tasks": "T3.2 SPI tests + SVA; coverage of both emulators",
+      "doneWhen": "All unit testbenches pass; code review 2"
+    },
+    {
+      "week": 14,
+      "phase": "Buffer",
+      "tasks": "Catch up on open items; read on the complete testbench",
+      "doneWhen": "Nothing behind schedule"
+    },
+    {
+      "week": 15,
+      "phase": "Buffer",
+      "tasks": "Catch up; sketch the top-level environment (the brief)",
+      "doneWhen": "Environment structure agreed"
+    },
+    {
+      "week": 16,
+      "phase": "Integration and top-level verification",
+      "tasks": "T2.4 sensor poller and sample packer",
+      "doneWhen": "Records produced in simulation"
+    },
+    {
+      "week": 17,
+      "phase": "Integration and top-level verification",
+      "tasks": "T2.7 AXI4-Lite slave; top-level integration",
+      "doneWhen": "Top level simulates end to end"
+    },
+    {
+      "week": 18,
+      "phase": "Integration and top-level verification",
+      "tasks": "T3.3 driver, sequences, monitors",
+      "doneWhen": "Random register traffic runs"
+    },
+    {
+      "week": 19,
+      "phase": "Integration and top-level verification",
+      "tasks": "T3.3 scoreboard, SVA, coverage",
+      "doneWhen": "First end-to-end random test passes; code review 3"
+    },
+    {
+      "week": 20,
+      "phase": "Integration and top-level verification",
+      "tasks": "T3.4 fault-injection tests",
+      "doneWhen": "All injected errors corrected / detected"
+    },
+    {
+      "week": 21,
+      "phase": "Integration and top-level verification",
+      "tasks": "T3.4 wrap-around and overflow tests; regression script",
+      "doneWhen": "Regression runs with several seeds"
+    },
+    {
+      "week": 22,
+      "phase": "Integration and top-level verification",
+      "tasks": "Coverage closure; fix bugs; freeze RTL and testbench",
+      "doneWhen": "Coverage goals met"
+    },
+    {
+      "week": 23,
+      "phase": "Hardware and software",
+      "tasks": "T4.1 block design, constraints, implementation, timing",
+      "doneWhen": "Bitstream with timing met"
+    },
+    {
+      "week": 24,
+      "phase": "Hardware and software",
+      "tasks": "T4.2 Vitis application: readout, CSV over UART, injection menu",
+      "doneWhen": "Data visible over UART"
+    },
+    {
+      "week": 25,
+      "phase": "Hardware and software",
+      "tasks": "T4.3 board validation with ILA; resource and timing reports",
+      "doneWhen": "Demo on the board works"
+    },
+    {
+      "week": 26,
+      "phase": "Document and defense",
+      "tasks": "Write introduction, background, design chapters",
+      "doneWhen": "Chapters to supervisor"
+    },
+    {
+      "week": 27,
+      "phase": "Document and defense",
+      "tasks": "Write verification and results chapters",
+      "doneWhen": "Chapters to supervisor"
+    },
+    {
+      "week": 28,
+      "phase": "Document and defense",
+      "tasks": "Complete draft: conclusion, abstract, references",
+      "doneWhen": "Full draft submitted"
+    },
+    {
+      "week": 29,
+      "phase": "Document and defense",
+      "tasks": "Revisions after feedback; defense slides",
+      "doneWhen": "Slides draft"
+    },
+    {
+      "week": 30,
+      "phase": "Document and defense",
+      "tasks": "Final document; demo rehearsal",
+      "doneWhen": "Ready for the defense"
+    }
+  ],
+  "milestones": [
+    {
+      "weeks": [
+        1,
+        4
+      ],
+      "work": "Onboarding: tools, reading, five warm-up exercises (“Getting Started”)",
+      "milestone": "Warm-ups accepted"
+    },
+    {
+      "weeks": [
+        5,
+        6
+      ],
+      "work": "Specification: sensor choice, emulator specifications, record format, register map, verification plan",
+      "milestone": "Specification and verification plan approved"
+    },
+    {
+      "weeks": [
+        7,
+        9
+      ],
+      "work": "ECC encoder/decoder + unit testbench; ring buffer with error counters and fault injection",
+      "milestone": "Exhaustive ECC test passes; code review 1"
+    },
+    {
+      "weeks": [
+        10,
+        13
+      ],
+      "work": "Sensor emulators, I²C/SPI masters + BFM testbenches + SVA",
+      "milestone": "All unit testbenches pass; code review 2"
+    },
+    {
+      "weeks": [
+        14,
+        15
+      ],
+      "work": "Buffer (holidays, exams): catch up; read on top-level testbenches",
+      "milestone": "Nothing behind schedule"
+    },
+    {
+      "weeks": [
+        16,
+        19
+      ],
+      "work": "Top-level integration, AXI4-Lite slave; top-level environment, scoreboard, coverage",
+      "milestone": "First end-to-end random test passes; code review 3"
+    },
+    {
+      "weeks": [
+        20,
+        22
+      ],
+      "work": "Fault-injection and corner-case tests; regression; coverage closure",
+      "milestone": "Coverage goals met; RTL and testbench frozen"
+    },
+    {
+      "weeks": [
+        23,
+        25
+      ],
+      "work": "Block design, implementation, timing closure; Vitis application; board validation",
+      "milestone": "Demo on the board (“Final Demonstration”)"
+    },
+    {
+      "weeks": [
+        26,
+        28
+      ],
+      "work": "Writing the diploma document",
+      "milestone": "Full draft to the supervisor (week 28)"
+    },
+    {
+      "weeks": [
+        29,
+        30
+      ],
+      "work": "Revisions, slides, demo rehearsal",
+      "milestone": "Final document and presentation ready"
+    }
+  ],
+  "deliverables": [
+    {
+      "title": "Emulator specifications, record format, register map",
+      "form": "Markdown/PDF in the repository",
+      "when": "week 6",
+      "dueWeek": 6,
+      "who": "Student"
+    },
+    {
+      "title": "Verification plan",
+      "form": "document in the repository",
+      "when": "week 6",
+      "dueWeek": 6,
+      "who": "Student"
+    },
+    {
+      "title": "SystemVerilog RTL",
+      "form": "git repository, README",
+      "when": "week 22",
+      "dueWeek": 22,
+      "who": "Student"
+    },
+    {
+      "title": "Testbenches, assertions, coverage model, regression script",
+      "form": "git repository; regression and coverage reports",
+      "when": "week 22",
+      "dueWeek": 22,
+      "who": "Student"
+    },
+    {
+      "title": "Vivado project / build script, Vitis application",
+      "form": "git repository with build instructions",
+      "when": "week 25",
+      "dueWeek": 25,
+      "who": "Student"
+    },
+    {
+      "title": "Implementation results",
+      "form": "timing and utilization reports",
+      "when": "week 25",
+      "dueWeek": 25,
+      "who": "Student"
+    },
+    {
+      "title": "Diploma document",
+      "form": "PDF (diploma-project template)",
+      "when": "draft week 28, final week 30",
+      "dueWeek": 30,
+      "who": "Student"
+    },
+    {
+      "title": "Warm-up exercises (code + testbenches)",
+      "form": "git repository",
+      "when": "week 4",
+      "dueWeek": 4,
+      "who": "Student"
+    },
+    {
+      "title": "Defense presentation and demo",
+      "form": "slides + live demo or video",
+      "when": "week 30",
+      "dueWeek": 30,
+      "who": "Student"
+    }
+  ],
+  "assessment": [
+    {
+      "criterion": "RTL design",
+      "weight": "25%",
+      "pass": "MVP modules work",
+      "good": "Clean, parameterised, well-structured RTL; documented interfaces",
+      "excellent": "+ optional SYSMON sensor or design-space comparison (e.g. Hsiao vs. Hamming)"
+    },
+    {
+      "criterion": "Verification",
+      "weight": "30%",
+      "pass": "Unit testbenches self-checking; top level passes directed tests",
+      "good": "Constrained-random top-level env with scoreboard, SVA and coverage goals met",
+      "excellent": "+ coverage closure fully explained, UVM version, or bugs found and documented"
+    },
+    {
+      "criterion": "Hardware integration",
+      "weight": "15%",
+      "pass": "Runs on board, data read over UART",
+      "good": "Timing met with margin, ILA validation, fault injection from software",
+      "excellent": "+ extension (server/DB/web)"
+    },
+    {
+      "criterion": "Understanding and analysis",
+      "weight": "10%",
+      "pass": "Explains ECC and the protocols",
+      "good": "Analyses resources, timing and test results",
+      "excellent": "Compares alternatives with numbers"
+    },
+    {
+      "criterion": "Work process",
+      "weight": "5%",
+      "pass": "Milestones mostly met",
+      "good": "Regular commits, weekly notes, tracker kept up to date",
+      "excellent": "Independent, anticipates problems"
+    },
+    {
+      "criterion": "Document and defense",
+      "weight": "15%",
+      "pass": "Complete document",
+      "good": "Clear structure, figures, verification results",
+      "excellent": "Publication-quality text and demo"
+    }
+  ],
+  "learning": [
+    {
+      "group": "SystemVerilog design",
+      "topic": "Synthesizable SystemVerilog: `always_ff/comb`, packages, interfaces, parameters, enums, structs",
+      "level": "apply",
+      "usedFor": "all RTL modules",
+      "sources": "Sutherland 2006"
+    },
+    {
+      "group": "SystemVerilog design",
+      "topic": "FSM design and clean reset/clocking",
+      "level": "apply",
+      "usedFor": "bus masters, emulators, poller",
+      "sources": "Harris 2016, ch. 3; Sutherland 2006"
+    },
+    {
+      "group": "SystemVerilog design",
+      "topic": "Inferred block RAM",
+      "level": "apply",
+      "usedFor": "ring buffer",
+      "sources": "AMD: UltraScale Architecture Memory Resources User"
+    },
+    {
+      "group": "Error-correcting codes",
+      "topic": "Hamming codes, syndrome decoding, SECDED",
+      "level": "apply",
+      "usedFor": "encoder/decoder",
+      "sources": "Lin 2004, ch. 4; Hamming 1950"
+    },
+    {
+      "group": "Error-correcting codes",
+      "topic": "Hsiao codes; built-in BRAM ECC",
+      "level": "aware",
+      "usedFor": "comparison, extension",
+      "sources": "Hsiao 1970; AMD: UltraScale Architecture Memory Resources User"
+    },
+    {
+      "group": "Buses and sensors",
+      "topic": "I²C protocol (START/STOP, ACK, repeated START, timing)",
+      "level": "apply",
+      "usedFor": "TMP102 emulator, master",
+      "sources": "NXP Semiconductors: I2C-bus Specification and User Manual"
+    },
+    {
+      "group": "Buses and sensors",
+      "topic": "SPI modes, CPOL/CPHA, multi-byte transfers",
+      "level": "apply",
+      "usedFor": "ADXL345 emulator, master",
+      "sources": "Analog Devices: ADXL345 3-Axis, ±2 g/±4 g/±8"
+    },
+    {
+      "group": "Buses and sensors",
+      "topic": "Reading a sensor datasheet (registers, data formats)",
+      "level": "understand",
+      "usedFor": "emulator specifications",
+      "sources": "Texas Instruments: TMP102 Low-Power Digital Temperature Sensor; Analog Devices: ADXL345 3-Axis, ±2 g/±4 g/±8"
+    },
+    {
+      "group": "Buses and sensors",
+      "topic": "AXI4-Lite handshakes",
+      "level": "apply",
+      "usedFor": "register interface",
+      "sources": "Arm: AMBA AXI Protocol Specification (IHI"
+    },
+    {
+      "group": "Verification",
+      "topic": "Classes, randomization, constraints, mailboxes, interfaces",
+      "level": "apply",
+      "usedFor": "testbenches",
+      "sources": "Spear 2012, ch. 4–8"
+    },
+    {
+      "group": "Verification",
+      "topic": "Layered testbench, scoreboard, reference model",
+      "level": "apply",
+      "usedFor": "top-level environment",
+      "sources": "Spear 2012; Bergeron 2006"
+    },
+    {
+      "group": "Verification",
+      "topic": "SystemVerilog Assertions",
+      "level": "apply",
+      "usedFor": "protocol and design checks",
+      "sources": "Cerny 2015; Spear 2012"
+    },
+    {
+      "group": "Verification",
+      "topic": "Functional coverage (covergroups, crosses)",
+      "level": "apply",
+      "usedFor": "coverage plan",
+      "sources": "Spear 2012, ch. 9"
+    },
+    {
+      "group": "Verification",
+      "topic": "UVM concepts",
+      "level": "aware",
+      "usedFor": "optional UVM environment",
+      "sources": "Salemi 2013"
+    },
+    {
+      "group": "Verification",
+      "topic": "AXI Verification IP",
+      "level": "understand",
+      "usedFor": "AXI driver",
+      "sources": "AMD: AXI Verification IP LogiCORE IP"
+    },
+    {
+      "group": "Zynq platform and tools",
+      "topic": "Zynq UltraScale+ PS/PL, AXI ports, clocks",
+      "level": "understand",
+      "usedFor": "block design",
+      "sources": "AMD: Zynq UltraScale+ Device Technical Reference; Crockett 2014"
+    },
+    {
+      "group": "Zynq platform and tools",
+      "topic": "Vivado Simulator, batch mode and coverage",
+      "level": "apply",
+      "usedFor": "regression",
+      "sources": "AMD: Vivado Design Suite User Guide:"
+    },
+    {
+      "group": "Zynq platform and tools",
+      "topic": "Timing analysis and closure",
+      "level": "understand",
+      "usedFor": "implementation",
+      "sources": "AMD: Vivado Design Suite User Guide:"
+    },
+    {
+      "group": "Zynq platform and tools",
+      "topic": "Vitis bare-metal application, UART output",
+      "level": "apply",
+      "usedFor": "readout software",
+      "sources": "AMD: Vitis Unified Software Platform Documentation:"
+    },
+    {
+      "group": "Zynq platform and tools",
+      "topic": "ILA debugging",
+      "level": "understand",
+      "usedFor": "board validation",
+      "sources": "AMD: Integrated Logic Analyzer LogiCORE IP"
+    }
+  ],
+  "brief": "brief.pdf",
+  "version": "0.1"
+}

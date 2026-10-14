@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "title": "Course Certificate",
+  "presented": "This certificate is presented to",
+  "body": "for completing every training, lab, reading and video of the course **{training}** on {date}.",
+  "issuer": "SemiTec Foundation",
+  "logoText": "SF",
+  "signatures": [
+    { "name": "Arman Manukyan, PhD", "role": "Course author" }
+  ],
+  "idPrefix": "SF-FPGA-",
+  "sealText": "Course",
+  "style": { "design": "classic", "font": "serif", "accent": "#12305a", "accent2": "#c9a227" }
+}

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#12305a"/><stop offset="1" stop-color="#1f6feb"/></linearGradient></defs>
+  <path d="M232 96 H632 L816 280 V880 Q816 928 768 928 H232 Q184 928 184 880 V144 Q184 96 232 96 Z" fill="#ffffff" stroke="#c9d6ea" stroke-width="12"/>
+  <path d="M632 96 V232 Q632 280 680 280 H816 Z" fill="#dce8ff"/>
+  <rect x="300" y="330" width="424" height="330" rx="60" fill="url(#bg)"/>
+  <path d="M512 390 L632 442 L512 494 L392 442 Z" fill="#ffffff"/>
+  <path d="M444 468 L444 536 Q512 580 580 536 L580 468 L512 498 Z" fill="#9fc2ff"/>
+  <path d="M620 448 L620 528" stroke="#ffffff" stroke-width="11" stroke-linecap="round"/><circle cx="620" cy="540" r="14" fill="#f2b400"/>
+  <rect x="300" y="712" width="424" height="120" rx="30" fill="#12305a"/>
+  <text x="512" y="798" text-anchor="middle" font-family="Helvetica, Arial, 'DejaVu Sans', sans-serif" font-weight="800" font-size="84" fill="#ffffff" letter-spacing="10">STLP</text>
+</svg>

@@ -1,0 +1,106 @@
+{
+  "id": "basics",
+  "title": "How a Shift Register Works",
+  "duration": "15 min",
+  "summary": "A chain of flip-flops that moves bits one place per clock edge.",
+  "objectives": [
+    "Follow bits through a 4-bit register",
+    "Name the SIPO / PISO / SISO / PIPO variants"
+  ],
+  "subsections": [
+    {
+      "id": "step-by-step",
+      "title": "Step by step",
+      "blocks": [
+        {
+          "type": "scrolly",
+          "src": "assets/shift-register.svg",
+          "steps": [
+            {
+              "title": "Reset",
+              "md": "All four flip-flops hold `0`."
+            },
+            {
+              "title": "Edge 1",
+              "md": "FF0 captures the serial input `1`."
+            },
+            {
+              "title": "Edge 2",
+              "md": "Every bit moves right; a new `0` enters FF0."
+            },
+            {
+              "title": "Parallel read",
+              "md": "After four edges the stream `1,0,1,1` can be read in parallel."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "variants",
+      "title": "Four variants",
+      "blocks": [
+        {
+          "type": "flipcards",
+          "md": "Click a card.",
+          "cards": [
+            {
+              "front": "SIPO",
+              "back": "Serial in, parallel out — e.g. receiving UART bits."
+            },
+            {
+              "front": "PISO",
+              "back": "Parallel in, serial out — e.g. sending a byte on one wire."
+            },
+            {
+              "front": "SISO",
+              "back": "Serial in, serial out — a delay line."
+            },
+            {
+              "front": "PIPO",
+              "back": "Parallel in, parallel out — a plain register."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "quiz": {
+    "questions": [
+      {
+        "id": "q1",
+        "type": "single",
+        "text": "How many clock edges load 4 bits into a 4-bit SIPO register?",
+        "options": [
+          "1",
+          "2",
+          "4",
+          "8"
+        ],
+        "correct": [
+          2
+        ],
+        "shuffle": false,
+        "review": [
+          "step-by-step"
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "single",
+        "text": "Which variant converts a byte on 8 wires into a bit stream on 1 wire?",
+        "options": [
+          "PISO",
+          "SIPO",
+          "PIPO"
+        ],
+        "correct": [
+          0
+        ],
+        "review": [
+          "variants"
+        ]
+      }
+    ]
+  }
+}

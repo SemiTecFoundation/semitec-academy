@@ -1,0 +1,7 @@
+node_modules/
+app/test/screenshots/
+*.key.pem
+!keys/dev/*.key.pem
+.dev-progress/
+.DS_Store
+installers/

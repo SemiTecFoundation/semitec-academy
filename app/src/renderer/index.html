@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' stl://app; script-src 'self' stl://app; style-src 'self' 'unsafe-inline' stl://app; img-src 'self' stl: data: blob:; connect-src 'self' stl:; frame-src stl://pack; media-src stl:; worker-src 'self' blob: stl://app; font-src 'self' data: stl://app">
+  <title>SemiTec Academy</title>
+  <!-- Training-engine styles are reused so quizzes, buttons and callouts look exactly like in the trainings. -->
+  <link rel="stylesheet" href="/engine/css/app.css">
+  <link rel="stylesheet" href="/engine/css/certificate.css">
+  <link rel="stylesheet" id="theme-css" href="/engine/css/themes/foundation.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="ui">
+  <div id="root"><div class="ui-boot">Starting…</div></div>
+  <div id="modal-root"></div>
+  <script src="/engine/js/md.js"></script>
+  <script src="/engine/js/core.js"></script>
+  <script src="/engine/js/blocks.js"></script>
+  <script src="/engine/js/quiz.js"></script>
+  <script src="/engine/js/certificate.js"></script>
+  <script type="module" src="pdfview.mjs"></script>
+  <script src="/vendor/marked/marked.umd.js"></script>
+  <script src="/vendor/dompurify/purify.js"></script>
+  <script src="markdown.js"></script>
+  <script src="lab.js"></script>
+  <script src="media.js"></script>
+  <script src="plan.js"></script>
+  <script src="projects.js"></script>
+  <script src="certs.js"></script>
+  <script src="dashboard.js"></script>
+  <script src="catalogview.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

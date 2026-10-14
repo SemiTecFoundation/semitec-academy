@@ -1,0 +1,20 @@
+{
+  "specVersion": 1,
+  "pack": {
+    "id": "org.example.mbist-track",
+    "version": "1.0.0",
+    "title": "Memory Test (MBIST) Track",
+    "description": "Demo package from a partner company: a one-page MBIST primer and a diploma project on a JTAG-accessible memory BIST for the AMD AUP ZU3.",
+    "language": "en",
+    "publisher": "Demo Partner Company",
+    "publisherLogo": "publisher-logo.svg",
+    "authors": ["Demo Partner Company"],
+    "cover": "cover.svg"
+  },
+  "readings": [
+    { "id": "mbist-primer", "title": "Memory BIST in one page", "source": "readings/mbist-primer.md", "estimatedTime": "10 min", "plannedWeeks": 1 }
+  ],
+  "projects": [
+    { "id": "mbist-jtag", "source": "projects/mbist-jtag", "category": "diploma", "description": "Diploma project, 30 weeks: March tests, JTAG access, verification" }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "id": "shift-registers",
+  "version": "1.0",
+  "title": "Shift Registers",
+  "subtitle": "FPGA Starter Track",
+  "language": "en",
+  "layout": "sidebar",
+  "theme": "foundation",
+  "themes": [
+    "foundation",
+    "midnight",
+    "paper"
+  ],
+  "passThreshold": 0.75,
+  "showCorrectAnswers": "afterPass",
+  "requireSequential": true,
+  "topicWord": "Topic",
+  "hours": "0.5",
+  "topics": [
+    "01-basics.json",
+    "02-practice.json"
+  ],
+  "certificate": "certificate.json"
+}
