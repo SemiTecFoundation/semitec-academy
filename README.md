@@ -19,13 +19,18 @@ New packages and new versions of packages can be added at any time; the app does
 
 One file per system, no questions asked — details in [`docs/INSTALLING.md`](docs/INSTALLING.md):
 
-| System | Installer (in `installers/<version>/`) |
+Downloads: **[latest release](https://github.com/SemiTecFoundation/semitec-academy/releases/latest)**.
+
+| System | Installer |
 |---|---|
 | Windows 10 / 11 | `SemiTec-Academy-Setup-<v>.exe` — one click: installs for the user, shortcuts, `.stlp` files, starts the app |
 | macOS (Apple chip / Intel) | `SemiTec-Academy-<v>-mac-arm64.dmg` / `-x64.dmg` (or `.zip`) — drag to Applications |
 | Linux | `.AppImage` (run) or `.deb` (`sudo apt install ./…deb`) |
 
-Building them: [`docs/RELEASING.md`](docs/RELEASING.md) (`npm run dist:win|mac|linux`, or `app/tools/build-installers.sh`).
+Building them: [`docs/RELEASING.md`](docs/RELEASING.md) — push a tag `v<version>` and the
+[Build installers](../../actions/workflows/build-installers.yml) workflow builds all three on real
+Windows, macOS and Linux machines and attaches them to the release. Locally:
+`npm run dist:win|mac|linux`, or `app/tools/build-installers.sh` for this computer's system.
 
 ## What the student does
 
@@ -88,8 +93,8 @@ Academy/
 ├── packs/demo-partner/       sample package of another publisher (MBIST primer + diploma project) for the catalog
 ├── packs/fpga-starter/       sample package source: pack-spec.json + 2 trainings, 2 labs, 3 readings, 2 videos, 4 materials, 1 project, 7-week plan
 ├── dist/                     built packages (.stlp)
-├── installers/<version>/     built installers (.exe, .dmg / .zip, .AppImage, .deb)
-├── ci/build-installers.yml   GitHub Actions: installers on Windows, macOS and Linux
+├── installers/<version>/     built installers, local only — released ones are attached to the release
+├── .github/workflows/        GitHub Actions: build the installers on Windows, macOS and Linux
 └── keys/dev/                 development signing key (not for real releases)
 ```
 

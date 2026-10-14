@@ -13,8 +13,11 @@ Installers are made with **electron-builder** (configuration: `build` in `app/pa
 `node_modules` must be installed **on the system that builds** (`npm ci`): Electron downloads a
 binary for that system. The Cowork / Linux copy of `node_modules` cannot build a Mac DMG.
 
-**All three at once:** `ci/build-installers.yml` is a GitHub Actions workflow that builds on real
-Windows, macOS and Linux machines (push a tag `academy-v<version>`); copy it to `.github/workflows/`.
+**All three at once (the normal way):** push a tag `v<version>` — `.github/workflows/build-installers.yml`
+builds on real Windows, macOS and Linux machines, then attaches every installer plus `SHA256SUMS.txt`
+to a GitHub release. A manual run (Actions → Build installers → Run workflow) builds the same files as
+downloadable artifacts without releasing. `ci/build-installers.yml` is the original template for reuse
+in a monorepo checkout.
 
 ## Checklist
 1. Raise `app/package.json → version`; update `src/shared/versions.js` if content formats changed
@@ -23,7 +26,8 @@ Windows, macOS and Linux machines (push a tag `academy-v<version>`); copy it to 
 3. Build the installers; test a built app: `E2E_EXECUTABLE=<unpacked app binary> npm test`
    (e.g. `../installers/<v>/linux-unpacked/semitec-academy`).
 4. Release the `academy-templates:package` skill for the same version (its CHANGELOG, `bundle-skill`).
-5. Publish the files with short release notes (what's new, minimum versions); keep the old ones.
+5. Tag the release (`git tag v<version> && git push origin v<version>`); add short release notes
+   (what's new, minimum versions) to the release the workflow created. Keep the older releases.
 
 ## Signing (removes the Windows / macOS warnings)
 Unsigned installers work, but Windows SmartScreen and macOS Gatekeeper warn on first start

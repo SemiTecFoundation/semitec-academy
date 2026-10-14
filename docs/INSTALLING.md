@@ -1,6 +1,6 @@
 # Installing SemiTec Academy
 
-Download the file for your computer, open it, and the app starts. No administrator rights are needed
+Download the file for your computer from the **[latest release](https://github.com/SemiTecFoundation/semitec-academy/releases/latest)**, open it, and the app starts. No administrator rights are needed
 on Windows; nothing else has to be installed.
 
 | Computer | File | Size |
