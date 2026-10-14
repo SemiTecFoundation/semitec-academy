@@ -29,6 +29,16 @@ in a monorepo checkout.
 5. Tag the release (`git tag v<version> && git push origin v<version>`); add short release notes
    (what's new, minimum versions) to the release the workflow created. Keep the older releases.
 
+## Building locally on a Mac inside a synced folder (OneDrive / iCloud / Dropbox)
+`codesign` refuses files that carry extended attributes, which these clients add, so `npm run dist:mac`
+stops with *"resource fork, Finder information, or similar detritus not allowed"*. Strip them and build
+again, or build from a checkout outside the synced folder (CI is unaffected — it builds a clean clone):
+
+```bash
+xattr -cr ../installers app build
+npm run dist:mac
+```
+
 ## Signing (removes the Windows / macOS warnings)
 Unsigned installers work, but Windows SmartScreen and macOS Gatekeeper warn on first start
 (INSTALLING.md says how to continue).

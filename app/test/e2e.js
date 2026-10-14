@@ -165,7 +165,11 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   check(zipped.length === 6 && zipped.some(n => n.endsWith('src/rtl/shift4.sv')), 'Download all: zip with ' + zipped.length + ' files');
   await win.click('.lab-tabs-in button:has-text("Check quiz")');
   /* answer: q1 option 0, q2 options 0+1, q3 order already correct after sorting, q4 option 0 */
-  const lab = JSON.parse(fs.readFileSync(path.join(APP, '..', '..', 'Skills', 'AcademyTemplates', 'skills', 'lab-manual', 'examples', 'lab-01-shift-register', 'lab', 'lab.json'), 'utf8'));
+  /* the answer key comes from the pack under test, so the test needs no second repository checked out */
+  const packFiles = unzipSync(new Uint8Array(fs.readFileSync(PACK)));
+  const labKey = Object.keys(packFiles).find(n => n.endsWith('labs/lab-01-shift-register/lab.json'));
+  check(!!labKey, 'lab.json found in the pack');
+  const lab = JSON.parse(new TextDecoder().decode(packFiles[labKey]));
   const qs = await win.$$('.quiz .question');
   for (let i = 0; i < qs.length; i++) {
     const q = lab.quiz.questions[i];

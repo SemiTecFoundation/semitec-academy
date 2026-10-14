@@ -94,8 +94,9 @@ Academy/
 ├── packs/fpga-starter/       sample package source: pack-spec.json + 2 trainings, 2 labs, 3 readings, 2 videos, 4 materials, 1 project, 7-week plan
 ├── dist/                     built packages (.stlp)
 ├── installers/<version>/     built installers, local only — released ones are attached to the release
-├── .github/workflows/        GitHub Actions: build the installers on Windows, macOS and Linux
-└── keys/dev/                 development signing key (not for real releases)
+├── .github/workflows/        GitHub Actions: build + release the installers on Windows, macOS, Linux
+├── ci/build-installers.yml   the same workflow as a template for a monorepo checkout
+└── keys/dev/                 development key: public part only (private key is never in the repository)
 ```
 
 The AI skill that builds packages is part of the **Academy Templates** plugin
@@ -118,7 +119,7 @@ Build the sample package and add it in the app:
 
 ```bash
 node packer/stlp.js check  packs/fpga-starter/pack-spec.json
-node packer/stlp.js create packs/fpga-starter/pack-spec.json --key keys/dev/semitec-foundation-dev.key.pem --out dist
+node packer/stlp.js create packs/fpga-starter/pack-spec.json --key ../../Private/keys/semitec-foundation-dev.key.pem --out dist
 # → dist/org.semitec.fpga-starter-1.6.0.stlp   (drag it onto the app window)
 ```
 
@@ -143,6 +144,7 @@ every package; a package has its own **content version** for updates. See [`docs
 | 1.3.0 | name **SemiTec Academy**, `.stlp` packages, Markdown readings and materials |
 | 1.4.0 | installers; library search and filters; enrollment and study plans; calendar; Today panel and reminders; projects; certificates page |
 | 1.5.0 | dashboard; catalog (folders + catalog links); publishers with logos; My packages / Explore with groups; materials attached to labs; project categories; settings *My account / Application / About* |
+| 1.6.1 | new development signing key — the first one was published by mistake and is no longer trusted |
 
 ## Status
 
