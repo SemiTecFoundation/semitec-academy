@@ -3,12 +3,13 @@
    into the app (src/engine/training/). Content (topics, assets) is never copied: it comes from packs.
    Usage:  npm run sync-engine [-- <path-to-training-template>]
    Default source: a checkout of the Skills repository next to this one, as
-   ../../../Skills/AcademyTemplates/skills/training (the SemiTec Foundation's own layout).
+   ../../../semitec-academy-skills/AcademyTemplates/skills/training — the folder name git clone
+   creates, so this works for anyone with both repositories cloned side by side.
    Elsewhere, pass the path: npm run sync-engine -- <path-to-skills>/AcademyTemplates/skills/training
    Skills repository: https://github.com/SemiTecFoundation/semitec-academy-skills */
 'use strict';
 const fs = require('fs'), path = require('path'), crypto = require('crypto');
-const src = path.resolve(process.argv[2] || path.join(__dirname, '../../../Skills/AcademyTemplates/skills/training'));
+const src = path.resolve(process.argv[2] || path.join(__dirname, '../../../semitec-academy-skills/AcademyTemplates/skills/training'));
 const dst = path.join(__dirname, '../src/engine/training');
 if (!fs.existsSync(path.join(src, 'js/app.js'))) {
   console.error('Training template not found at ' + src +

@@ -25,7 +25,7 @@
 - [x] Lab-manual template + skill (`AcademyTemplates/skills/lab-manual`): PDF manual and app lab in sync
 
 ## v1.3.0 — SemiTec Academy, Markdown (done)
-- [x] App named **SemiTec Academy**, moved to `Foundation/Products/Academy`
+- [x] App named **SemiTec Academy**, moved to `Foundation/Products/` (now the `semitec-academy` repository)
 - [x] File type `.stlp` (SemiTec Learning Package; `.stp` is STEP CAD); CLI `packer/stlp.js`
 - [x] Markdown readings (reading format 2): outline, tables, code with *Copy*, images, links between documents, text size, read tracking
 - [x] Markdown materials open in the same reader

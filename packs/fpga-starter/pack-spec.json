@@ -71,7 +71,7 @@
     {
       "id": "feature-tour",
       "title": "How interactive trainings work",
-      "source": "../../../Skills/AcademyTemplates/skills/training",
+      "source": "../../../semitec-academy-skills/AcademyTemplates/skills/training",
       "description": "All interactive features in 10 short topics",
       "estimatedTime": "1 h"
     },
@@ -86,7 +86,7 @@
   "labs": [
     {
       "id": "lab-01-shift-register",
-      "source": "../../../Skills/AcademyTemplates/skills/lab-manual/examples/lab-01-shift-register/lab",
+      "source": "../../../semitec-academy-skills/AcademyTemplates/skills/lab-manual/examples/lab-01-shift-register/lab",
       "description": "SystemVerilog, simulation, LEDs and buttons — manual and files from the lab-manual template"
     },
     {

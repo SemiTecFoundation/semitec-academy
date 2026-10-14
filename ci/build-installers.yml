@@ -11,7 +11,7 @@ on:
   push:
     tags: ['academy-v*']
 env:
-  APP_DIR: Products/Academy/app
+  APP_DIR: semitec-academy/app
 jobs:
   build:
     strategy:
