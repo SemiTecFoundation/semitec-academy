@@ -88,7 +88,7 @@ subsection / step id inside an item). Renaming an id resets that progress.
 ## signature.json
 
 ```json
-{ "format": 1, "alg": "ed25519", "keyId": "48c3e1ae9934d9f4", "signedAt": "…", "signature": "<base64>" }
+{ "format": 1, "alg": "ed25519", "keyId": "b766a9e9d1f0264d", "signedAt": "…", "signature": "<base64>" }
 ```
 
 - The signature covers the **exact bytes** of `manifest.json`; the manifest covers every file by hash,

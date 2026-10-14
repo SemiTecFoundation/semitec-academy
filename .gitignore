@@ -1,7 +1,14 @@
 node_modules/
 app/test/screenshots/
-*.key.pem
-!keys/dev/*.key.pem
 .dev-progress/
 .DS_Store
 installers/
+
+# Signing keys and certificates: never commit private keys
+*.key.pem
+*.key
+*.p12
+*.pfx
+*.p8
+.env
+.env.*
