@@ -348,7 +348,12 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   console.log('6f. Catalog: folder and catalog link, install from another publisher');
   const DIST = path.dirname(PACK);
   const CAT = fs.mkdtempSync(path.join(os.tmpdir(), 'stl-cat-'));
-  for (const f of fs.readdirSync(DIST).filter(f => f.endsWith('.stlp'))) fs.copyFileSync(path.join(DIST, f), path.join(CAT, f));
+  /* only the two packs these checks are about — one installed, one from another publisher — so that
+     further packs in dist/ cannot change the counts below */
+  const CAT_IDS = ['org.semitec.fpga-starter', 'org.example.mbist-track'];
+  const catPacks = fs.readdirSync(DIST).filter(f => f.endsWith('.stlp') && CAT_IDS.some(id => f.startsWith(id + '-')));
+  for (const f of catPacks) fs.copyFileSync(path.join(DIST, f), path.join(CAT, f));
+  check(catPacks.length === CAT_IDS.length, 'the 2 catalog packs are built in dist/ (' + catPacks.join(', ') + ')');
   require('child_process').execFileSync(process.execPath, [path.join(APP, '..', 'packer', 'stlp.js'), 'catalog', CAT, '--name', 'Test catalog'], { stdio: 'ignore' });
   const http = require('http');
   const srv = http.createServer((q, r) => { const f = path.join(CAT, decodeURIComponent(q.url.split('?')[0])); if (!f.startsWith(CAT) || !fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'Content-Type': f.endsWith('.json') ? 'application/json' : f.endsWith('.svg') ? 'image/svg+xml' : 'application/octet-stream' }); r.end(fs.readFileSync(f)); });
@@ -360,7 +365,7 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   await win.evaluate((u) => window.api.catalog.addUrl(u, 'Test catalog'), catUrl);
   const viaUrl = await win.evaluate(() => window.api.catalog.list(true));
   check(viaUrl.entries.length === 2 && viaUrl.entries.every(e => e.download && e.cover) && !viaUrl.problems.length, 'catalog link: 2 packages with covers (' + viaUrl.problems.map(p => p.message).join('; ') + ')');
-  await win.evaluate((d) => window.api.catalog.addFolderPath(d), DIST);
+  await win.evaluate((d) => window.api.catalog.addFolderPath(d), CAT);
   await win.click('.ui-nav a:has-text("Dashboard")'); await win.click('.ui-nav a:has-text("Catalog")');
   await win.waitForSelector('.cat-card');
   const cards = await win.$$eval('.cat-card', n => n.map(x => x.textContent));
