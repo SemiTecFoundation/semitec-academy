@@ -70,7 +70,7 @@ File name convention: `<pack id>-<pack version>.stlp`. MIME type suggestion: `ap
 | `items[].for` | id of the item it belongs to (materials of a lab): shown under that item, not in the plan |
 | `items[].prerequisite` | `true`: optional refresher shown before the course; not counted in progress or the certificate, not planned (app ≥ 1.6.0) |
 | `items[].category` | project: research · diploma · thesis · course-project · capstone · internship · other |
-| `items[].kind` | material: `pdf` · `image` · `text` · `video` · `file` · `link` (chooses the viewer) |
+| `items[].kind` | material: `pdf` · `markdown` · `image` · `text` · `video` · `file` · `link` (chooses the viewer) |
 | `modules` | display order; items not in a module are shown under "Other" |
 | `schedule` | optional study plan (app ≥ 1.4.0): `entries` of `week` / `weeks: [from, to]`, `title`, `note`, `items`; see PACK-SPEC.md → Study plans |
 | `items[].plannedWeeks` | optional weeks for the item (plan when there is no `schedule`) |

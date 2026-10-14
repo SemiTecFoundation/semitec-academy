@@ -46,10 +46,11 @@
 - [x] App icon and `.stlp` file icon
 - [x] Build script for the current system and a GitHub Actions workflow for all three
 - [x] Packaged app tested end to end (`E2E_EXECUTABLE=…`)
-- [ ] Test the Windows and macOS installers on real machines; native DMG build on a Mac
+- [x] Native DMG build on a Mac (CI, `macos-latest`); the Mac DMG was started on an Apple-silicon Mac
+- [ ] Start the Windows installer on a real Windows machine
 - [ ] Code-sign the installers (Windows certificate, Apple Developer ID + notarisation)
 - [ ] Auto-update check (GitHub releases or Foundation server)
-- [ ] Replace the development key by the production key (KEYS.md)
+- [x] Replace the development key by the production key (KEYS.md)
 
 ## v1.5.0 — dashboard, catalog, publishers, groups (done)
 - [x] Dashboard as the main page (numbers, continue learning, Today, next 14 days, certificates, catalog news)
@@ -60,11 +61,22 @@
 - [x] Project categories (research, diploma, thesis, course project, capstone, internship) with filter; fixed the My / All projects switch
 - [x] Settings split into My account · Application · About
 
+## v1.6.0 – 1.6.2 — prerequisites, course order, production key (done)
+- [x] Prerequisites (`"prerequisite": true`): shown before the course, not counted in progress,
+      status or the certificate (A7); attached materials (`for`) no longer count either
+- [x] Course-order view with modules; reset the progress of a package
+- [x] Markdown readings load images from the package; packer `catalog` command
+- [x] Installers built on real Windows, macOS and Linux runners and attached to each release;
+      first native macOS DMGs
+- [x] Production signing key `4c71eba82f86fcca` is the only trusted key; no development key is
+      trusted (KEYS.md). Real contact details in the installer metadata
+
 ## v1.6 — self-study basics (PROPOSALS.md)
 - [ ] My mistakes (A1), notes and bookmarks (A2), backup / move (A15), Armenian UI (A13), dark mode and text size (A14)
 
 ## v1.7 — learn better
-- [ ] Review / flashcards (A5), practice tests (A6), prerequisites (A7), search inside a course (A3)
+- [ ] Review / flashcards (A5), practice tests (A6), search inside a course (A3)
+      — prerequisites (A7) shipped in 1.6.0
 
 ## v1.8 — hands-on
 - [ ] HDL playground and exercises (A9), lab bench tools (A10), glossary (A11)

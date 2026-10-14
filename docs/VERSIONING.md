@@ -20,6 +20,9 @@ const HISTORY = [
   { app: '1.2.0', pack: [1], training: [1], reading: [1], lab: [1, 2], video: [1], material: [1] },
   { app: '1.3.0', pack: [1], training: [1], reading: [1, 2], lab: [1, 2], video: [1], material: [1] },
   { app: '1.4.0', pack: [1], training: [1], reading: [1, 2], lab: [1, 2], video: [1], material: [1], project: [1] },
+  …
+  { app: '1.6.0', pack: [1], training: [1], reading: [1, 2], lab: [1, 2], video: [1], material: [1], project: [1] },
+  { app: '1.4.0', pack: [1], training: [1], reading: [1, 2], lab: [1, 2], video: [1], material: [1], project: [1] },
   // example of the future:
   // { app: '1.4.0', …, lab: [1, 2, 3] },   // lab format 3: adds report upload
   // { app: '2.0.0', pack: [1, 2], training: [1, 2], reading: [1], lab: [1, 2] }
@@ -35,8 +38,10 @@ target app). Current table:
 | 1.1.0 | 1 | 1 | 1 | 1 | 1 | 1 | sections by type, videos, other materials, pack specs |
 | 1.2.0 | 1 | 1 | 1 | 1, 2 | 1 | 1 | lab source files (lab format 2), compact lab header |
 | 1.3.0 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | name SemiTec Academy, `.stlp` packages, Markdown readings (reading format 2) |
-| 1.5.0 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | (project 1) dashboard, catalog, publisher logos, attached materials (`for`), project categories, groups — optional fields only, no new formats |
 | 1.4.0 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | + **project 1**; study plans (`schedule`, `plannedWeeks`), calendar, Today, certificates, library search / filters, installers |
+| 1.5.0 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | (project 1) dashboard, catalog, publisher logos, attached materials (`for`), project categories, groups — optional fields only, no new formats |
+| 1.6.0 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | prerequisites (`"prerequisite": true`) shown before the course and not counted; attached materials (`for`) no longer count; reset the progress of a package |
+| 1.6.1 – 1.6.2 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | no content-format change — signing keys and installer metadata only |
 
 A pack **without** videos and other materials still opens in 1.0.0 (the packer writes
 `minAppVersion: 1.0.0`); a pack with a video needs 1.1.0; a lab with source files needs 1.2.0; a Markdown reading needs 1.3.0 (reading format 1 = PDF, 2 = Markdown); a project needs 1.4.0.

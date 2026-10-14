@@ -10,4 +10,5 @@ Format: `docs/PACK-SPEC.md`. With an AI assistant: the [`package` skill](https:/
 
 | Folder | Pack id | Content |
 |---|---|---|
-| `fpga-starter/` | `org.semitec.fpga-starter` | 2 trainings (feature tour from the template, shift registers), 2 labs, 3 readings (2 diploma briefs as PDF, Vivado quick reference as Markdown), 2 videos, 4 materials (starter zip, XDC, board image, lab-report template in Markdown) |
+| `fpga-starter/` | `org.semitec.fpga-starter` | 2 trainings (feature tour from the template, shift registers), 2 labs, 4 readings (2 diploma briefs as PDF, Vivado quick reference as Markdown), 2 videos, 4 materials (starter zip, XDC, board image, lab-report template in Markdown) |
+| `demo-partner/` | `org.example.mbist-track` | 1 reading (MBIST primer) and 1 diploma project; publisher *Demo Partner Company* — the sample for a second publisher in the catalog |

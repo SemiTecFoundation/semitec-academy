@@ -57,5 +57,5 @@ Update: replace the app in *Applications* with the new one, and run step 2 again
 
 ## First start
 Choose where your data is kept (default `Documents/SemiTec Academy`), type a username and password, then
-add a course: **＋ Add course pack**, drag a `.stlp` file onto the window, or double-click the file.
+add a course: **＋ Add a .stlp file**, drag a `.stlp` file onto the window, or double-click the file.
 Lab computers: put the data folder on the student's drive (managing lab PCs centrally is a platform idea).

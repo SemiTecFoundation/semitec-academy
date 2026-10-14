@@ -91,7 +91,7 @@ Academy/
 │   └── test/e2e.js           end-to-end test (Playwright + Electron)
 ├── packer/stlp.js            CLI: check · create · inspect · keygen · bundle-skill (+ step-by-step commands)
 ├── packs/demo-partner/       sample package of another publisher (MBIST primer + diploma project) for the catalog
-├── packs/fpga-starter/       sample package source: pack-spec.json + 2 trainings, 2 labs, 3 readings, 2 videos, 4 materials, 1 project, 7-week plan
+├── packs/fpga-starter/       sample package source: pack-spec.json + 2 trainings, 2 labs, 4 readings, 2 videos, 4 materials, 1 project, 7-week plan
 ├── dist/                     built packages (.stlp)
 ├── installers/<version>/     built installers, local only — released ones are attached to the release
 ├── .github/workflows/        GitHub Actions: build + release the installers on Windows, macOS, Linux
@@ -105,13 +105,16 @@ The AI skill that builds packages is part of the **Academy Templates** plugin
 
 ## Quick start (developer)
 
-Requires **Node.js 20+**.
+Requires **Node.js 20+**. To rebuild the sample package or run `npm run sync-engine`, clone the
+[skills repository](https://github.com/SemiTecFoundation/semitec-academy-skills) next to this one, so
+that `semitec-academy/` and `semitec-academy-skills/` share a parent folder — two items of
+`packs/fpga-starter` and the training engine come from there. Everything else works without it.
 
 ```bash
 cd app
 npm install                       # Electron, pdf.js, sql.js, fflate, marked, DOMPurify
 npm start                         # run the app
-npm test                          # 73 end-to-end checks (Linux CI: xvfb-run -a npm test)
+npm test                          # 75 end-to-end checks (Linux CI: xvfb-run -a npm test)
 ```
 
 Build the sample package and add it in the app:
@@ -144,10 +147,12 @@ every package; a package has its own **content version** for updates. See [`docs
 | 1.3.0 | name **SemiTec Academy**, `.stlp` packages, Markdown readings and materials |
 | 1.4.0 | installers; library search and filters; enrollment and study plans; calendar; Today panel and reminders; projects; certificates page |
 | 1.5.0 | dashboard; catalog (folders + catalog links); publishers with logos; My packages / Explore with groups; materials attached to labs; project categories; settings *My account / Application / About* |
+| 1.6.0 | prerequisites that are not counted in progress; course-order view; Markdown reading images; packer `catalog` command |
 | 1.6.1 | new development signing key — the first one was published by mistake and is no longer trusted |
 | 1.6.2 | production signing key `4c71eba82f86fcca`, the only trusted key; no development key is trusted any more; real contact details |
 
 ## Status
 
-Working prototype (v1.5.0), all features covered by `npm test`; installers for Windows, macOS and Linux.
+Working prototype (v1.6.2), all features covered by `npm test`; installers for Windows, macOS and Linux,
+built on real runners for each system and attached to every release.
 Next: code signing (RELEASING.md), and the proposals in [`docs/PROPOSALS.md`](docs/PROPOSALS.md) — self-study features first; multi-user features belong to the Foundation platform.

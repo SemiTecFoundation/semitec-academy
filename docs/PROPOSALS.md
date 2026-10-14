@@ -17,7 +17,8 @@ How the two can meet later is described in [the last section](#how-the-app-and-t
   the app shows only what a package uses.
 - **Ready for the platform.** Stable ids and exportable JSON, so a later sync needs no migration.
 
-Size: S ≤ 2 days, M ≤ 1 week, L > 1 week. Status: all **proposed**; decided items move to ROADMAP.md.
+Size: S ≤ 2 days, M ≤ 1 week, L > 1 week. Status: **proposed** unless noted; what has shipped is
+marked done in ROADMAP.md (A7 prerequisites and A16 catalog are implemented).
 
 | # | Proposal | What the student gets | Size | Package format |
 |---|---|---|---|---|

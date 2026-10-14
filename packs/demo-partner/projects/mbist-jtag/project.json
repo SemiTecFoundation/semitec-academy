@@ -45,7 +45,7 @@
     "**Cross clock domains safely** between TCK, the BIST clock and the functional clock, and prove it in simulation and with Vivado's CDC report.",
     "**Verify each IP** with its own self-checking testbench, and the complete system end to end through the JTAG pins with a class-based, constrained-random environment, reference models, assertions and functional coverage.",
     "**Run the fault-coverage experiment** on the board over JTAG: at least 50 random faults per fault type, every algorithm, all memories, slow and at-speed. Compare the results with the theory.",
-    "**Implement the system** on the AUP ZU3 with the at-speed clock meeting timing (target 250 MHz confirm target frequency)."
+    "**Implement the system** on the AUP ZU3 with the at-speed clock meeting timing (target 250 MHz)."
   ],
   "outcomes": [
     "explain memory fault models and why March tests detect them;",

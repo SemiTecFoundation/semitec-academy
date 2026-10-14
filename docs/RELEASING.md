@@ -11,7 +11,7 @@ Installers are made with **electron-builder** (configuration: `build` in `app/pa
 | `bash tools/build-installers.sh` | fresh `npm ci`, tests, then the installers for the current system | any |
 
 `node_modules` must be installed **on the system that builds** (`npm ci`): Electron downloads a
-binary for that system. The Cowork / Linux copy of `node_modules` cannot build a Mac DMG.
+binary for that system: a `node_modules` installed on Linux cannot build a Mac DMG.
 
 **All three at once (the normal way):** push a tag `v<version>` — `.github/workflows/build-installers.yml`
 builds on real Windows, macOS and Linux machines, then attaches every installer plus `SHA256SUMS.txt`
@@ -21,7 +21,7 @@ downloadable artifacts without releasing.
 ## Checklist
 1. Raise `app/package.json → version`; update `src/shared/versions.js` if content formats changed
    (VERSIONING.md); README versions table; ROADMAP.
-2. `npm test` (66 end-to-end checks).
+2. `npm test` (75 end-to-end checks).
 3. Build the installers; test a built app: `E2E_EXECUTABLE=<unpacked app binary> npm test`
    (e.g. `../installers/<v>/linux-unpacked/semitec-academy`).
 4. Release the `academy-templates:package` skill for the same version (its CHANGELOG, `bundle-skill`).
@@ -34,7 +34,7 @@ stops with *"resource fork, Finder information, or similar detritus not allowed"
 again, or build from a checkout outside the synced folder (CI is unaffected — it builds a clean clone):
 
 ```bash
-xattr -cr ../installers app build
+xattr -cr app/build app/src packer packs dist
 npm run dist:mac
 ```
 
@@ -65,8 +65,10 @@ chip / Intel — a single universal DMG would carry both and roughly double ever
 `electron-updater`; the app does not auto-update, so that target is off.
 
 ## Build history
+- **1.6.2** — same workflow; first release signed with the production key, and the first whose notes
+  come from `.github/release-notes.md`. Five installers (the macOS `.zip` copies were dropped).
 - **1.6.1** — built by the workflow on real `windows-latest`, `macos-latest` and `ubuntu-latest`
-  runners: the first proper DMGs, and the 66 end-to-end checks ran under `xvfb` before packaging.
+  runners: the first proper DMGs, and the 75 end-to-end checks ran under `xvfb` before packaging.
 - **1.5.0** — built on Linux: AppImage / deb natively, the Windows installer with Wine, the macOS apps
   as `.app` bundles zipped with their symlinks and signed ad-hoc with `rcodesign` (no DMG — that needs
   macOS). Only the Linux build was ever started as a packaged app; prefer 1.6.1 or later.
