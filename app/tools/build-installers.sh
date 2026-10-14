@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # build-installers.sh — build the SemiTec Academy installer(s) for THIS computer's system.
-#   macOS   → installers/<version>/SemiTec-Academy-<version>-mac-arm64.dmg / -x64.dmg (+ .zip)
+#   macOS   → installers/<version>/SemiTec-Academy-<version>-mac-arm64.dmg / -x64.dmg
 #   Linux   → SemiTec-Academy-<version>-linux-x86_64.AppImage, semitec-academy_<version>_amd64.deb
 #   Windows → run in Git Bash, or:  npm ci && npm run dist:win
 # Usage (from anywhere):  bash Foundation/Products/Academy/app/tools/build-installers.sh [--skip-tests]

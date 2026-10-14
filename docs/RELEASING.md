@@ -6,7 +6,7 @@ Installers are made with **electron-builder** (configuration: `build` in `app/pa
 | Command (in `app/`) | Makes | Build on |
 |---|---|---|
 | `npm run dist:win` | `SemiTec-Academy-Setup-<v>.exe` — **one-click NSIS installer**: per-user, no admin, no questions, Start-menu + desktop shortcut, `.stlp` association, starts the app | Windows; or Linux / macOS with Wine |
-| `npm run dist:mac` | `SemiTec-Academy-<v>-mac-arm64.dmg` / `-x64.dmg` + `.zip` | **macOS only** (DMG and signing need Apple tools) |
+| `npm run dist:mac` | `SemiTec-Academy-<v>-mac-arm64.dmg` / `-x64.dmg` | **macOS only** (DMG and signing need Apple tools) |
 | `npm run dist:linux` | `.AppImage` + `.deb` (x64) | Linux |
 | `bash tools/build-installers.sh` | fresh `npm ci`, tests, then the installers for the current system | any |
 
@@ -57,9 +57,15 @@ Unsigned installers work, but Windows SmartScreen and macOS Gatekeeper warn on f
   `https://semitec-foundation.invalid/academy` (homepage) in `app/package.json` with real addresses.
 - Remove the development package key from `app/trusted-keys/` (KEYS.md).
 
-## How the 1.5.0 installers were made
-Built on Linux: AppImage / deb natively, the Windows installer with Wine, the macOS apps as `.app`
-bundles zipped with their symlinks and signed ad-hoc with `rcodesign` (no DMG — that needs macOS).
-The Linux build passed all 66 end-to-end checks as a packaged app; the Windows and macOS builds were
-not started on real Windows / macOS machines yet — do that before giving them to students, or rebuild
-them natively (`dist:mac` on a Mac gives the proper DMG).
+## Which files a release has
+Five installers and `SHA256SUMS.txt`: one `.exe` (Windows), `mac-arm64.dmg` and `mac-x64.dmg` (Apple
+chip / Intel — a single universal DMG would carry both and roughly double every Mac download), and
+`.AppImage` plus `.deb` for Linux. electron-builder can also emit `.zip` copies of the Mac apps for
+`electron-updater`; the app does not auto-update, so that target is off.
+
+## Build history
+- **1.6.1** — built by the workflow on real `windows-latest`, `macos-latest` and `ubuntu-latest`
+  runners: the first proper DMGs, and the 66 end-to-end checks ran under `xvfb` before packaging.
+- **1.5.0** — built on Linux: AppImage / deb natively, the Windows installer with Wine, the macOS apps
+  as `.app` bundles zipped with their symlinks and signed ad-hoc with `rcodesign` (no DMG — that needs
+  macOS). Only the Linux build was ever started as a packaged app; prefer 1.6.1 or later.

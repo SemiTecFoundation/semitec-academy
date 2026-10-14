@@ -6,8 +6,8 @@ on Windows; nothing else has to be installed.
 | Computer | File | Size |
 |---|---|---|
 | Windows 10 / 11 (64-bit) | `SemiTec-Academy-Setup-<version>.exe` | ~110 MB |
-| Mac with Apple chip (M1 … M4) | `SemiTec-Academy-<version>-mac-arm64.dmg` (or `.zip`) | ~130 MB |
-| Mac with Intel chip | `SemiTec-Academy-<version>-mac-x64.dmg` (or `.zip`) | ~135 MB |
+| Mac with Apple chip (M1 … M4) | `SemiTec-Academy-<version>-mac-arm64.dmg` | ~125 MB |
+| Mac with Intel chip | `SemiTec-Academy-<version>-mac-x64.dmg` | ~131 MB |
 | Linux (64-bit) | `SemiTec-Academy-<version>-linux-x86_64.AppImage` or `semitec-academy_<version>_amd64.deb` | ~100–130 MB |
 
 Not sure which Mac? Apple menu → *About This Mac* → "Chip: Apple …" = Apple chip, "Processor: Intel" = Intel.
@@ -24,8 +24,7 @@ Uninstall: *Settings → Apps → SemiTec Academy → Uninstall*. Your data fold
 `Documents\SemiTec Academy`) is kept; delete it by hand to remove all accounts and progress.
 
 ## macOS
-1. Open the `.dmg` and drag **SemiTec Academy** onto **Applications** (with the `.zip`: double-click it,
-   then drag the app into *Applications*).
+1. Open the `.dmg` and drag **SemiTec Academy** onto **Applications**.
 2. Start it from *Applications* or Launchpad.
 3. While the app is not signed with an Apple Developer ID, macOS blocks the first start:
    - macOS 15 and newer: click **Done**, open *System Settings → Privacy & Security*, scroll to
