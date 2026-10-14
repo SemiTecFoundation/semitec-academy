@@ -24,7 +24,7 @@ Downloads: **[latest release](https://github.com/SemiTecFoundation/semitec-acade
 | System | Installer |
 |---|---|
 | Windows 10 / 11 | `SemiTec-Academy-Setup-<v>.exe` — one click: installs for the user, shortcuts, `.stlp` files, starts the app |
-| macOS (Apple chip / Intel) | `SemiTec-Academy-<v>-mac-arm64.dmg` / `-x64.dmg` — drag to Applications |
+| macOS (Apple chip / Intel) | `SemiTec-Academy-<v>-mac-arm64.dmg` / `-x64.dmg` — drag to Applications, then **one Terminal line** to clear the quarantine mark (the build is not notarised): `xattr -dr com.apple.quarantine "/Applications/SemiTec Academy.app"` |
 | Linux | `.AppImage` (run) or `.deb` (`sudo apt install ./…deb`) |
 
 Building them: [`docs/RELEASING.md`](docs/RELEASING.md) — push a tag `v<version>` and the

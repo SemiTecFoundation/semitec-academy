@@ -24,26 +24,31 @@ Uninstall: *Settings → Apps → SemiTec Academy → Uninstall*. Your data fold
 `Documents\SemiTec Academy`) is kept; delete it by hand to remove all accounts and progress.
 
 ## macOS
+
+The Mac build is **not signed with an Apple Developer ID and not notarized**, so macOS refuses to
+start it until you clear the "downloaded from the internet" mark. The app itself is intact — its
+signature is valid, it is just not one Apple vouches for.
+
 1. Open the `.dmg` and drag **SemiTec Academy** onto **Applications**.
-2. Start it from *Applications* or Launchpad.
-3. While the app is not signed with an Apple Developer ID, macOS blocks the first start:
-   - macOS 15 and newer: click **Done**, open *System Settings → Privacy & Security*, scroll to
-     *"SemiTec Academy was blocked…"* → **Open Anyway** → confirm with your password.
-   - macOS 14 and older: right-click (Control-click) the app → **Open** → **Open**.
-   This is needed once. (Admins: `xattr -dr com.apple.quarantine "/Applications/SemiTec Academy.app"`.)
+2. Open *Terminal* (Launchpad → search "Terminal") and run this one line:
 
-**If macOS says the app "is damaged", "can't be opened", or nothing happens**, open *Terminal* and run:
+   ```bash
+   xattr -dr com.apple.quarantine "/Applications/SemiTec Academy.app"
+   ```
 
-```bash
-xattr -cr "/Applications/SemiTec Academy.app"
-codesign --force --deep --sign - "/Applications/SemiTec Academy.app"
-open "/Applications/SemiTec Academy.app"
-```
+3. Start the app from *Applications* or Launchpad. It opens normally from now on.
 
-The first line removes the "downloaded from the internet" mark, the second re-signs the app locally
-for this Mac. Needed only while the app has no Apple Developer ID signature (RELEASING.md).
+Without step 2 macOS shows *"Apple could not verify …is free of malware"* (or, on some Macs,
+*"…is damaged and can't be opened"*) and will not start the app.
 
-Update: replace the app in *Applications* with the new one. Data stays in `Documents/SemiTec Academy`.
+**Without Terminal:** double-click the app so macOS blocks it once, then open
+*System Settings → Privacy & Security*, scroll to *"SemiTec Academy was blocked…"* and click
+**Open Anyway**, then confirm with your password. If that entry does not appear — it does not on every
+macOS version for an unsigned app — use step 2 instead. On macOS 15 and newer, Control-clicking the
+app and choosing **Open** no longer works: Apple removed that bypass.
+
+Update: replace the app in *Applications* with the new one, and run step 2 again on it. Data stays in
+`Documents/SemiTec Academy`.
 
 ## Linux
 - **AppImage:** `chmod +x SemiTec-Academy-*.AppImage` and double-click / run it.
