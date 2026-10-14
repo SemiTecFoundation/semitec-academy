@@ -16,8 +16,7 @@ binary for that system. The Cowork / Linux copy of `node_modules` cannot build a
 **All three at once (the normal way):** push a tag `v<version>` — `.github/workflows/build-installers.yml`
 builds on real Windows, macOS and Linux machines, then attaches every installer plus `SHA256SUMS.txt`
 to a GitHub release. A manual run (Actions → Build installers → Run workflow) builds the same files as
-downloadable artifacts without releasing. `ci/build-installers.yml` is the original template for reuse
-in a monorepo checkout.
+downloadable artifacts without releasing.
 
 ## Checklist
 1. Raise `app/package.json → version`; update `src/shared/versions.js` if content formats changed

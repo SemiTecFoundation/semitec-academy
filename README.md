@@ -95,7 +95,6 @@ Academy/
 ├── dist/                     built packages (.stlp)
 ├── installers/<version>/     built installers, local only — released ones are attached to the release
 ├── .github/workflows/        GitHub Actions: build + release the installers on Windows, macOS, Linux
-├── ci/build-installers.yml   the same workflow as a template for a monorepo checkout
 └── keys/README.md            where signing keys live (public halves only; see docs/KEYS.md)
 ```
 

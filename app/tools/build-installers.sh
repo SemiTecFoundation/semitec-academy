@@ -21,4 +21,4 @@ case "$(uname -s)" in
   *) echo "unknown system $(uname -s)"; exit 1 ;;
 esac
 V=$(node -p "require('./package.json').version")
-echo; echo "✓ installers in Products/Academy/installers/$V:"; ls -1 "../installers/$V" | grep -vE 'unpacked|^mac|blockmap|builder-'
+echo; echo "✓ installers in installers/$V:"; ls -1 "../installers/$V" | grep -vE 'unpacked|^mac|blockmap|builder-'
