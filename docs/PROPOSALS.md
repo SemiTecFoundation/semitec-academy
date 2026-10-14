@@ -235,7 +235,7 @@ The sync design itself is item PL5 in the platform document.
 ---
 
 ## Proposals for the skill (`academy-templates:package`)
-See `Products/Skills/AcademyTemplates/skills/package/ROADMAP.md`: video check and conversion, quiz drafting
+See the `package` skill's `ROADMAP.md` in the Skills repository (https://github.com/SemiTecFoundation/semitec-academy-skills): video check and conversion, quiz drafting
 from readings, package diff and release notes, translation runs, accessibility check, size budget, cover
 generator, prerequisites in the spec, catalogue entry, CI check. New: glossary extraction (A11),
 exercise skill (A9), schedule suggestion from `estimatedTime` (A4).

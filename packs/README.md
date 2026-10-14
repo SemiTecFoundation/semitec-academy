@@ -6,7 +6,7 @@ anywhere, e.g. to the training template). Check and create:
     node packer/stlp.js check  packs/<name>/pack-spec.json
     node packer/stlp.js create packs/<name>/pack-spec.json --key <private.pem> --out dist
 
-Format: `docs/PACK-SPEC.md`. With an AI assistant: `Products/Skills/AcademyTemplates/skills/package` (skill `academy-templates:package`).
+Format: `docs/PACK-SPEC.md`. With an AI assistant: the [`package` skill](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/AcademyTemplates/skills/package/README.md) (`academy-templates:package`).
 
 | Folder | Pack id | Content |
 |---|---|---|

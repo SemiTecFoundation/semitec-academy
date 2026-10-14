@@ -1,7 +1,7 @@
 # Releasing SemiTec Academy (installers)
 
 Installers are made with **electron-builder** (configuration: `build` in `app/package.json`, icons in
-`app/build/`). Output: `Products/Academy/installers/<version>/`.
+`app/build/`). Output: `installers/<version>/`.
 
 | Command (in `app/`) | Makes | Build on |
 |---|---|---|

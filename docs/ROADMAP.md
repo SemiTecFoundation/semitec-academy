@@ -16,7 +16,7 @@
 - [x] Video items: local mp4/webm with resume and watched tracking, or online links
 - [x] Other materials: PDF / image / text-code viewers, save a copy, open with default app, links
 - [x] Pack spec (`pack-spec.json`): `stlp check` (material checker) and `stlp create`
-- [x] Course-pack skill for AI assistants (now `Products/Skills/AcademyTemplates/skills/package`)
+- [x] Course-pack skill for AI assistants (now the `package` skill of the Skills repository)
 
 ## v1.2.0 — labs with files (done)
 - [x] Lab source files (`"files"` in lab.json, lab format 2): Files tab with viewer, save, *Download all* (zip)
@@ -29,7 +29,7 @@
 - [x] File type `.stlp` (SemiTec Learning Package; `.stp` is STEP CAD); CLI `packer/stlp.js`
 - [x] Markdown readings (reading format 2): outline, tables, code with *Copy*, images, links between documents, text size, read tracking
 - [x] Markdown materials open in the same reader
-- [x] Skill `academy-templates:package` in `Products/Skills/AcademyTemplates/skills/package`, released with the app (CHANGELOG, VERSION.json)
+- [x] Skill `academy-templates:package` in the [Skills repository](https://github.com/SemiTecFoundation/semitec-academy-skills), released with the app (CHANGELOG, VERSION.json)
 - [x] Feature proposals documented: [`PROPOSALS.md`](PROPOSALS.md) (self-study scope; multi-user ideas moved to the platform)
 
 ## v1.4.0 — library, study plans, calendar, projects, certificates, installers (done)
@@ -73,4 +73,4 @@
 ## v2 — connected (with the Foundation platform)
 - [ ] Package catalogue and updates (A16)
 - [ ] Optional sign-in with a platform account; sync progress and certificates
-      (same state JSON as `training_progress`; design: Platform/Spec/_ideas/academy-to-platform.md, PL5)
+      (same state JSON as `training_progress`; design: academy-to-platform.md, an internal note published in neither repository, PL5)

@@ -6,7 +6,7 @@ trainings, labs, readings, videos and other materials. Progress is saved per stu
 New packages and new versions of packages can be added at any time; the app does not need to change.
 
 ```
-  Foundation/Products/Skills/AcademyTemplates/  Foundation/Products/Academy/                student PC
+  semitec-academy-skills/AcademyTemplates/     semitec-academy/                            student PC
  ┌──────────────────────────────────┐        ┌──────────────────────────────┐      ┌──────────────────────────────┐
  │ skills/training                   ─┐      │ packs/<name>/pack-spec.json  │      │ SemiTec Academy              │
  │ skills/lab-manual                   ┤ ───► │ packer/stlp.js check/create  │ ───► │  account → library → package │
@@ -82,7 +82,7 @@ Academy/
 │   ├── src/preload/          the safe bridge (window.api)
 │   ├── src/renderer/         UI: login, library (search, filters, Today), package page + study plan, calendar,
 │   │                         projects, certificates, PDF / Markdown readers, lab, video, materials
-│   ├── src/engine/training/  training engine copied from Products/Skills/AcademyTemplates/skills/training
+│   ├── src/engine/training/  training engine copied from the Skills repo's skills/training
 │   ├── src/shared/           package format, versions, validation — shared with the packer and the skill
 │   ├── trusted-keys/         public keys whose signatures the app accepts
 │   ├── build/                app and .stlp file icons for the installers
@@ -100,8 +100,8 @@ Academy/
 ```
 
 The AI skill that builds packages is part of the **Academy Templates** plugin
-([`Products/Skills/AcademyTemplates`](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/AcademyTemplates/README.md)):
-[`Products/Skills/AcademyTemplates/skills/package`](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/AcademyTemplates/skills/package/README.md)
+([`AcademyTemplates`](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/AcademyTemplates/README.md) in the Skills repository):
+[`skills/package`](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/AcademyTemplates/skills/package/README.md)
 (skill `academy-templates:package`, released together with the app).
 
 ## Quick start (developer)

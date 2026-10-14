@@ -3,7 +3,7 @@
 #   macOS   → installers/<version>/SemiTec-Academy-<version>-mac-arm64.dmg / -x64.dmg
 #   Linux   → SemiTec-Academy-<version>-linux-x86_64.AppImage, semitec-academy_<version>_amd64.deb
 #   Windows → run in Git Bash, or:  npm ci && npm run dist:win
-# Usage (from anywhere):  bash Foundation/Products/Academy/app/tools/build-installers.sh [--skip-tests]
+# Usage (from anywhere):  bash <academy>/app/tools/build-installers.sh [--skip-tests]
 set -euo pipefail
 cd "$(dirname "$0")/.."
 command -v node >/dev/null || { echo "Node.js 20+ is needed: https://nodejs.org"; exit 1; }
