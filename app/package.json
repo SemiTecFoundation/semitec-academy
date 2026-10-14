@@ -1,11 +1,11 @@
 {
   "name": "semitec-academy",
   "productName": "SemiTec Academy",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Desktop learning app of the SemiTec Foundation: install course packs (.stlp) with trainings, readings and labs; local accounts and progress.",
   "author": {
     "name": "SemiTec Foundation",
-    "email": "academy@semitec-foundation.invalid"
+    "email": "info@semitec.org"
   },
   "license": "UNLICENSED",
   "main": "src/main/main.js",
@@ -140,7 +140,7 @@
       ],
       "category": "Education",
       "icon": "build/icon.png",
-      "maintainer": "SemiTec Foundation <academy@semitec-foundation.invalid>",
+      "maintainer": "SemiTec Foundation <info@semitec.org>",
       "synopsis": "Desktop learning app of the SemiTec Foundation",
       "mimeTypes": [
         "application/x-semitec-learning-package"
@@ -152,6 +152,6 @@
     },
     "publish": null
   },
-  "homepage": "https://semitec-foundation.invalid/academy",
+  "homepage": "https://semitec.org",
   "desktopName": "semitec-academy.desktop"
 }

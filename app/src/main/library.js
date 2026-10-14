@@ -46,10 +46,10 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
     const dir = packDir(m.id);
     if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
     fs.renameSync(tmp, dir);
-    db.run(`INSERT INTO packs(id,version,title,publisher,signature,signed_by,manifest,installed_at,installed_by) VALUES(?,?,?,?,?,?,?,?,?)
+    db.run(`INSERT INTO packs(id,version,title,publisher,signature,signed_by,signed_dev,manifest,installed_at,installed_by) VALUES(?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(id) DO UPDATE SET version=excluded.version,title=excluded.title,publisher=excluded.publisher,signature=excluded.signature,
-            signed_by=excluded.signed_by,manifest=excluded.manifest,installed_at=excluded.installed_at,installed_by=excluded.installed_by`,
-      [m.id, m.version, m.title, m.publisher || '', sig.status, sig.keyName || sig.keyId || null, pack.manifestBytes.toString('utf8'), new Date().toISOString(), userId || null]);
+            signed_by=excluded.signed_by,signed_dev=excluded.signed_dev,manifest=excluded.manifest,installed_at=excluded.installed_at,installed_by=excluded.installed_by`,
+      [m.id, m.version, m.title, m.publisher || '', sig.status, sig.keyName || sig.keyId || null, sig.development ? 1 : 0, pack.manifestBytes.toString('utf8'), new Date().toISOString(), userId || null]);
     delete cache[m.id];
     return { id: m.id, version: m.version, title: m.title, updatedFrom: installedVersion, signature: sig };
   }
@@ -77,9 +77,9 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
   return {
     packsDir, packDir, manifestOf, inspect, importFile,
     list(userId) {
-      return db.all('SELECT id, version, title, publisher, signature, signed_by, installed_at FROM packs ORDER BY title').map(r => {
+      return db.all('SELECT id, version, title, publisher, signature, signed_by, signed_dev, installed_at FROM packs ORDER BY title').map(r => {
         const m = manifestOf(r.id);
-        return { id: r.id, version: r.version, title: r.title, publisher: r.publisher, signature: r.signature, signedBy: r.signed_by,
+        return { id: r.id, version: r.version, title: r.title, publisher: r.publisher, signature: r.signature, signedBy: r.signed_by, signedDev: !!r.signed_dev,
           installedAt: r.installed_at, description: m.description || '', cover: m.cover || null, language: m.language || '',
           counts: (m.items || []).reduce((a, it) => (a[it.type] = (a[it.type] || 0) + 1, a), {}),
           authors: m.authors || [], hasSchedule: !!(m.schedule && (m.schedule.entries || []).length),
@@ -92,7 +92,7 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
     },
     get(id, userId) {
       const m = manifestOf(id); if (!m) throw new Error('Pack not installed: ' + id);
-      const r = db.get('SELECT signature, signed_by, installed_at FROM packs WHERE id=?', [id]);
+      const r = db.get('SELECT signature, signed_by, signed_dev, installed_at FROM packs WHERE id=?', [id]);
       const prog = progressRows(userId, id);
       const size = (rel) => (m.files['content/' + rel] || {}).size || 0;
       const items = (m.items || []).map(it => {
@@ -101,7 +101,7 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
         if (it.srcFiles) o.srcFiles = it.srcFiles.map(f => ({ path: f, size: size(it.path + '/' + f) }));
         return o;
       });
-      return { manifest: Object.assign({}, m, { files: undefined, items }), signature: r.signature, signedBy: r.signed_by, installedAt: r.installed_at, progress: prog, summary: summary(m, prog) };
+      return { manifest: Object.assign({}, m, { files: undefined, items }), signature: r.signature, signedBy: r.signed_by, signedDev: !!r.signed_dev, installedAt: r.installed_at, progress: prog, summary: summary(m, prog) };
     },
     remove(id) {
       db.run('DELETE FROM packs WHERE id=?', [id]);

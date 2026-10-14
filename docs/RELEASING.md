@@ -53,9 +53,11 @@ Unsigned installers work, but Windows SmartScreen and macOS Gatekeeper warn on f
 - Package signing keys (`.stlp`) are separate — see KEYS.md.
 
 ## Before the first public release
-- Replace the placeholders `academy@semitec-foundation.invalid` (author, Linux maintainer) and
-  `https://semitec-foundation.invalid/academy` (homepage) in `app/package.json` with real addresses.
-- Remove the development package key from `app/trusted-keys/` (KEYS.md).
+- [x] Real contact details in `app/package.json`: `info@semitec.org` (author, Linux maintainer) and
+  `https://semitec.org` (homepage). They end up in the Debian `control` file and the Windows
+  installer metadata, so check them with `npm run dist:linux` output before a release.
+- [x] No development key in `app/trusted-keys/` — since 1.6.2 it holds only the production key
+  (KEYS.md). Signing a release needs the offline private key; drafts use `--unsigned` + Developer mode.
 
 ## Which files a release has
 Five installers and `SHA256SUMS.txt`: one `.exe` (Windows), `mac-arm64.dmg` and `mac-x64.dmg` (Apple

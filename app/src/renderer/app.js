@@ -41,8 +41,10 @@
     if (p && p.percent > 0) return el('span.status.going', { text: p.percent + '%' });
     return el('span.status', { text: 'Not started' });
   }
-  function sigBadge(sig, by) {
-    if (sig === 'trusted' && !/dev/i.test(by || '')) return el('span.badge.trusted', { text: '✔ Verified', title: 'Signed by ' + by });
+  /* dev: the signing key declares itself a development key, from the database, not guessed
+     from its name — a production or partner key may legitimately contain "dev" */
+  function sigBadge(sig, by, dev) {
+    if (sig === 'trusted' && !dev) return el('span.badge.trusted', { text: '✔ Verified', title: 'Signed by ' + by });
     if (sig === 'trusted') return el('span.badge.dev', { text: '⚑ Dev-signed', title: 'Signed with a development key: ' + by });
     return el('span.badge.unsigned', { text: '⚠ Unsigned', title: 'Not signed by a trusted key (developer mode)' });
   }
@@ -70,7 +72,7 @@
   function localToday() { var n = new Date(); return n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0'); }
   /* shared with plan.js, projects.js, certs.js */
   window.UI = { el: el, api: api, S: S, modal: modal, toast: toast, fmtDate: fmtDate, fmtSize: fmtSize, bar: bar, statusChip: statusChip, ICON: ICON, TYPE: TYPE,
-    cover: cover, publisherLine: function (a, b, c) { return publisherLine(a, b, c); }, importFlow: function (f) { importFlow(f); }, sigBadge: function (a, b) { return sigBadge(a, b); }, day: day, dayShort: dayShort, localToday: localToday, initials: initials,
+    cover: cover, publisherLine: function (a, b, c) { return publisherLine(a, b, c); }, importFlow: function (f) { importFlow(f); }, sigBadge: function (a, b, c) { return sigBadge(a, b, c); }, day: day, dayShort: dayShort, localToday: localToday, initials: initials,
     shell: function (a) { return shell(a); }, route: function () { route(); }, orderedItems: function (m) { return orderedItems(m); } };
 
   /* ---------------- boot ---------------- */
@@ -306,7 +308,7 @@
       function reload(msg) { if (msg) toast(msg); Promise.all([api.packs.list(), api.groups.list()]).then(function (r) { packs = r[0]; groups = r[1]; byId = {}; packs.forEach(function (p) { byId[p.id] = p; p._status = packStatus(p); }); drawAll(); }); }
       function groupsOf(p) { return groups.filter(function (g) { return g.packs.indexOf(p.id) >= 0; }); }
       function card(p) {
-        var cv = cover(p); cv.appendChild(sigBadge(p.signature, p.signedBy));
+        var cv = cover(p); cv.appendChild(sigBadge(p.signature, p.signedBy, p.signedDev));
         var st = p._status, pl = p.plan || {};
         var chip = st === 'finished' ? el('span.status.done', { text: '✓ Finished ' + fmtDate(p.progress.finishedAt) })
           : pl.enrolled ? el('span.status.going', { text: pl.hasPlan ? 'Enrolled · week ' + Math.max(1, Math.min(pl.weekNow, pl.weeks)) + ' of ' + pl.weeks : 'Enrolled · self-paced' })
@@ -519,7 +521,7 @@
       var started = countedIts.some(function (it) { return prog[it.id]; });
       page.appendChild(el('div.hero', null, [cover(Object.assign({ id: m.id }, m)), el('div', null, [
         el('h1', { text: m.title }),
-        el('div.meta', null, [publisherLine(m.publisher, m.publisherLogo ? 'stl://pack/' + encodeURIComponent(m.id) + '/' + m.publisherLogo : null, 'v' + m.version), sigBadge(P.signature, P.signedBy), m.language ? el('span', { text: m.language.toUpperCase() }) : null]),
+        el('div.meta', null, [publisherLine(m.publisher, m.publisherLogo ? 'stl://pack/' + encodeURIComponent(m.id) + '/' + m.publisherLogo : null, 'v' + m.version), sigBadge(P.signature, P.signedBy, P.signedDev), m.language ? el('span', { text: m.language.toUpperCase() }) : null]),
         m.description ? el('div.desc.md', { html: MD.render(m.description) }) : null,
         el('div.progress-line', null, [bar(P.summary.percent), el('span', { text: P.summary.percent + '% · ' + P.summary.done + ' / ' + P.summary.total + ' completed' + (P.summary.prerequisites ? ' · prerequisites not counted' : '') })]),
         window.PlanUI.enrollBox(id, m, PL),

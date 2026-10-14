@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const initSqlJs = require('sql.js');
 
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 const MIGRATIONS = {
   1: `
     CREATE TABLE users (
@@ -81,6 +81,13 @@ const MIGRATIONS = {
       SELECT DISTINCT user_id, pack_id, MIN(enrolled_at) FROM enrollments GROUP BY user_id, pack_id;
     INSERT OR IGNORE INTO user_packs(user_id, pack_id, added_at)
       SELECT installed_by, id, installed_at FROM packs WHERE installed_by IS NOT NULL;
+  `,
+  4: `
+    /* whether the signing key declares itself a development key ("development": true in its
+       .json), so the badge no longer has to guess from the key name. Rows installed before
+       this column existed keep the old guess, once. */
+    ALTER TABLE packs ADD COLUMN signed_dev INTEGER NOT NULL DEFAULT 0;
+    UPDATE packs SET signed_dev = 1 WHERE signature = 'trusted' AND signed_by LIKE '%dev%';
   `
 };
 

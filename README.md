@@ -96,7 +96,7 @@ Academy/
 ├── installers/<version>/     built installers, local only — released ones are attached to the release
 ├── .github/workflows/        GitHub Actions: build + release the installers on Windows, macOS, Linux
 ├── ci/build-installers.yml   the same workflow as a template for a monorepo checkout
-└── keys/dev/                 development key: public part only (private key is never in the repository)
+└── keys/README.md            where signing keys live (public halves only; see docs/KEYS.md)
 ```
 
 The AI skill that builds packages is part of the **Academy Templates** plugin
@@ -119,7 +119,8 @@ Build the sample package and add it in the app:
 
 ```bash
 node packer/stlp.js check  packs/fpga-starter/pack-spec.json
-node packer/stlp.js create packs/fpga-starter/pack-spec.json --key ../../Private/keys/semitec-foundation-dev.key.pem --out dist
+node packer/stlp.js create packs/fpga-starter/pack-spec.json --key <offline>/semitec-foundation.key.pem --out dist
+#   no key at hand? add --unsigned instead and turn on Developer mode in Settings
 # → dist/org.semitec.fpga-starter-1.6.0.stlp   (drag it onto the app window)
 ```
 
@@ -145,6 +146,7 @@ every package; a package has its own **content version** for updates. See [`docs
 | 1.4.0 | installers; library search and filters; enrollment and study plans; calendar; Today panel and reminders; projects; certificates page |
 | 1.5.0 | dashboard; catalog (folders + catalog links); publishers with logos; My packages / Explore with groups; materials attached to labs; project categories; settings *My account / Application / About* |
 | 1.6.1 | new development signing key — the first one was published by mistake and is no longer trusted |
+| 1.6.2 | production signing key `4c71eba82f86fcca`, the only trusted key; no development key is trusted any more; real contact details |
 
 ## Status
 

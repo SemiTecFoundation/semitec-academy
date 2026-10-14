@@ -3,14 +3,21 @@
 Packs are signed with an **Ed25519 private key**; the app checks them with the matching **public keys**
 in `app/trusted-keys/`. Whoever holds a trusted private key can publish packs every student's app accepts.
 
-## Development key
+## What the app trusts
 
-Only the public half is in this repository (`keys/dev/`, `app/trusted-keys/`). The private key
-`semitec-foundation-dev.key.pem` is kept **outside** the repository (author's copy:
-`Foundation/Private/keys/`) and is only for building and testing. Its public key is trusted by this
-prototype so the sample packs install out of the box; the app labels such packs **Dev-signed**.
-`.gitignore` blocks `*.key.pem`, `*.p12`, `*.pfx` — never add an exception for a key.
-**Before the first real release: remove `semitec-foundation-dev.*` from `app/trusted-keys/`.**
+`app/trusted-keys/` holds exactly one key: the **production** key `semitec-foundation` —
+`semitec-foundation.pub.pem` plus `semitec-foundation.json` (`"development": false`). Every released
+pack is signed with it and the app shows those packs as **✔ Verified**. Only public halves are ever in
+this repository; `.gitignore` blocks `*.key.pem`, `*.p12`, `*.pfx`, `*.p8` and `.env` with no exception.
+
+**No development key is trusted any more.** Development does not need one: build drafts with
+`--unsigned` and switch on *Developer mode* (Settings, or `SEMITEC_DEV=1`), which accepts unsigned
+packs. If you prefer a signed draft, make your own key with
+`node packer/stlp.js keygen <folder> --name "…" --dev` and trust its public half in your **local**
+copy of `app/trusted-keys/` — never commit that.
+
+A key whose `.json` says `"development": true` is recorded as such when a pack is installed, and such
+packs are badged **⚑ Dev-signed** rather than Verified.
 
 ## Production key
 
@@ -42,4 +49,5 @@ the key name (from the `.json`) on every pack.
 | Key id | Kind | Status |
 |---|---|---|
 | `48c3e1ae9934d9f4` | development | **revoked** 2026-10-14 — the private key was published in the repository by mistake; removed from `trusted-keys/` in 1.6.1 |
-| `b766a9e9d1f0264d` | development | current (app ≥ 1.6.1) |
+| `b766a9e9d1f0264d` | development | **retired** 2026-10-15 — replaced by the production key and removed from `trusted-keys/` in 1.6.2; it was never leaked |
+| `4c71eba82f86fcca` | production | current (app ≥ 1.6.2) — the only trusted key; private half offline, never in a repository |
