@@ -100,8 +100,8 @@ Academy/
 ```
 
 The AI skill that builds packages is part of the **Academy Templates** plugin
-([`Products/Skills/AcademyTemplates`](../Skills/AcademyTemplates/README.md)):
-[`Products/Skills/AcademyTemplates/skills/package`](../Skills/AcademyTemplates/skills/package/README.md)
+([`Products/Skills/AcademyTemplates`](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/AcademyTemplates/README.md)):
+[`Products/Skills/AcademyTemplates/skills/package`](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/AcademyTemplates/skills/package/README.md)
 (skill `academy-templates:package`, released together with the app).
 
 ## Quick start (developer)

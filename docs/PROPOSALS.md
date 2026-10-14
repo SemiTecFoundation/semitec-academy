@@ -7,7 +7,7 @@ teachers, classes, administrators or servers inside the app.
 Everything that needs several people and a server belongs to the **Foundation platform**: admin role,
 teachers and classes, assignments, graded exams, hand-in of lab reports, calendars, projects,
 careers and so on. Those proposals were moved to
-[`Platform/Spec/_ideas/academy-to-platform.md`](../../../Platform/Spec/_ideas/academy-to-platform.md).
+`Platform/Spec/_ideas/academy-to-platform.md` (an internal document, not published in this repository).
 How the two can meet later is described in [the last section](#how-the-app-and-the-platform-fit-together).
 
 **Principles for every proposal below**
@@ -216,7 +216,7 @@ by course; open, save a copy, or show where the app keeps it.
 - Several roles (admin, teacher), classes, assignments, deadlines set by teachers, graded exams, lab-report
   grading, shared calendars, announcements, Q&A, projects hub, careers, equipment booking, challenges with
   leaderboards, author analytics across students, verified certificates, lab-PC management →
-  **Foundation platform** ([academy-to-platform.md](../../../Platform/Spec/_ideas/academy-to-platform.md)).
+  **Foundation platform** (`academy-to-platform.md`, internal).
 - The app keeps **local accounts** only so that several people can share one computer; there is no
   administrator over them.
 
