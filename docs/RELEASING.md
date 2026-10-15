@@ -34,7 +34,7 @@ stops with *"resource fork, Finder information, or similar detritus not allowed"
 again, or build from a checkout outside the synced folder (CI is unaffected — it builds a clean clone):
 
 ```bash
-xattr -cr app/build app/src packer packs dist
+xattr -cr app/build app/src packer dist
 npm run dist:mac
 ```
 

@@ -23,8 +23,9 @@ node packer/stlp.js create packs/digital-design-1/pack-spec.json --key <private.
 ```
 
 Many trainings, many labs, many readings, videos and files are just more entries in the lists. The
-sample `packs/fpga-starter/pack-spec.json` has 2 trainings (one taken directly from the template
-folder), 2 labs, 4 readings (one in Markdown), 2 videos and 4 other materials. With an AI assistant, use
+test fixture `app/test/fixtures/fpga-starter/pack-spec.json` has 2 trainings (one taken directly from
+the template folder), 2 labs, 4 readings (one of them a prerequisite, one in Markdown), 2 videos and
+4 other materials. With an AI assistant, use
 the [`package` skill](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/AcademyTemplates/skills/package/README.md) (`academy-templates:package`) — it writes the spec for you.
 
 ### Markdown readings

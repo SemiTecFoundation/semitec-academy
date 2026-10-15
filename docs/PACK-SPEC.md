@@ -5,8 +5,9 @@ other materials and projects — with the **path of each source**, plus an optio
 (template folders, diploma-project folders, a shared drive); nothing has to be copied by hand.
 
 ```bash
-node packer/stlp.js check  packs/fpga-starter/pack-spec.json          # checks every material, changes nothing
-node packer/stlp.js create packs/fpga-starter/pack-spec.json --key <private.pem>   # check → assemble → validate → sign → .stlp
+node packer/stlp.js check  <pack-spec.json>                          # checks every material, changes nothing
+node packer/stlp.js create <pack-spec.json> --key <private.pem>      # check → assemble → validate → sign → .stlp
+#   a worked example lives in app/test/fixtures/fpga-starter/ (the end-to-end suite's fixture)
 ```
 
 `create` always runs the same check first and stops on any error. Without `--out` the pack is written

@@ -2,7 +2,7 @@
    Runs a fresh profile: first-run setup, account creation, pack install (signed), training / reading / lab
    progress, logout / login, second user, tampered and unsigned packs, restart.
    Usage:  npm test            (Linux CI: xvfb-run -a npm test)
-   Env:    STPACK=path/to/pack.stlp (default: ../dist/org.semitec.fpga-starter-1.6.0.stlp)
+   Env:    STPACK=path/to/pack.stlp (default: fixtures/packs/org.semitec.fpga-starter-1.6.0.stlp)
            SHOTS=folder for screenshots (default: test/screenshots) */
 'use strict';
 const { _electron: electron } = require('playwright');
@@ -10,7 +10,8 @@ const fs = require('fs'), os = require('os'), path = require('path');
 const { unzipSync, zipSync } = require('fflate');
 
 const APP = path.join(__dirname, '..');
-const PACK = path.resolve(process.env.STPACK || path.join(APP, '..', 'dist', 'org.semitec.fpga-starter-1.6.0.stlp'));
+/* the test's own fixture packages — not shipped course content; see fixtures/README.md */
+const PACK = path.resolve(process.env.STPACK || path.join(__dirname, 'fixtures', 'packs', 'org.semitec.fpga-starter-1.6.0.stlp'));
 const SHOTS = path.resolve(process.env.SHOTS || path.join(__dirname, 'screenshots'));
 const HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'stl-test-'));
 fs.mkdirSync(SHOTS, { recursive: true });
@@ -349,7 +350,7 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   const DIST = path.dirname(PACK);
   const CAT = fs.mkdtempSync(path.join(os.tmpdir(), 'stl-cat-'));
   /* only the two packs these checks are about — one installed, one from another publisher — so that
-     further packs in dist/ cannot change the counts below */
+     further fixture packs cannot change the counts below */
   const CAT_IDS = ['org.semitec.fpga-starter', 'org.example.mbist-track'];
   const catPacks = fs.readdirSync(DIST).filter(f => f.endsWith('.stlp') && CAT_IDS.some(id => f.startsWith(id + '-')));
   for (const f of catPacks) fs.copyFileSync(path.join(DIST, f), path.join(CAT, f));

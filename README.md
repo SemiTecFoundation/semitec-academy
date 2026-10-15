@@ -90,8 +90,7 @@ Academy/
 │   ├── tools/build-installers.sh  fresh install + tests + installers for this system
 │   └── test/e2e.js           end-to-end test (Playwright + Electron)
 ├── packer/stlp.js            CLI: check · create · inspect · keygen · bundle-skill (+ step-by-step commands)
-├── packs/demo-partner/       sample package of another publisher (MBIST primer + diploma project) for the catalog
-├── packs/fpga-starter/       sample package source: pack-spec.json + 2 trainings, 2 labs, 4 readings, 2 videos, 4 materials, 1 project, 7-week plan
+├── app/test/fixtures/        the end-to-end suite's own packages (test data, not course content)
 ├── dist/                     built packages (.stlp)
 ├── installers/<version>/     built installers, local only — released ones are attached to the release
 ├── .github/workflows/        GitHub Actions: build + release the installers on Windows, macOS, Linux
@@ -108,7 +107,8 @@ The AI skill that builds packages is part of the **Academy Templates** plugin
 Requires **Node.js 20+**. To rebuild the sample package or run `npm run sync-engine`, clone the
 [skills repository](https://github.com/SemiTecFoundation/semitec-academy-skills) next to this one, so
 that `semitec-academy/` and `semitec-academy-skills/` share a parent folder — two items of
-`packs/fpga-starter` and the training engine come from there. Everything else works without it.
+two items of the test fixture `app/test/fixtures/fpga-starter` and the training engine come from
+there. Everything else works without it.
 
 ```bash
 cd app
@@ -120,9 +120,11 @@ npm test                          # 75 end-to-end checks (Linux CI: xvfb-run -a 
 Build the sample package and add it in the app:
 
 ```bash
-node packer/stlp.js check  packs/fpga-starter/pack-spec.json
-node packer/stlp.js create packs/fpga-starter/pack-spec.json --key <offline>/semitec-foundation.key.pem --out dist
+node packer/stlp.js check  app/test/fixtures/fpga-starter/pack-spec.json
+node packer/stlp.js create app/test/fixtures/fpga-starter/pack-spec.json \
+    --key <offline>/semitec-foundation.key.pem --out app/test/fixtures/packs
 #   no key at hand? add --unsigned instead and turn on Developer mode in Settings
+#   this rebuilds the test fixture; real courses are built from sources kept outside this repository
 # → dist/org.semitec.fpga-starter-1.6.0.stlp   (drag it onto the app window)
 ```
 
