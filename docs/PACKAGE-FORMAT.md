@@ -116,11 +116,11 @@ Signing guarantees *who made it* and *that it was not changed*.
 ## Item formats (version 1)
 
 ### training — format 1
-Content of the web training template (`AcademyTemplates/skills/training`):
+Content of the web training template (`skills/training`):
 `training.json`, `certificate.json`, `topics/*.json`, `assets/*`, optional `css/themes/*.css`.
 No engine files: the app supplies the engine (`index.html`, `js/`, `css/app.css`) and runs the training
 in *platform* mode, saving the training's progress state per user. Field reference:
-`AcademyTemplates/skills/training/reference/content-format.md`.
+`skills/training/reference/content-format.md`.
 
 ### reading — format 1 (PDF) and 2 (Markdown, app ≥ 1.3.0)
 **Format 1:** a PDF file (`items[].file`). The app's reader saves `{ pages, seen: [page numbers], last, completed }`.

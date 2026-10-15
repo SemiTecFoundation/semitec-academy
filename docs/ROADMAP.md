@@ -22,7 +22,7 @@
 - [x] Lab source files (`"files"` in lab.json, lab format 2): Files tab with viewer, save, *Download all* (zip)
 - [x] Compact lab header (auto while scrolling, or pinned)
 - [x] PDF reader keeps pages centred when the outline is hidden
-- [x] Lab-manual template + skill (`AcademyTemplates/skills/lab-manual`): PDF manual and app lab in sync
+- [x] Lab-manual template + skill (`skills/lab-manual`): PDF manual and app lab in sync
 
 ## v1.3.0 — SemiTec Academy, Markdown (done)
 - [x] App named **SemiTec Academy**, moved to `Foundation/Products/` (now the `semitec-academy` repository)

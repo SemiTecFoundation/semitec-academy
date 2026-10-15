@@ -7,9 +7,9 @@ define modules).
 
 | Item | Made with | In the pack |
 |---|---|---|
-| **training** | web template `AcademyTemplates/skills/training` (JSON topics, quizzes, certificate) | `trainings/<id>/` (content only) |
+| **training** | web template `skills/training` (JSON topics, quizzes, certificate) | `trainings/<id>/` (content only) |
 | **reading** | a PDF (often made with a PDF skill of [Academy Templates](https://github.com/SemiTecFoundation/semitec-academy-skills): lecture notes, briefs, papers) or a **Markdown** file with its images (app ≥ 1.3) | `readings/<id>.pdf` · `readings/<id>/<name>.md` + images |
-| **lab** | `lab.json` (steps + quiz) + a lab manual PDF (`AcademyTemplates/skills/lab-manual`) | `labs/<id>/` |
+| **lab** | `lab.json` (steps + quiz) + a lab manual PDF (`skills/lab-manual`) | `labs/<id>/` |
 | **video** | `.mp4` (H.264 + AAC) or `.webm`, or a link to an online video | `videos/<id>.mp4` |
 | **material** | anything else: starter files (`.zip`), constraints (`.xdc`), code, images, datasheets, links | `materials/<id>/` |
 
@@ -26,7 +26,7 @@ Many trainings, many labs, many readings, videos and files are just more entries
 test fixture `app/test/fixtures/fpga-starter/pack-spec.json` has 2 trainings (one taken directly from
 the template folder), 2 labs, 4 readings (one of them a prerequisite, one in Markdown), 2 videos and
 4 other materials. With an AI assistant, use
-the [`package` skill](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/AcademyTemplates/skills/package/README.md) (`academy-templates:package`) — it writes the spec for you.
+the [`package` skill](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/skills/package/README.md) (`academy-templates:package`) — it writes the spec for you.
 
 ### Markdown readings
 Write normal GitHub-flavoured Markdown: headings (they become the reader's outline), tables, fenced code
@@ -34,7 +34,7 @@ with a language (`` ```verilog ``), lists, task lists, links. Keep images and li
 folder or below** (`img/fsm.svg`) — the checker lists them, copies them into the package and reports
 missing files or paths outside the folder. Links to other `.md` files in that folder open in the reader;
 web links open in the browser. Raw HTML is sanitised (no scripts, no iframes).
-Details: [`reference/markdown.md`](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/AcademyTemplates/skills/package/reference/markdown.md).
+Details: [`reference/markdown.md`](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/skills/package/reference/markdown.md).
 
 ### Study plan
 Give the package a week plan so students get dates: `"schedule"` in the spec (weeks → items), or
@@ -125,7 +125,7 @@ key use `--unsigned` and turn on *Developer mode* in the app's Settings.
 
 ## lab.json reference
 
-Labs are best made with the lab-manual template (`AcademyTemplates/skills/lab-manual`): it
+Labs are best made with the lab-manual template (`skills/lab-manual`): it
 builds the PDF manual and the `lab/` folder (lab.json + manual.pdf + src/) together, writes the manual
 page of every step into lab.json and checks that manual and lab.json have the same steps. Point the pack
 spec to that `lab/` folder. Full format: the template's `reference/lab-json.md`.

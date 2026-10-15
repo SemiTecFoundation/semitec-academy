@@ -8,13 +8,18 @@ New packages and new versions of packages can be added at any time; the app does
 This repository contains the app, package-building tools and automated test fixtures. Course sources
 and built course packages belong in `semitec-academy-materials`. No course package is distributed here.
 
+```text
+Academy Templates skills → standalone labs, trainings and project briefs → direct standalone use
+                                  │
+                                  └─ optional: package selected materials → .stlp → SemiTec Academy
+                                                               ↑                 ↓
+                                          semitec-academy-materials owns sources   students learn in the app
 ```
-semitec-academy-skills       authoring templates and skills
-             ↓
-semitec-academy-materials    course sources → pack-spec.json → built .stlp packages
-             ↑                                      ↓
-semitec-academy              packer tools            students install packages in the app
-```
+
+![Academy package lifecycle](docs/diagrams/package-lifecycle.png)
+
+The [package lifecycle](docs/WORKFLOW.md) explains where each part belongs. The app receives finished
+packages; it never owns or publishes course source material.
 
 ## Install
 
@@ -64,44 +69,34 @@ Windows, macOS and Linux machines and attaches them to the release. Locally:
 
 ## Folder
 
-```
-Academy/
-├── README.md                 ← you are here
-├── docs/
-│   ├── ARCHITECTURE.md       processes, stl:// protocol, database, security
-│   ├── PACK-SPEC.md          pack-spec.json: all materials of a package in one file (check / create)
-│   ├── PACKAGE-FORMAT.md     the .stlp file: manifest, signature, item formats
-│   ├── VERSIONING.md         app versions ↔ content formats ↔ package versions
-│   ├── AUTHORING.md          how authors make packages (+ lab.json reference)
-│   ├── INSTALLING.md         installing on Windows / macOS / Linux (for students)
-│   ├── RELEASING.md          building and signing the installers, release checklist
-│   ├── KEYS.md               signing keys: development vs. production
-│   ├── ROADMAP.md            done and planned releases
-│   ├── WORKFLOW.md           standalone authoring and package lifecycle
-│   └── PROPOSALS.md          proposed self-study features (mistakes, notes, planner, review, HDL playground, …)
-├── app/                      the Electron application (source; version in app/package.json)
-│   ├── src/main/             window, stl:// protocol, database, accounts, library
-│   ├── src/preload/          the safe bridge (window.api)
-│   ├── src/renderer/         UI: login, library (search, filters, Today), package page + study plan, calendar,
-│   │                         projects, certificates, PDF / Markdown readers, lab, video, materials
-│   ├── src/engine/training/  training engine copied from the Skills repo's skills/training
-│   ├── src/shared/           package format, versions, validation — shared with the packer and the skill
+```text
+semitec-academy/
+├── README.md                 this guide
+├── docs/                     architecture, authoring, package format, install, release and workflow guides
+│   └── diagrams/             PNG/SVG lifecycle diagrams used by the documentation
+├── app/                      Electron application; version and dependencies in app/package.json
+│   ├── src/
+│   │   ├── main/             window, stl:// protocol, database, accounts and library
+│   │   ├── preload/          the safe bridge (window.api)
+│   │   ├── renderer/         student interface, library, calendar, projects and readers
+│   │   ├── engine/training/  engine copied from the Skills repo's training skill
+│   │   └── shared/           package format, versions and validation shared with the packer
+│   ├── test/
+│   │   ├── fixtures/         fictional packages and a throwaway key for tests only
+│   │   ├── packages.test.js  package validation and safe-installation tests
+│   │   └── e2e.js            Playwright + Electron desktop checks
 │   ├── trusted-keys/         public keys whose signatures the app accepts
-│   ├── build/                app and .stlp file icons for the installers
-│   ├── tools/sync-engine.js  refreshes the training engine from the template
-│   ├── tools/build-installers.sh  fresh install + tests + installers for this system
-│   └── test/e2e.js           end-to-end test (Playwright + Electron)
-├── packer/stlp.js            CLI: check · create · inspect · keygen · bundle-skill (+ step-by-step commands)
-├── app/test/fixtures/        the end-to-end suite's own packages (test data, not course content)
-├── app/test/packages.test.js package validation, safe installation and fixture tests (Node.js)
-├── installers/<version>/     built installers, local only — released ones are attached to the release
-├── .github/workflows/        GitHub Actions: build + release the installers on Windows, macOS, Linux
-└── keys/README.md            where signing keys live (public halves only; see docs/KEYS.md)
+│   ├── build/                application and .stlp icons
+│   └── tools/                engine sync and local installer build scripts
+├── packer/stlp.js            CLI: check · create · inspect · keygen · bundle-skill
+├── installers/<version>/     local build outputs; published installers are GitHub release assets
+├── .github/workflows/        CI and cross-platform installer releases
+└── keys/README.md            public key policy; see docs/KEYS.md
 ```
 
 The AI skill that builds packages is part of the **Academy Templates** plugin
-([`AcademyTemplates`](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/AcademyTemplates/README.md) in the Skills repository):
-[`skills/package`](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/AcademyTemplates/skills/package/README.md)
+([`Academy Templates`](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/README.md) in the Skills repository):
+[`skills/package`](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/skills/package/README.md)
 (skill `academy-templates:package`, released as part of the Academy Templates product and compatibility-tested with the app).
 
 The app is the learner-facing end of the workflow. Authors can use the other Academy Templates skills for
