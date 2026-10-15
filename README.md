@@ -5,21 +5,30 @@ local account, and add **SemiTec Learning Packages** (`.stlp`) — one signed fi
 trainings, labs, readings, videos and other materials. Progress is saved per student in a local database.
 New packages and new versions of packages can be added at any time; the app does not need to change.
 
+## SemiTec Foundation and source projects
+
+SemiTec Academy is a SemiTec Foundation project. Visit [semitec.org](https://semitec.org) to follow the
+Foundation's goals, aims and projects as its public site develops.
+
+- [SemiTec Academy on GitHub](https://github.com/SemiTecFoundation/semitec-academy) — the desktop app,
+  package format and local installers.
+- [Academy Templates on GitHub](https://github.com/SemiTecFoundation/semitec-academy-skills) — the skills
+  and templates used to create standalone learning materials or optional Academy packages.
+
+© 2026 SemiTec Foundation. The source code is [Apache-2.0](LICENSE); SemiTec Foundation and SemiTec Academy
+names, marks and logos are reserved as described in [TRADEMARKS.md](TRADEMARKS.md).
+
 This repository contains the app, package-building tools and automated test fixtures. Course sources
 and built course packages belong in `semitec-academy-materials`. No course package is distributed here.
+The separate [Academy Templates](https://github.com/SemiTecFoundation/semitec-academy-skills) repository
+contains the current AI-agent skills and templates for creating learning materials.
 
-```text
-Academy Templates skills → standalone labs, trainings and project briefs → direct standalone use
-                                  │
-                                  └─ optional: package selected materials → .stlp → SemiTec Academy
-                                                               ↑                 ↓
-                                          semitec-academy-materials owns sources   students learn in the app
-```
+![Academy Templates authoring and packaging flow](app/src/renderer/assets/authoring-flow.png)
 
 ![Academy package lifecycle](docs/diagrams/package-lifecycle.png)
 
-The [package lifecycle](docs/WORKFLOW.md) explains where each part belongs. The app receives finished
-packages; it never owns or publishes course source material.
+The [package lifecycle](docs/WORKFLOW.md) and [publishing workflow](docs/PUBLISHING.md) explain where each
+part belongs. The app receives finished packages; it never owns or publishes course source material.
 
 ## Install
 
@@ -82,7 +91,7 @@ semitec-academy/
 │   ├── src/
 │   │   ├── main/             window, stl:// protocol, database, accounts and library
 │   │   ├── preload/          the safe bridge (window.api)
-│   │   ├── renderer/         student interface, library, calendar, projects and readers
+│   │   ├── renderer/         student interface, library, calendar, projects, readers and authoring-flow image
 │   │   ├── engine/training/  engine copied from the Skills repo's training skill
 │   │   └── shared/           package format, versions and validation shared with the packer
 │   ├── test/

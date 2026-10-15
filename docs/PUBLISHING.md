@@ -3,16 +3,15 @@
 Anyone can create and use a SemiTec Learning Package. SemiTec Academy does not require a partner
 agreement, account or Foundation review before a lab, training, project or package is created.
 
-The workflow deliberately separates **technical checks**, **publisher choices** and **recipient trust**:
+The maintained authoring product is [Academy Templates](https://github.com/SemiTecFoundation/semitec-academy-skills).
+It contains the current skills, templates, validators and package instructions. This repository documents
+the Academy application and `.stlp` contract rather than duplicating those authoring instructions.
 
-```text
-author → standalone lab / training / project → stlp check → publisher metadata
-       → optional certificate + signing → .stlp / catalog → recipient trusts publisher key → Academy
-```
+![Academy Templates authoring and packaging flow](../app/src/renderer/assets/authoring-flow.png)
 
 ## Author and publisher flow
 
-1. Create a standalone lab, training or project with the relevant Academy Templates skill. The original
+1. Create a standalone lab, training or project with the relevant [Academy Templates skill](https://github.com/SemiTecFoundation/semitec-academy-skills). The original
    folder remains the editable source and can be used without Academy.
 2. Review it as its author: correctness, citations, rights to included files, accessibility and the
    intended learner outcome. This is publisher self-review, not a request for Foundation approval.

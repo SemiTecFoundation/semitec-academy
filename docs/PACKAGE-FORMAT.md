@@ -135,7 +135,8 @@ manifest item as `assets: ["img/fsm.svg", …]` (paths relative to the `.md`). G
 `{ scroll, maxRead, completed }`; completed at 90 % read or when marked finished.
 
 ### lab — format 1 and 2
-A folder with `lab.json` (+ `manual.pdf`, images). Reference: [AUTHORING.md](AUTHORING.md#labjson-reference).
+A folder with `lab.json` (+ `manual.pdf`, images). The maintained field reference is the
+[Academy Templates lab-manual guide](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/skills/lab-manual/reference/lab-json.md).
 **Format 2** (app ≥ 1.2.0) adds source files: `"files": "src"` in lab.json; the packer expands it and
 writes the list into the manifest item as `srcFiles: ["src/rtl/shift4.sv", …]` (paths inside the lab).
 The app shows them in the *Files* tab (text viewer, *Save file*, *Download all* as zip).

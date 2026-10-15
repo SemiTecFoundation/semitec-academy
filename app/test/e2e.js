@@ -446,6 +446,10 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   await win.waitForSelector('text=Data on this computer');
   check((await win.$$('.src-row')).length === 2, 'settings: Application tab lists the 2 catalog sources');
   await shot(win, '12-settings');
+  await win.click('.set-tabs a:has-text("About")');
+  await win.waitForSelector('.about-diagram');
+  const flowSrc = await win.getAttribute('.about-diagram', 'src');
+  check(await win.isVisible('text=About SemiTec Foundation') && /authoring-flow\.png/.test(flowSrc || '') && await win.isVisible('text=Academy Templates on GitHub'), 'settings: About links the Foundation and Academy Templates with the authoring flow');
 
   console.log('8. Tampered and unsigned packs are refused');
   const files = unzipSync(new Uint8Array(fs.readFileSync(PACK)));

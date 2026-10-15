@@ -822,11 +822,24 @@
   }
   function aboutTab(wrap, info) {
     var caps = info.capabilities;
+    function open(url) { return function () { api.app.openExternal(url).catch(function (e) { toast(e.message); }); }; }
+    wrap.appendChild(el('section.panel.foundation-about', null, [el('h2', { text: 'About SemiTec Foundation' }),
+      el('p', { text: 'SemiTec Foundation develops learning tools and resources for semiconductor and electronics education. Visit the Foundation website to follow its goals, aims and projects as the site develops.' }),
+      el('div.ui-actions', null, [
+        el('button.btn.small', { type: 'button', text: 'Foundation website', onclick: open('https://semitec.org') }),
+        el('button.btn.small', { type: 'button', text: 'Academy on GitHub', onclick: open('https://github.com/SemiTecFoundation/semitec-academy') }),
+        el('button.btn.small', { type: 'button', text: 'Academy Templates on GitHub', onclick: open('https://github.com/SemiTecFoundation/semitec-academy-skills') })
+      ])]));
+    wrap.appendChild(el('section.panel', null, [el('h2', { text: 'Create and deliver learning materials' }),
+      el('p.muted', { text: 'Academy Templates contains the skills for making labs, trainings and project briefs. Those materials can remain standalone, or selected materials can be packaged for Academy.' }),
+      el('img.about-diagram', { src: 'assets/authoring-flow.png', alt: 'Academy Templates authoring and packaging flow: standalone materials can be used independently or packaged as a learning package for Academy.' })]));
     wrap.appendChild(el('section.panel', null, [el('h2', { text: 'SemiTec Academy' }),
       el('dl.kv', null, [el('dt', { text: 'App version' }), el('dd', { text: info.version }),
         el('dt', { text: 'Opens formats' }), el('dd', { text: Object.keys(caps).filter(function (k) { return Array.isArray(caps[k]); }).map(function (k) { return k + ' ' + caps[k].join(','); }).join(' · ') }),
         el('dt', { text: 'Training engine' }), el('dd', { text: info.engine.engine + ' (format ' + info.engine.trainingFormat + ', ' + info.engine.sha256 + ')' }),
         el('dt', { text: 'Runtime' }), el('dd', { text: 'Electron ' + info.electron + ' · ' + info.platform })])]));
+    wrap.appendChild(el('section.panel', null, [el('h2', { text: 'Rights and names' }),
+      el('p', { text: '© 2026 SemiTec Foundation. All rights not expressly granted are reserved. The application source is licensed under Apache-2.0. SemiTec Foundation and SemiTec Academy names, marks and logos are reserved; learning packages and certificates remain subject to the responsible publisher’s stated rights.' })]));
     wrap.appendChild(el('section.panel', null, [el('h2', { text: 'What’s new' }), el('div.news', null, (info.history || []).slice().reverse().map(function (h) { return el('p', null, [el('strong', { text: h.app + ' — ' }), h.notes]); }))]));
   }
 
