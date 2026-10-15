@@ -77,6 +77,7 @@ Academy/
 │   ├── RELEASING.md          building and signing the installers, release checklist
 │   ├── KEYS.md               signing keys: development vs. production
 │   ├── ROADMAP.md            done and planned releases
+│   ├── WORKFLOW.md           standalone authoring and package lifecycle
 │   └── PROPOSALS.md          proposed self-study features (mistakes, notes, planner, review, HDL playground, …)
 ├── app/                      the Electron application (source; version in app/package.json)
 │   ├── src/main/             window, stl:// protocol, database, accounts, library
@@ -101,7 +102,11 @@ Academy/
 The AI skill that builds packages is part of the **Academy Templates** plugin
 ([`AcademyTemplates`](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/AcademyTemplates/README.md) in the Skills repository):
 [`skills/package`](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/AcademyTemplates/skills/package/README.md)
-(skill `academy-templates:package`, released together with the app).
+(skill `academy-templates:package`, released as part of the Academy Templates product and compatibility-tested with the app).
+
+The app is the learner-facing end of the workflow. Authors can use the other Academy Templates skills for
+standalone labs, trainings and project briefs; the package skill is only needed to collect selected
+materials into one Academy course. See [the package lifecycle](docs/WORKFLOW.md).
 
 ## Quick start (developer)
 

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="760" viewBox="0 0 1600 760" role="img" aria-labelledby="title desc">
+  <title id="title">SemiTec Academy package lifecycle</title>
+  <desc id="desc">The app receives signed course packages from the materials release, verifies their format and signature, installs safe content to a local package store, then gives students offline learning and progress tracking.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0 0 L12 6 L0 12 z" fill="#245b84"/></marker>
+    <style>
+      .title{font:700 36px Arial,sans-serif;fill:#12293d}.subtitle{font:20px Arial,sans-serif;fill:#486276}.label{font:700 21px Arial,sans-serif;fill:#12293d}.body{font:18px Arial,sans-serif;fill:#29465d}.small{font:16px Arial,sans-serif;fill:#486276}.box{stroke-width:2.5}.arrow{stroke:#245b84;stroke-width:4;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1600" height="760" fill="#ffffff"/>
+  <text x="800" y="62" text-anchor="middle" class="title">SemiTec Academy: receive, verify and present a course</text>
+  <text x="800" y="97" text-anchor="middle" class="subtitle">The app owns the package format and never owns the original course sources.</text>
+
+  <rect x="55" y="205" width="285" height="165" rx="18" fill="#fff6df" stroke="#b98720" class="box"/>
+  <text x="198" y="257" text-anchor="middle" class="label">Materials release</text>
+  <text x="198" y="295" text-anchor="middle" class="body">catalog, shared folder</text>
+  <text x="198" y="327" text-anchor="middle" class="body">or downloaded .stlp</text>
+  <path d="M340 286 H475" class="arrow"/>
+
+  <rect x="475" y="170" width="350" height="230" rx="18" fill="#e9f2ff" stroke="#386eb5" class="box"/>
+  <text x="650" y="220" text-anchor="middle" class="label">Academy package gate</text>
+  <text x="515" y="262" class="body">• valid reverse-domain package ID</text>
+  <text x="515" y="296" class="body">• safe content paths and hashes</text>
+  <text x="515" y="330" class="body">• trusted signature or test mode</text>
+  <text x="515" y="364" class="body">• compatible content formats</text>
+  <path d="M825 286 H960" class="arrow"/>
+
+  <rect x="960" y="205" width="275" height="165" rx="18" fill="#edf8f0" stroke="#419160" class="box"/>
+  <text x="1097" y="257" text-anchor="middle" class="label">Local package store</text>
+  <text x="1097" y="295" text-anchor="middle" class="body">verified copied content</text>
+  <text x="1097" y="327" text-anchor="middle" class="body">per-user progress database</text>
+  <path d="M1235 286 H1370" class="arrow"/>
+
+  <rect x="1370" y="170" width="180" height="230" rx="18" fill="#e8f7f7" stroke="#287c7c" class="box"/>
+  <text x="1460" y="225" text-anchor="middle" class="label">Student</text>
+  <text x="1460" y="264" text-anchor="middle" class="body">trainings</text>
+  <text x="1460" y="296" text-anchor="middle" class="body">labs</text>
+  <text x="1460" y="328" text-anchor="middle" class="body">readings</text>
+  <text x="1460" y="360" text-anchor="middle" class="body">projects</text>
+
+  <rect x="190" y="510" width="1220" height="132" rx="18" fill="#f7f9fb" stroke="#aec1cf" class="box"/>
+  <text x="230" y="552" class="label">Boundary with Academy Templates</text>
+  <text x="230" y="588" class="body">Authoring skills create standalone materials and the optional package skill creates `.stlp` archives.</text>
+  <text x="230" y="618" class="small">The app validates what it receives; it does not contain real courses or generate authoring materials.</text>
+</svg>
