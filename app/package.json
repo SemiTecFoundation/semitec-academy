@@ -1,13 +1,13 @@
 {
   "name": "semitec-academy",
   "productName": "SemiTec Academy",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "Desktop learning app of the SemiTec Foundation: install course packs (.stlp) with trainings, readings and labs; local accounts and progress.",
   "author": {
     "name": "SemiTec Foundation",
     "email": "info@semitec.org"
   },
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "main": "src/main/main.js",
   "scripts": {
     "start": "electron .",
@@ -54,6 +54,20 @@
       "!node_modules/sql.js/dist/{*.zip,sql-asm*,*debug*,*browser*,worker.*}"
     ],
     "asar": true,
+    "extraResources": [
+      {
+        "from": "../LICENSE",
+        "to": "LICENSE"
+      },
+      {
+        "from": "../NOTICE.md",
+        "to": "NOTICE.md"
+      },
+      {
+        "from": "../TRADEMARKS.md",
+        "to": "TRADEMARKS.md"
+      }
+    ],
     "fileAssociations": [
       {
         "ext": "stlp",

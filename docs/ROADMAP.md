@@ -37,8 +37,8 @@
 - [x] Enrollment with a start date: author's plan (`schedule` / `plannedWeeks`), finish-by date or self-paced (A4)
 - [x] Study-plan view per course, training topic weeks (`training.json` schedule)
 - [x] Calendar (month view with plan bars, agenda), Today panel, reminder on opening, badge in the menu
-- [x] Projects (item type `project` from the project-brief template): enroll, weekly plan with dates, tick weeks, notes, milestones, deliverables, rubric, learning path, brief PDF; Projects page
-- [x] Certificates page: training and course certificates (A8, local), print / save as PDF
+- [x] Projects (item type `project` from the project-brief template): a separate plan for advanced lab-style work, weekly dates, notes, milestones, deliverables, rubric, learning path and brief PDF; Projects page
+- [x] Certificates page: training certificates and publisher-provided course certificates (A8, local), print / save as PDF
 - [x] Installers (below)
 
 ### Distribution
@@ -71,10 +71,20 @@
 - [x] Production signing key `4c71eba82f86fcca` is the only trusted key; no development key is
       trusted (KEYS.md). Real contact details in the installer metadata
 
+## v1.7.0 — open partner publishing (done)
+- [x] Partners sign packages with their own Ed25519 key; each recipient can inspect its fingerprint
+      and add that publisher locally in **Settings → Application → Trusted publishers**. No Foundation
+      agreement or approval queue is involved.
+- [x] Optional publisher feedback contact (`name`, e-mail, site or instructions) shown in package details.
+- [x] Optional package certificate: a package without `certificate` is complete and has no course
+      certificate; training certificates still work.
+- [x] Projects are tracked separately as harder, independent lab-style work. They start a project plan;
+      they have no supervisor, application or approval workflow.
+
 ## Next — self-study basics (PROPOSALS.md)
 - [ ] My mistakes (A1), notes and bookmarks (A2), backup / move (A15), Armenian UI (A13), dark mode and text size (A14)
 
-## v1.7 — learn better
+## v1.7.1+ — learn better
 - [ ] Review / flashcards (A5), practice tests (A6), search inside a course (A3)
       — prerequisites (A7) shipped in 1.6.0
 

@@ -39,6 +39,14 @@ function checkSpec(specPath) {
   if (p.publisherLogo) C.image(abs(p.publisherLogo), 'pack.publisherLogo');
   else rep.warn('pack.publisherLogo', 'no publisher logo (students filter and recognise packages by publisher)');
   if (p.publisherUrl && !/^https?:\/\//.test(p.publisherUrl)) rep.error('pack.publisherUrl', 'must start with http:// or https://');
+  if (p.contact != null) {
+    if (!p.contact || typeof p.contact !== 'object' || Array.isArray(p.contact)) rep.error('pack.contact', 'must be an object with optional name, email, url and instructions');
+    else {
+      if (p.contact.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.contact.email)) rep.error('pack.contact.email', 'must be an email address');
+      if (p.contact.url && !/^https?:\/\//.test(p.contact.url)) rep.error('pack.contact.url', 'must start with http:// or https://');
+      if (!p.contact.name && !p.contact.email && !p.contact.url && !p.contact.instructions) rep.warn('pack.contact', 'has no contact information');
+    }
+  }
   if (p.certificate) { try { JSON.parse(fs.readFileSync(abs(p.certificate), 'utf8')); } catch (e) { rep.error('pack.certificate', 'not a readable JSON file: ' + p.certificate); } }
 
   const items = [], ids = new Set(), formats = { pack: CURRENT.pack };
@@ -121,6 +129,7 @@ function assemble(specPath, outDir, result) {
     publisherLogo: P.publisherLogo ? copy(path.resolve(base, P.publisherLogo), 'publisher-logo' + ext(P.publisherLogo)) : null, publisherUrl: P.publisherUrl || '',
     modules: spec.modules || [], items: []
   };
+  if (P.contact) pack.contact = P.contact;
   if (spec.schedule) pack.schedule = spec.schedule;
   if (P.certificate) pack.certificate = JSON.parse(fs.readFileSync(path.resolve(base, P.certificate), 'utf8'));   // package certificate design (certificate.json of the training template)
   for (const it of r.items) {

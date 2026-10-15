@@ -74,7 +74,8 @@ SemiTec Academy/
 Study plans are not stored: `planner.js` computes them on request from the manifest (or `project.json`),
 the enrollment and the progress (`shared/schedule.js`), so a package update with a changed schedule
 moves the dates automatically. Certificates are derived from progress too (training state
-`certificate` / `completedAt`; a course certificate when every item is completed).
+`certificate` / `completedAt`; a course certificate only when the package manifest includes the
+optional `certificate` object and every required item is completed).
 
 Migrations are numbered SQL blocks in `db.js`; the file is written atomically (temp + rename) 0.4 s
 after each change and on exit. Progress `state` JSON per item type: see PACKAGE-FORMAT.md. The

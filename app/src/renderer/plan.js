@@ -13,7 +13,7 @@
   function chip(st) { var x = STATUS[st] || [st, '']; return U().el('span.status' + (x[1] ? '.' + x[1] : ''), { text: x[0] }); }
   function itemHref(packId, id) { return '#/pack/' + encodeURIComponent(packId) + '/' + encodeURIComponent(id); }
 
-  /* ---------- Enroll dialog (package or project) ----------
+  /* ---------- Course enrollment / project-plan dialog ----------
      o: { packId, itemId?, title, weeks (plan length or 0), source, current enrollment?, onDone } */
   function enrollDialog(o) {
     var el = U().el, en = o.enrollment;
@@ -46,11 +46,11 @@
     body.push(preview);
     var err = el('div.ui-error'); body.push(err);
     upd();
-    var m = U().modal(en ? 'Change plan — ' + o.title : 'Enroll — ' + o.title, body, [
+    var m = U().modal(en ? 'Change plan — ' + o.title : (o.itemId ? 'Start project plan — ' : 'Enroll — ') + o.title, body, [
       el('button.btn', { type: 'button', text: 'Cancel', onclick: function () { m.close(); } }),
-      el('button.btn.primary', { type: 'button', text: en ? 'Save plan' : '📅 Enroll', onclick: function () {
+      el('button.btn.primary', { type: 'button', text: en ? 'Save plan' : (o.itemId ? '📅 Start plan' : '📅 Enroll'), onclick: function () {
         U().api.enroll.set(o.packId, o.itemId || null, { startDate: start.value, mode: o.itemId ? 'package' : mode, finishBy: finish.value })
-          .then(function () { m.close(); U().toast(en ? 'Plan updated' : 'Enrolled — the plan is in your calendar'); if (o.onDone) o.onDone(); })
+          .then(function () { m.close(); U().toast(en ? 'Plan updated' : (o.itemId ? 'Project plan started — it is in your calendar' : 'Enrolled — the plan is in your calendar')); if (o.onDone) o.onDone(); })
           .catch(function (e) { err.textContent = e.message; });
       } })]);
     setTimeout(function () { start.focus(); }, 30);

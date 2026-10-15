@@ -1,7 +1,8 @@
 # Signing keys
 
-Packs are signed with an **Ed25519 private key**; the app checks them with the matching **public keys**
-in `app/trusted-keys/`. Whoever holds a trusted private key can publish packs every student's app accepts.
+Packs are signed with an **Ed25519 private key**; the app checks them with the matching **public keys**.
+The app ships Foundation keys in `app/trusted-keys/`; a computer owner can add a partner's public key in
+*Settings → Application → Trusted publishers*. That local choice needs no Foundation agreement or review.
 
 ## What the app trusts
 
@@ -10,11 +11,10 @@ in `app/trusted-keys/`. Whoever holds a trusted private key can publish packs ev
 pack is signed with it and the app shows those packs as **✔ Verified**. Only public halves are ever in
 this repository; `.gitignore` blocks `*.key.pem`, `*.p12`, `*.pfx`, `*.p8` and `.env` with no exception.
 
-**No development key is trusted any more.** Development does not need one: build drafts with
+**No development key is trusted by default.** Development does not need one: build drafts with
 `--unsigned` and switch on *Developer mode* (Settings, or `SEMITEC_DEV=1`), which accepts unsigned
-packs. If you prefer a signed draft, make your own key with
-`node packer/stlp.js keygen <folder> --name "…" --dev` and trust its public half in your **local**
-copy of `app/trusted-keys/` — never commit that.
+packs. For normal partner packages, create a production key and add its public half through the app's
+*Trusted publishers* settings rather than editing the application source.
 
 A key whose `.json` says `"development": true` is recorded as such when a pack is installed, and such
 packs are badged **⚑ Dev-signed** rather than Verified.
@@ -31,11 +31,12 @@ node packer/stlp.js keygen /secure/offline/folder --name "SemiTec Foundation"
   app version.
 - Build releases with `--key /path/to/semitec-foundation.key.pem` (or `STLP_KEY=…`).
 
-## More publishers
+## Partner publishers
 
-A partner organisation or a department can get its own key: they run `keygen`, send only the
-`.pub.pem` + `.json`, the Foundation adds them to `trusted-keys/` in the next app release. The app shows
-the key name (from the `.json`) on every pack.
+A partner organisation or department runs `keygen`, keeps the `.key.pem` private and gives recipients
+only its `.pub.pem` plus the fingerprint. Each school or user adds that public file under *Trusted
+publishers* and confirms the fingerprint independently. The partner can then sign and distribute packages
+without a Foundation approval step or an app release. See [PUBLISHING.md](PUBLISHING.md).
 
 ## Rotation / compromise
 

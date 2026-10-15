@@ -24,7 +24,9 @@ downloadable artifacts without releasing.
 2. `npm test` (package safety/fixture tests and end-to-end desktop checks).
 3. Build the installers; test a built app: `E2E_EXECUTABLE=<unpacked app binary> npm test`
    (e.g. `../installers/<v>/linux-unpacked/semitec-academy`).
-4. Release the `academy-templates:package` skill for the same version (its CHANGELOG, `bundle-skill`).
+4. Release a compatible `academy-templates:package` skill product; run `bundle-skill` and record the
+   Academy app version used to generate its scripts. The two repositories can use different release
+   numbers.
 5. Tag the release (`git tag v<version> && git push origin v<version>`); add short release notes
    (what's new, minimum versions) to the release the workflow created. Keep the older releases.
 

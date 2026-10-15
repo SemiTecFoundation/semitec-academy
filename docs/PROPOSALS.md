@@ -29,7 +29,7 @@ marked done in ROADMAP.md (A7 prerequisites and A16 catalog are implemented).
 | A5 | Review and flashcards | short spaced-repetition sessions so knowledge stays | M | optional `glossary` |
 | A6 | Practice tests | timed self-tests from a question pool, score history | M | optional question pools |
 | A7 | Prerequisites and learning paths | items unlock in a sensible order; recommended next item | S | `requires` field |
-| A8 | Completion certificates | a certificate for a finished package, printable — **done in 1.4.0 (local)** | M | `certificate` ✓ |
+| A8 | Completion certificates | an optional publisher-provided certificate for a finished package, printable — **done in 1.7.0 (local)** | M | `certificate` ✓ |
 | A9 | HDL playground and self-checked exercises | write and simulate Verilog in the app; tests say what is wrong | L | new item `exercise` |
 | A10 | Lab bench tools | serial terminal, waveform viewer, board programmer, PC check | M–L | lab `requirements` |
 | A11 | Technical glossary EN / HY / RU | hover a term to see its meaning and translation | S–M | optional `glossary` |
@@ -39,7 +39,7 @@ marked done in ROADMAP.md (A7 prerequisites and A16 catalog are implemented).
 | A15 | Backup and move to another computer | one file with all progress and notes; restore anywhere | S | — |
 | A16 | Package catalogue and updates | browse and download Foundation packages; update badges — **done in 1.5.0 (folders + catalog links)** | M | `catalog.json` ✓ |
 | A17 | My learning record | a PDF / JSON record of finished packages, scores, certificates | S–M | — |
-| A18 | Report a problem to the author | "this step is wrong" → a ready e-mail / file with item and page | S | optional `contact` |
+| A18 | Contact the author | publisher feedback contact in package details — **done in 1.7.0**; contextual report form remains open | S | optional `contact` ✓ |
 | | **New sections and features (after 1.4.0)** | | | |
 | A19 | Home — my learning dashboard | time spent per week, streak, progress of all courses and projects, "continue" cards — **dashboard done in 1.5.0; time / streak open** | M | — |
 | A20 | Notes section | all notes (items, project weeks) in one place, search, export as Markdown | S–M | — |
@@ -57,11 +57,12 @@ marked done in ROADMAP.md (A7 prerequisites and A16 catalog are implemented).
    projects, certificates, installers.
 1. **v1.5.0 (done):** dashboard, A16 catalogue (folders and catalog links), publishers, package groups.
 2. **v1.6.x (done):** A7 Prerequisites, course-order view, reset progress; production signing key.
-3. **Next "self-study basics":** A1 My mistakes, A2 Notes and bookmarks, A15 Backup, A13 Armenian UI,
+3. **v1.7.0 (done):** open partner publishing, optional course certificates and publisher contacts.
+4. **Next "self-study basics":** A1 My mistakes, A2 Notes and bookmarks, A15 Backup, A13 Armenian UI,
    A14 dark mode / text size. Small, no format change, big effect on daily use.
-4. **Then "learn better":** A4 Planner, A5 Review, A6 Practice tests, A3 Search inside a course.
-5. **Then "hands-on":** A9 HDL playground, A10 Lab bench, A11 Glossary.
-6. **Later:** A8 certificates, A17 learning record, A12 AI helper, A18 feedback.
+5. **Then "learn better":** A5 Review, A6 Practice tests, A3 Search inside a course.
+6. **Then "hands-on":** A9 HDL playground, A10 Lab bench, A11 Glossary.
+7. **Later:** A17 learning record, A12 AI helper, contextual A18 feedback.
 
 ---
 
@@ -105,10 +106,11 @@ a lock (hard, author's choice). The library suggests **Continue with…** — th
 course order. A package may require another package (FPGA Starter → Verification 1).
 
 ## A8 — Completion certificates
-When all required items of a package are done, the app issues a **package certificate** (design from a
-`certificate.json` in the package, like trainings): name, package, date, scores, a certificate id.
-Printable / PDF. Issued locally, so it is a personal record; verifiable certificates come with the
-platform (sync).
+When all required items of a package that includes an optional `certificate` object are done, the app
+issues a **package certificate**: name, package, issuer, date, scores and a certificate id. Publishers
+choose whether to include it; a package without it is still complete and is not shown on the course
+certificate list. It is printable / PDF and issued locally, so it is a personal record; verifiable
+certificates come with the platform (sync).
 
 ## A9 — HDL playground and self-checked exercises
 - **Playground:** edit and **simulate Verilog / SystemVerilog in the app** (Icarus Verilog or Verilator
@@ -163,10 +165,11 @@ available* badges; the app also checks for a new app version. No account needed.
 A personal record of finished packages, items, scores, time spent and certificates, exported as a PDF
 (to attach to a CV or an application) or JSON (to import into the platform later).
 
-## A18 — Report a problem to the author
-On every item: *Report a problem* → the student writes what is wrong; the app prepares an e-mail (or a
-small file) with the package id and version, item, page / step and app version, addressed to the
-package's `contact`. Authors get precise reports without any server.
+## A18 — Contact the author
+Package details now show an optional publisher feedback contact and can open its e-mail address or
+website. A later contextual report form can prepare a message containing the package id and version,
+item, page / step and app version, addressed to that `contact`. Authors can then receive precise
+reports without a server.
 
 ## A19 — Home: my learning dashboard
 A first page before the library: *Continue* cards (last opened item of each course / project), this

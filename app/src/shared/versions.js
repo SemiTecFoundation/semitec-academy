@@ -51,6 +51,11 @@ const HISTORY = [
     app: '1.6.0',
     pack: [1], training: [1], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
     notes: 'Prerequisites ("prerequisite": true): optional refreshers shown before the course, not counted. Attached materials ("for") no longer count in progress. Reset progress of a package (pack page, or when removing it from My packages).'
+  },
+  {
+    app: '1.7.0',
+    pack: [1], training: [1], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
+    notes: 'Locally trusted publisher keys, publisher feedback contact, optional package certificates, and clearer independent project plans.'
   }
 ];
 

@@ -38,8 +38,8 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
     if (!compat.ok) throw new Error('This pack cannot be opened by this version of the app:\n• ' + compat.reasons.join('\n• '));
     if (sig.status !== 'trusted' && !devMode) {
       throw new Error(sig.status === 'unsigned'
-        ? 'This pack is not signed. Only packs signed by the SemiTec Foundation can be installed (enable Developer mode in Settings to test unsigned packs).'
-        : 'This pack is signed with an unknown key (' + sig.keyId + '). Install a newer app version or enable Developer mode.');
+        ? 'This pack is not signed. Ask its publisher for a signed release, add a trusted publisher key in Settings, or use Developer mode only for a local draft.'
+        : 'This pack is signed with an unknown key (' + sig.keyId + '). Add the publisher’s public key in Settings → Application, or use Developer mode only for a local draft.');
     }
     if (installedVersion && cmp(m.version, installedVersion) < 0 && !devMode) {
       throw new Error(`A newer version (${installedVersion}) of this pack is already installed.`);

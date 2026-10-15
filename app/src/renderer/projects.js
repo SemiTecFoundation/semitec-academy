@@ -14,7 +14,7 @@
   function listPage(main, which) {
     var el = U().el;
     var page = el('div.ui-page'); main.appendChild(page);
-    page.appendChild(el('div.ui-head', null, [el('div', null, [el('h1', { text: 'Projects' }), el('p.sub', { text: 'Diploma, thesis, research and course projects from your packages. Enroll to get the weekly plan in your calendar.' })])]));
+    page.appendChild(el('div.ui-head', null, [el('div', null, [el('h1', { text: 'Projects' }), el('p.sub', { text: 'Advanced lab-style work from your packages. Start a project plan to track its weeks separately in your calendar.' })])]));
     U().api.projects.list().then(function (list) {
       if (!list.length) {
         page.appendChild(el('div.empty', null, [el('div', { style: { fontSize: '3rem' }, text: '🎓' }), el('h2', { text: 'No projects yet' }),
@@ -24,7 +24,7 @@
       var mine = list.filter(function (p) { return p.enrollment; });
       /* the tab is page state: switching never depends on the URL (fixes "My projects" when it is empty) */
       var F = { tab: which === 'mine' || which === 'all' ? which : (mine.length ? 'mine' : 'all'), cat: 'any', pub: 'any', q: '' };
-      var q = el('input.lib-search', { type: 'search', placeholder: 'Search projects by title, area, supervisor…', 'aria-label': 'Search projects' });
+      var q = el('input.lib-search', { type: 'search', placeholder: 'Search projects by title, area, publisher…', 'aria-label': 'Search projects' });
       var seg = el('div.seg', { role: 'tablist' });
       [['mine', 'My projects', mine.length], ['all', 'All projects', list.length]].forEach(function (o) {
         seg.appendChild(el('button', { type: 'button', role: 'tab', 'data-k': o[0], 'aria-selected': String(F.tab === o[0]), onclick: function () {
@@ -53,7 +53,7 @@
         (F.tab === 'mine' ? mine : list).filter(function (p) {
           if (F.cat !== 'any' && p.category !== F.cat) return false;
           if (F.pub !== 'any' && (p.publisher || 'Unknown publisher') !== F.pub) return false;
-          var t = [p.title, p.summary, p.workType, p.level, p.packTitle, p.publisher, catName(p.category), p.supervisors.join(' '), p.areas.join(' ')].join(' ').toLowerCase();
+          var t = [p.title, p.summary, p.workType, p.level, p.packTitle, p.publisher, catName(p.category), p.areas.join(' ')].join(' ').toLowerCase();
           return words.every(function (w) { return t.indexOf(w) >= 0; });
         }).forEach(function (p) {
           var href = '#/pack/' + encodeURIComponent(p.packId) + '/' + encodeURIComponent(p.itemId);
@@ -61,14 +61,14 @@
             el('div.proj-top', null, [el('span.proj-ico', { text: '🎓' }), el('div', null, [el('div.proj-kind', null, [el('span.cat-badge.c-' + p.category, { text: catName(p.category) }), [p.durationWeeks ? p.durationWeeks + ' weeks' : '', p.slots > 1 ? p.slots + ' students' : ''].filter(Boolean).join(' · ')]), el('h3', { text: p.title })])]),
             el('p.desc', { html: md(p.summary) }),
             el('div.counts', null, p.areas.slice(0, 4).map(function (a) { return el('span.chip-s', { text: a }); })),
-            U().publisherLine(p.publisher, p.publisherLogo, p.supervisors.length ? 'supervisor ' + p.supervisors.join(', ') : ''),
+            U().publisherLine(p.publisher, p.publisherLogo),
             p.enrollment ? el('div', null, [el('div.progress-line', null, [U().bar(p.percent), el('span', { text: p.percent + '%' })]),
               el('div.meta', { text: p.finished ? '✓ All weeks done' : 'Week ' + Math.max(1, p.weekNow) + ' of ' + p.durationWeeks + ' · ends ' + U().day(p.end) })])
-              : el('span.status', { text: 'Not enrolled' })]));
+              : el('span.status', { text: 'No plan started' })]));
         });
         if (!grid.children.length) grid.appendChild(el('div.empty.span-all', null, [
-          el('h2', { text: F.tab === 'mine' && !mine.length ? 'You are not enrolled in a project yet' : 'Nothing found' }),
-          F.tab === 'mine' && !mine.length ? el('p', { text: 'Open a project from “All projects” and press “Enroll in this project”.' }) : el('p', { text: 'No project matches the search and filters.' }),
+          el('h2', { text: F.tab === 'mine' && !mine.length ? 'You have not started a project plan yet' : 'Nothing found' }),
+          F.tab === 'mine' && !mine.length ? el('p', { text: 'Open a project from “All projects” and press “Start project plan”.' }) : el('p', { text: 'No project matches the search and filters.' }),
           F.tab === 'mine' && !mine.length ? el('button.btn', { type: 'button', text: 'See all projects', onclick: function () { F.tab = 'all'; history.replaceState(null, '', '#/projects/all'); syncTabs(); draw(); } }) : null]));
       }
       q.addEventListener('input', draw);
@@ -118,10 +118,10 @@
         el('div.grow.proj-title', null, [el('div.proj-kind', { text: [catName(o.item.category || p.category || 'other'), p.workType, p.level && p.level !== p.workType ? p.level : '', p.durationWeeks ? p.durationWeeks + ' weeks' : '', p.slots > 1 ? p.slots + ' students' : '1 student'].filter(Boolean).join(' · ') }),
           el('h1', { text: p.title }), p.subtitle ? el('div.muted', { text: p.subtitle }) : null,
           el('div.progress-line', null, [U().bar(pct), el('span', { text: done + ' / ' + total + ' weeks done' })])]),
-        en ? el('div.plan-box.on', null, [el('div.grow', null, [el('strong', { text: 'Enrolled' }), el('div.muted.small.pb-sub', { text: plan.weekNow < 1 ? 'starts ' + U().day(en.startDate) : plan.weekNow > total ? 'plan ended ' + U().day(plan.end) : 'week ' + plan.weekNow + ' of ' + p.durationWeeks + ' · ends ' + U().day(plan.end) })]),
+        en ? el('div.plan-box.on', null, [el('div.grow', null, [el('strong', { text: 'Project plan active' }), el('div.muted.small.pb-sub', { text: plan.weekNow < 1 ? 'starts ' + U().day(en.startDate) : plan.weekNow > total ? 'plan ended ' + U().day(plan.end) : 'week ' + plan.weekNow + ' of ' + p.durationWeeks + ' · ends ' + U().day(plan.end) })]),
           el('button.btn.small', { type: 'button', text: 'Change start', onclick: function () { window.PlanUI.enrollDialog({ packId: o.packId, itemId: o.item.id, title: p.title, weeks: p.durationWeeks || total, enrollment: en, onDone: again }); } }),
           el('button.btn.small', { type: 'button', text: 'Leave', onclick: function () { window.PlanUI.leave(o.packId, o.item.id, p.title, again); } })])
-          : el('button.btn.primary', { type: 'button', text: '📅 Enroll in this project', onclick: function () { window.PlanUI.enrollDialog({ packId: o.packId, itemId: o.item.id, title: p.title, weeks: p.durationWeeks || total, onDone: again }); } })]);
+          : el('button.btn.primary', { type: 'button', text: '📅 Start project plan', onclick: function () { window.PlanUI.enrollDialog({ packId: o.packId, itemId: o.item.id, title: p.title, weeks: p.durationWeeks || total, onDone: again }); } })]);
       var tabs = el('div.proj-tabs', { role: 'tablist' }, TABS.filter(function (t) {
         return t[0] !== 'learning' || (p.learning || []).length; }).filter(function (t) { return t[0] !== 'assessment' || (p.assessment || []).length; }).filter(function (t) { return t[0] !== 'brief' || p.brief; }).map(function (t) {
         return el('button', { type: 'button', role: 'tab', 'aria-selected': String(tab === t[0]), text: t[1], onclick: function () { tab = t[0]; try { localStorage.setItem('ui:projTab', tab); } catch (e) {} render(); } });
@@ -136,7 +136,7 @@
     }
     function planTab(body, p, en, plan) {
       var wrap = el('div.proj-inner');
-      if (!en) wrap.appendChild(el('div.okbox', { text: 'Enroll to map these ' + (p.durationWeeks || p.weeks.length) + ' weeks onto your calendar from the day you start. You can tick weeks and keep notes either way.' }));
+      if (!en) wrap.appendChild(el('div.okbox', { text: 'Start a project plan to map these ' + (p.durationWeeks || p.weeks.length) + ' weeks onto your calendar from the day you choose. You can tick weeks and keep notes either way.' }));
       var t0 = P.today;
       var byWeek = {}; (plan ? plan.weeks : []).forEach(function (w) { byWeek[w.week] = w; });
       var msAt = {}; (p.milestones || []).forEach(function (m) { var to = Array.isArray(m.weeks) ? m.weeks[1] : m.weeks || m.week; (msAt[to] = msAt[to] || []).push(m); });
@@ -175,7 +175,7 @@
       var w = el('div.proj-inner.overview');
       if (p.summary) w.appendChild(el('section', null, [el('h2', { text: 'Summary' }), el('p', { html: md(p.summary) })]));
       var kv = [['Work type', p.workType], ['Level', p.level], ['Students', p.slots], ['Duration', p.duration || (p.durationWeeks ? p.durationWeeks + ' weeks' : '')],
-        ['Supervisors', (p.supervisors || []).join(', ')], ['Industry mentor', p.mentor], ['Partner', p.partner], ['Tools', p.tools], ['Prerequisites', p.prerequisites],
+        ['Partner', p.partner], ['Tools', p.tools], ['Prerequisites', p.prerequisites],
         ['Areas', (p.areas || []).join(', ')], ['Keywords', (p.keywords || []).join(', ')]].filter(function (x) { return x[1]; });
       w.appendChild(el('dl.kv', null, [].concat.apply([], kv.map(function (x) { return [el('dt', { text: x[0] }), el('dd', { html: md(String(x[1])) })]; }))));
       if ((p.goals || []).length) w.appendChild(el('section', null, [el('h2', { text: 'Goals' }), el('ol', null, p.goals.map(function (g) { return el('li', { html: md(g) }); }))]));

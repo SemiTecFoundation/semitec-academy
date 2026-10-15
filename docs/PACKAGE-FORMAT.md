@@ -34,6 +34,7 @@ File name convention: `<pack id>-<pack version>.stlp`. Media type: `application/
   "publisherLogo": "publisher-logo.svg",          // app ≥ 1.5.0 (optional)
   "publisherUrl": "https://…",
   "authors": ["Arman Manukyan, PhD"],
+  "contact": { "name": "Course team", "email": "courses@example.org", "url": "https://example.org" },
   "cover": "cover.svg",
   "created": "2026-10-13T14:46:03.689Z",
   "minAppVersion": "1.0.0",
@@ -68,6 +69,7 @@ File name convention: `<pack id>-<pack version>.stlp`. Media type: `application/
 | `items[].path` / `file` | relative to `content/` |
 | `items[].url` | video / material: online link instead of a file |
 | `publisherLogo`, `publisherUrl` | publisher's logo (file under `content/`) and website, shown with the publisher name |
+| `contact` | optional publisher feedback contact: `name`, `email`, `url`, `instructions`; shown in Pack details |
 | `items[].for` | id of the item it belongs to (materials of a lab): shown under that item, not in the plan |
 | `items[].prerequisite` | `true`: optional refresher shown before the course; not counted in progress or the certificate, not planned (app ≥ 1.6.0) |
 | `items[].category` | project: research · diploma · thesis · course-project · capstone · internship · other |
@@ -76,7 +78,7 @@ File name convention: `<pack id>-<pack version>.stlp`. Media type: `application/
 | `schedule` | optional study plan (app ≥ 1.4.0): `entries` of `week` / `weeks: [from, to]`, `title`, `note`, `items`; see PACK-SPEC.md → Study plans |
 | `items[].plannedWeeks` | optional weeks for the item (plan when there is no `schedule`) |
 | `items[].schedule` | training only: topic plan copied from `training.json` → `{ weeks, topics: [{ weeks: [a, b], titles }] }` |
-| `certificate` | optional design of the course certificate (same fields as a training's `certificate.json`) |
+| `certificate` | optional publisher-defined course certificate (same fields as a training's `certificate.json`); omit it for no course certificate |
 | `files` | every file under `content/` with SHA-256 and size — no file may be missing or extra |
 
 **What counts for progress** (app ≥ 1.6.0): every item except prerequisites (`prerequisite: true`) and items
@@ -95,8 +97,9 @@ subsection / step id inside an item). Renaming an id resets that progress.
 - The signature covers the **exact bytes** of `manifest.json`; the manifest covers every file by hash,
   so the whole pack is protected.
 - `keyId` = first 16 hex characters of SHA-256 of the public key (SPKI DER).
-- The app accepts a pack only if `keyId` is in `app/trusted-keys/` and the signature verifies
-  (developer mode can allow unsigned / unknown-key packs for testing).
+- The app accepts a pack when `keyId` is in its built-in Foundation keys **or** a public publisher key the
+  computer owner added in *Settings → Application → Trusted publishers*, and the signature verifies.
+  Developer mode can allow unsigned / unknown-key packs for local testing.
 
 ## How the app opens a pack
 
@@ -162,8 +165,9 @@ the project-brief template (`tools/brief2project.py`). Main fields:
 | `learning[]` | `{ group, topic, level: apply / understand / aware, usedFor, sources }` |
 | `brief` | the brief PDF, relative to the folder |
 
-The student enrolls in the project with a start date; week *n* is mapped to the calendar from it. The
+The student starts a project plan with a start date; week *n* is mapped to the calendar from it. The
 app saves `{ weeks: { "<n>": doneAt }, notes: { "<n>": text } }`; progress = weeks ticked / weeks.
+Projects are advanced lab-style work items; the app does not handle applications, supervisor links or approval.
 
 ### material — format 1 (app ≥ 1.1.0)
 Any other file (`file` + `kind`) or a link (`url`). Shown with a viewer for its kind (PDF, image,

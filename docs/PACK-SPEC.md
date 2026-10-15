@@ -33,8 +33,14 @@ students' progress is stored per id, so keep them stable between versions.
     "publisherLogo": "publisher-logo.svg",     // square image (SVG / PNG), app ≥ 1.5.0
     "publisherUrl": "https://…",               // optional
     "authors": ["Arman Manukyan, PhD"],
+    "contact": {                                // optional: where students can ask the publisher for feedback
+      "name": "Course team",
+      "email": "courses@example.org",
+      "url": "https://example.org/courses",
+      "instructions": "Use the course title in your message."
+    },
     "cover": "cover.svg",                      // optional image, about 600 × 340
-    "certificate": "certificate.json"          // optional design of the course certificate (app ≥ 1.4.0)
+    "certificate": "certificate.json"          // optional: omit it when this package does not issue a course certificate
   },
 
   "schedule": {                                // optional study plan (app ≥ 1.4.0) — see "Study plans" below
@@ -122,8 +128,8 @@ The plan comes from (first match wins):
 
 A training can also carry its own topic plan in `training.json` (`"schedule": { "weeks": 2, "topics":
 [{ "week": 1, "topics": [ids] }] }`, made with the training template); the app shows those topic weeks
-inside the training's block. **Projects** have their own 30-week (or other) plan in `project.json`; students
-enroll in a project separately.
+inside the training's block. **Projects** are advanced lab-style package items. They have their own 30-week
+(or other) plan in `project.json`; students start and track that project plan separately from a course plan.
 
 ## Publishing a catalog
 
@@ -136,7 +142,8 @@ Students find packages in the app's **Catalog**. Two ways to publish:
   website and give students the link of `catalog.json`. Each company can publish its own catalog.
 
 The app shows every package with cover, publisher and logo, *Install* / *Update available* / *Installed*,
-and installs through the normal signature check.
+and installs through the normal signature check. A recipient can add a partner's public key in *Settings →
+Application → Trusted publishers*; this is their local trust decision, not Foundation approval.
 
 ## What `check` verifies
 
@@ -151,7 +158,7 @@ and installs through the normal signature check.
 | project | `project.json` valid (format 1), title, weekly plan with unique week numbers inside `durationWeeks`, milestones / deliverables inside the duration, brief PDF exists |
 | links | `for` points to an existing item that is not itself attached; warning when it points to a video / material |
 | prerequisites | `prerequisite` is `true`/`false`, not combined with `for`; at least one counted item; warning when a prerequisite is listed in the `schedule` |
-| pack | `publisherLogo` is an image (warning when missing), `publisherUrl` is a web link |
+| pack | `publisherLogo` is an image (warning when missing), `publisherUrl` / `contact.url` are web links, `contact.email` is an email address |
 | schedule | entries have valid weeks inside `weeks`, every listed item exists; warning for items without a week; `plannedWeeks` 0–104; training `schedule` topics exist |
 | whole spec | unique ids across all materials; modules reference existing ids; minimum app version for the formats used |
 

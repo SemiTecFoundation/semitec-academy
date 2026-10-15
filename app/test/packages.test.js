@@ -9,6 +9,8 @@ const path = require('node:path');
 const { unzipSync, zipSync } = require('fflate');
 const { buildPack, readPack, peekPack, generateKeyPair, keyId, loadTrustedKeys } = require('../src/shared/packfmt');
 const makeLibrary = require('../src/main/library');
+const makePlanner = require('../src/main/planner');
+const { checkSpec, assemble } = require('../src/shared/spec');
 const { DB } = require('../src/main/db');
 
 const keys = generateKeyPair();
@@ -140,4 +142,34 @@ test('fixture packages contain every declared file and are trusted only by their
     assert.ok(Object.keys(pack.files).length > 0);
     assert.equal(readPack(bytes, productionKeys).signature.status, 'untrusted-key');
   }
+});
+
+test('a completed package receives a course certificate only when its publisher defines one', () => {
+  const base = { format: 1, id: 'org.example.completed', version: '1.0.0', title: 'Completed course', publisher: 'Example publisher', items: [{ id: 'lab', type: 'lab', estimatedTime: '2 h' }] };
+  const manifests = { 'org.example.no-certificate': { ...base, id: 'org.example.no-certificate' },
+    'org.example.with-certificate': { ...base, id: 'org.example.with-certificate', certificate: { title: 'Publisher course certificate', issuer: 'Example publisher' } } };
+  const db = { all(sql, args) {
+    if (sql.startsWith('SELECT id FROM packs')) return Object.keys(manifests).map(id => ({ id }));
+    if (sql.startsWith('SELECT item_id')) return [{ item_id: 'lab', percent: 100, completed_at: '2026-10-16T10:00:00.000Z', updated_at: '2026-10-16T10:00:00.000Z', item_type: 'lab', state: '{}' }];
+    throw new Error('Unexpected query: ' + sql + ' ' + args);
+  } };
+  const planner = makePlanner({ db, lib: { manifestOf: id => manifests[id] } });
+  const certs = planner.certificates(1, 'Student Name').filter(c => c.kind === 'package');
+  assert.equal(certs.length, 1);
+  assert.equal(certs[0].packId, 'org.example.with-certificate');
+  assert.equal(certs[0].config.issuer, 'Example publisher');
+});
+
+test('a package spec preserves an optional author feedback contact', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'stl-contact-test-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(root, 'notes.md'), '# Notes\n\nA short reading.\n');
+  const contact = { name: 'Course team', email: 'courses@example.org', url: 'https://example.org/courses', instructions: 'Include the package title.' };
+  const spec = { pack: { id: 'org.example.contact-test', version: '1.0.0', title: 'Contact test', publisher: 'Example publisher', contact },
+    readings: [{ id: 'notes', source: 'notes.md' }] };
+  const specPath = path.join(root, 'pack-spec.json'); fs.writeFileSync(specPath, JSON.stringify(spec));
+  const checked = checkSpec(specPath);
+  assert.deepEqual(checked.errors, []);
+  const pack = assemble(specPath, path.join(root, 'assembled'), checked);
+  assert.deepEqual(pack.contact, contact);
 });

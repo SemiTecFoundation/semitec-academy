@@ -142,7 +142,9 @@ module.exports = function planner({ db, lib }) {
           date: st.completedAt || p.completedAt, issuedAt: c.issuedAt || null, score: c.score != null ? c.score : avg, certId: c.id || null, created: !!c.id });
       }
       const items = S.countedItems(m);      // prerequisites and attached materials are not required for the certificate
-      if (items.length && items.every(it => (prog[it.id] || {}).completedAt)) {
+      /* Course certificates are an author/publisher choice. A completed package without a certificate
+         definition is still complete; it simply has no course credential to issue. */
+      if (m.certificate && items.length && items.every(it => (prog[it.id] || {}).completedAt)) {
         const date = items.map(it => prog[it.id].completedAt).sort().pop();
         out.push({ kind: 'package', packId: r.id, packTitle: m.title, title: m.title, name: displayName, date, issuedAt: date, score: null, items: items.length,
           hours: Math.round(items.reduce((a, it) => a + S.minutes(it.estimatedTime), 0) / 6) / 10, publisher: m.publisher || '', language: m.language || 'en', config: m.certificate || null, created: true });

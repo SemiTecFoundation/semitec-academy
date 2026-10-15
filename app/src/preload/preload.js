@@ -4,7 +4,9 @@ const { contextBridge, ipcRenderer, webUtils } = require('electron');
 const call = (ch) => async (...args) => { const r = await ipcRenderer.invoke(ch, ...args); if (!r.ok) throw new Error(r.error); return r.data; };
 contextBridge.exposeInMainWorld('api', {
   app: { info: call('app:info'), chooseFolder: call('app:chooseFolder'), setup: call('app:setup'), moveData: call('app:moveData'),
-    openDataFolder: call('app:openDataFolder'), setDevMode: call('app:setDevMode'), openExternal: call('app:openExternal'), savePdf: call('app:savePdf') },
+    openDataFolder: call('app:openDataFolder'), setDevMode: call('app:setDevMode'), publisherKeys: call('app:publisherKeys'),
+    choosePublisherKey: call('app:choosePublisherKey'), addPublisherKey: call('app:addPublisherKey'), removePublisherKey: call('app:removePublisherKey'),
+    openExternal: call('app:openExternal'), savePdf: call('app:savePdf') },
   auth: { exists: call('auth:exists'), register: call('auth:register'), login: call('auth:login'), logout: call('auth:logout'),
     lastUser: call('auth:lastUser'), changePassword: call('auth:changePassword'), updateName: call('auth:updateName') },
   packs: { list: call('packs:list'), get: call('packs:get'), choose: call('packs:choose'), inspect: call('packs:inspect'),

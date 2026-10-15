@@ -46,7 +46,8 @@ Give the package a week plan so students get dates: `"schedule"` in the spec (we
 A diploma / research **project** comes from a project brief made with the project-brief template:
 `python3 <template>/tools/brief2project.py <brief-folder>` writes `project/project.json` + `brief.pdf`
 (weekly plan from the brief's progress tracker, milestones, deliverables, rubric, learning path). Add it
-to the spec under `"projects"`. Students enroll in a project separately; its weeks go into the calendar.
+to the spec under `"projects"`. Students start a project plan separately; its weeks go into the calendar.
+A project is advanced lab-style work, not an application, supervision or approval workflow.
 
 ### Publisher, attached materials, project categories (app ≥ 1.5.0)
 - `pack.publisher` + `pack.publisherLogo` (square SVG / PNG): students see the logo and filter by publisher —
@@ -57,9 +58,14 @@ to the spec under `"projects"`. Students enroll in a project separately; its wee
 - Publish packages for the **Catalog**: a shared folder, or `stlp catalog` → `catalog.json` on a website
   ([PACK-SPEC.md → Publishing a catalog](PACK-SPEC.md#publishing-a-catalog)).
 
-### Course certificate
-`"certificate": "certificate.json"` in `pack` sets the design of the certificate students get when every
-item is completed (same format as a training's `certificate.json`; without it a default design is used).
+### Publisher identity, feedback and optional certificate
+Set `pack.publisher` and `pack.authors` to the organization and people responsible for the materials. An
+optional `pack.contact` object (`name`, `email`, `url`, `instructions`) appears in *Pack details* so students
+know where to ask for feedback. It is a contact route, not a supervisor or approval link.
+
+`"certificate": "certificate.json"` in `pack` opts into a course certificate after every counted item is
+completed. The publisher supplies the certificate title, text and issuer; if `certificate` is omitted, the
+package is still complete but it issues **no course certificate**. Training certificates remain independent.
 
 ## The step-by-step way (pack folder)
 

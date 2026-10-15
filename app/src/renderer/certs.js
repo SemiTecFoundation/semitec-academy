@@ -3,15 +3,13 @@
    look like the certificates inside the trainings; saved as PDF through the main process. App 1.4.0. */
 (function () {
   function U() { return window.UI; }
-  var DEFAULT = { title: 'Certificate of Completion', presented: 'This certificate is presented to', body: 'for completing the course **{training}** on {date}.',
-    issuer: 'SemiTec Foundation', logoText: 'SA', idPrefix: 'SA-', sealText: '✓', style: { design: 'classic', font: 'serif' } };
-
   function fetchJSON(u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }); }
 
   /* -> Promise<HTMLElement> */
   function render(c) {
     if (c.kind === 'package') {
-      var cfg = Object.assign({}, DEFAULT, c.config || {}, { issuer: (c.config && c.config.issuer) || c.publisher || DEFAULT.issuer });
+      if (!c.config) return Promise.reject(new Error('This package does not offer a course certificate'));
+      var cfg = Object.assign({}, c.config, { issuer: c.config.issuer || c.publisher || 'Course publisher' });
       return Promise.resolve(T.renderCertificate(cfg, { id: c.packId, title: c.title, language: c.language, hours: c.hours, topicTitles: [] }, { name: c.name, score: c.score != null ? c.score : 1, date: c.date }));
     }
     var base = 'stl://pack/' + encodeURIComponent(c.packId) + '/' + c.path + '/';
@@ -53,11 +51,11 @@
   function page(main) {
     var el = U().el;
     var pg = el('div.ui-page'); main.appendChild(pg);
-    pg.appendChild(el('div.ui-head', null, [el('div', null, [el('h1', { text: 'Certificates' }), el('p.sub', { text: 'Certificates you earned: for each completed training, and for each course where everything is completed.' })])]));
+    pg.appendChild(el('div.ui-head', null, [el('div', null, [el('h1', { text: 'Certificates' }), el('p.sub', { text: 'Training certificates and course certificates offered by their publishers.' })])]));
     U().api.certs.list().then(function (list) {
       if (!list.length) {
         pg.appendChild(el('div.empty', null, [el('div', { style: { fontSize: '3rem' }, text: '🏅' }), el('h2', { text: 'No certificates yet' }),
-          el('p', { text: 'Finish all topics and quizzes of a training to get its certificate. Complete every item of a course to get the course certificate.' }), el('a.btn', { href: '#/library', text: '← Library' })]));
+          el('p', { text: 'Finish all topics and quizzes of a training to get its certificate. A course certificate is available only when its publisher has included one.' }), el('a.btn', { href: '#/library', text: '← Library' })]));
         return;
       }
       var grid = el('div.grid.cert-grid');

@@ -269,6 +269,16 @@ function validatePack(dir) {
   if (!pack.title) rep.error('pack.json', 'missing title');
   if (pack.cover) C.image(path.join(dir, pack.cover), 'cover');
   if (pack.publisherLogo) C.image(path.join(dir, pack.publisherLogo), 'publisherLogo');
+  if (pack.publisherUrl) C.url(pack.publisherUrl, 'publisherUrl');
+  if (pack.contact != null) {
+    if (!pack.contact || typeof pack.contact !== 'object' || Array.isArray(pack.contact)) rep.error('contact', 'must be an object with optional name, email, url and instructions');
+    else {
+      if (pack.contact.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pack.contact.email)) rep.error('contact.email', 'must be an email address');
+      if (pack.contact.url) C.url(pack.contact.url, 'contact.url');
+      if (!pack.contact.name && !pack.contact.email && !pack.contact.url && !pack.contact.instructions) rep.warn('contact', 'has no contact information');
+    }
+  }
+  if (pack.certificate != null && (typeof pack.certificate !== 'object' || Array.isArray(pack.certificate))) rep.error('certificate', 'must be a certificate configuration object');
   const items = pack.items || [], ids = new Set(), info = {};
   if (!items.length) rep.error('pack.json', 'no items');
   for (const it of items) {

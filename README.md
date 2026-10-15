@@ -62,16 +62,20 @@ Windows, macOS and Linux machines and attaches them to the release. Locally:
      tables, code with *Copy*, images, text size, read tracking);
    - **videos** — player that resumes and tracks how much was watched, or a link to an online video;
    - **other materials** — PDF / image / code / Markdown viewers, *Save a copy*, *Open with default app*, links;
-   - **projects** — diploma / research projects from a project brief: enroll, weekly plan with dates,
-     tick weeks, notes for the supervisor meeting, milestones, deliverables, rubric, learning path, brief PDF.
-8. Collects **certificates**: one per completed training and one per completed course; view, print,
-   save as PDF. **Projects** lists all projects of the installed packages and the ones the student is in.
+   - **projects** — advanced lab-style work: start a separate weekly plan, tick weeks, keep notes,
+     follow milestones, deliverables, rubric, learning path and a brief PDF.
+8. Collects **certificates**: one per completed training and course certificates only when the package
+   publisher offers one; view, print and save as PDF. **Projects** lists all projects of installed packages
+   and those with an active plan.
 
 ## Folder
 
 ```text
 semitec-academy/
 ├── README.md                 this guide
+├── LICENSE                   Apache-2.0 source license
+├── NOTICE.md                 copyright and course-content boundary
+├── TRADEMARKS.md             SemiTec name and logo use
 ├── docs/                     architecture, authoring, package format, install, release and workflow guides
 │   └── diagrams/             PNG/SVG lifecycle diagrams used by the documentation
 ├── app/                      Electron application; version and dependencies in app/package.json
@@ -131,7 +135,9 @@ node packer/stlp.js create   <pack-spec.json> --unsigned --out /tmp
 #   → /tmp/<id>-<version>.stlp   (drag it onto the app window)
 ```
 
-A release package is signed with the production key instead — see [`docs/KEYS.md`](docs/KEYS.md).
+A release package is signed with its publisher's key. A recipient adds that publisher's public key in
+*Settings → Application → Trusted publishers* after checking its fingerprint. See
+[`docs/PUBLISHING.md`](docs/PUBLISHING.md) and [`docs/KEYS.md`](docs/KEYS.md).
 
 `npm run sync-engine` is the one command that needs the
 [skills repository](https://github.com/SemiTecFoundation/semitec-academy-skills) cloned next to this
@@ -161,9 +167,18 @@ every package; a package has its own **content version** for updates. See [`docs
 | 1.6.0 | prerequisites that are not counted in progress; course-order view; Markdown reading images; packer `catalog` command |
 | 1.6.1 | new development signing key — the first one was published by mistake and is no longer trusted |
 | 1.6.2 | production signing key `4c71eba82f86fcca`, the only trusted key; no development key is trusted any more; real contact details |
+| 1.7.0 | locally trusted partner publisher keys; optional publisher feedback contact and package certificate; clearer independent project plans |
+
+## License, package ownership and partner publishing
+
+SemiTec Academy source and documentation are available under [Apache-2.0](LICENSE). Anyone may build and
+share standalone materials or packages without a Foundation agreement or approval. The publisher remains
+responsible for the course content, its rights, author attribution, feedback contact and any optional
+certificate. A student or university chooses which publisher signing keys to trust locally. Read
+[the publishing workflow](docs/PUBLISHING.md), [NOTICE.md](NOTICE.md) and [trademark guidance](TRADEMARKS.md).
 
 ## Status
 
-Working prototype (v1.6.2), all features covered by `npm test`; installers for Windows, macOS and Linux,
+Working prototype (v1.7.0), all features covered by `npm test`; installers for Windows, macOS and Linux,
 built on real runners for each system and attached to every release.
 Next: code signing (RELEASING.md), and the proposals in [`docs/PROPOSALS.md`](docs/PROPOSALS.md) — self-study features first; multi-user features belong to the Foundation platform.

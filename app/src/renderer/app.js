@@ -612,7 +612,18 @@
       el('dt', { text: 'Signature' }), el('dd', { text: P.signature + (P.signedBy ? ' (' + P.signedBy + ')' : '') }),
       el('dt', { text: 'Formats' }), el('dd', { text: 'pack ' + m.format + ', needs app ≥ ' + m.minAppVersion }),
       el('dt', { text: 'Built for app' }), el('dd', { text: (m.builder && m.builder.targetApp) || '—' })]);
-    var mo = modal('Pack details', [dl], [
+    var c = m.contact || {}, contact = null;
+    if (c.name || c.email || c.url || c.instructions) {
+      var actions = [];
+      if (c.email) actions.push(el('button.btn.small', { type: 'button', text: 'Email author', onclick: function () { api.app.openExternal('mailto:' + encodeURIComponent(c.email)); } }));
+      if (c.url) actions.push(el('button.btn.small', { type: 'button', text: 'Open publisher site', onclick: function () { api.app.openExternal(c.url); } }));
+      contact = el('section.panel', null, [el('h3', { text: 'Feedback contact' }),
+        c.name ? el('p', { text: c.name }) : null,
+        c.instructions ? el('p.muted', { text: c.instructions }) : null,
+        c.email ? el('p.muted', { text: c.email }) : null,
+        actions.length ? el('div.ui-actions', null, actions) : null]);
+    }
+    var mo = modal('Pack details', [dl, contact], [
       el('button.btn.danger', { type: 'button', text: 'Remove from library', onclick: function () {
         if (!confirm('Remove "' + m.title + '" from this computer? Progress of all users is kept and comes back if you add the pack again.')) return;
         api.packs.remove(m.id).then(function () { mo.close(); toast('Removed: ' + m.title); location.hash = '#/library'; });
@@ -769,6 +780,33 @@
       el('p.muted', { text: 'Where the Catalog looks for packages: folders with .stlp files (shared drive, OneDrive, USB) and catalog links published by the SemiTec Foundation, partner companies or universities. Shared by all users of this computer.' }),
       srcBox, el('div.ui-actions', null, window.CatalogUI.sourceButtons(drawSources))]));
     drawSources();
+    var keyBox = el('div.src-list'), keyError = el('div.ui-error');
+    function drawPublisherKeys() {
+      api.app.publisherKeys().then(function (keys) {
+        T.clear(keyBox);
+        if (!keys.length) keyBox.appendChild(el('p.muted', { text: 'No partner publisher keys have been added.' }));
+        keys.forEach(function (k) {
+          keyBox.appendChild(el('div.src-row', null, [el('span.src-ico', { text: '🔑' }), el('div.grow', null, [el('strong', { text: k.name }), el('div.muted.small.mono', { text: k.keyId })]),
+            el('button.btn.small', { type: 'button', text: 'Remove', onclick: function () {
+              if (!confirm('Stop trusting packages signed by ' + k.name + '? Installed packages are not removed.')) return;
+              api.app.removePublisherKey(k.keyId).then(drawPublisherKeys).catch(function (e) { keyError.textContent = e.message; });
+            } })]));
+        });
+      }).catch(function (e) { keyError.textContent = e.message; });
+    }
+    wrap.appendChild(el('section.panel', null, [el('h2', { text: 'Trusted publishers' }),
+      el('p.muted', { text: 'Add a publisher’s Ed25519 public key to install packages they sign. This is your decision for this computer; it is not a SemiTec Foundation approval. Confirm the key fingerprint with the publisher through a trusted channel.' }),
+      keyBox, el('div.ui-actions', null, [el('button.btn.small', { type: 'button', text: 'Add publisher key…', onclick: function () {
+        keyError.textContent = '';
+        api.app.choosePublisherKey().then(function (k) {
+          if (!k) return;
+          var name = prompt('Publisher name for packages signed by this key:', k.suggestedName);
+          if (name == null) return;
+          if (!confirm('Trust packages signed by “' + name + '”?\n\nKey fingerprint: ' + k.keyId)) return;
+          api.app.addPublisherKey(k.file, name).then(function () { toast('Publisher key added'); drawPublisherKeys(); }).catch(function (e) { keyError.textContent = e.message; });
+        }).catch(function (e) { keyError.textContent = e.message; });
+      } })]), keyError]));
+    drawPublisherKeys();
     var e3 = el('div.ui-error');
     wrap.appendChild(el('section.panel', null, [el('h2', { text: 'Data on this computer' }),
       el('p.muted', { text: 'Accounts, progress and installed packages of all users are stored in this folder. Back it up to keep everything.' }),
@@ -780,7 +818,7 @@
     var dev = el('input', { type: 'checkbox', checked: info.devMode });
     dev.addEventListener('change', function () { api.app.setDevMode(dev.checked).then(function (v) { toast(v ? 'Developer mode on' : 'Developer mode off'); }); });
     wrap.appendChild(el('section.panel', null, [el('h2', { text: 'Developer mode' }),
-      el('label.switch', null, [dev, el('span', { text: 'Allow installing packages that are unsigned or signed with an unknown key (for authors testing their own packages).' })])]));
+      el('label.switch', null, [dev, el('span', { text: 'Allow installing packages that are unsigned or signed with an unknown key. Use this only for local drafts and testing; add a publisher key for normal partner packages.' })])]));
   }
   function aboutTab(wrap, info) {
     var caps = info.capabilities;
