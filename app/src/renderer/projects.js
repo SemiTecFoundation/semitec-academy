@@ -14,11 +14,11 @@
   function listPage(main, which) {
     var el = U().el;
     var page = el('div.ui-page'); main.appendChild(page);
-    page.appendChild(el('div.ui-head', null, [el('div', null, [el('h1', { text: 'Projects' }), el('p.sub', { text: 'Advanced lab-style work from your packages. Start a project plan to track its weeks separately in your calendar.' })])]));
+    page.appendChild(el('div.ui-head', null, [el('div', null, [el('h1', { text: 'Projects' }), el('p.sub', { text: 'Advanced lab-style work from your My packages. Start a project plan to track its weeks separately in your calendar.' })])]));
     U().api.projects.list().then(function (list) {
       if (!list.length) {
         page.appendChild(el('div.empty', null, [el('div', { style: { fontSize: '3rem' }, text: '🎓' }), el('h2', { text: 'No projects yet' }),
-          el('p', { text: 'Projects come in course packages. Add a package with projects from the Catalog or the Library.' }), el('a.btn', { href: '#/catalog', text: 'Open the catalog' })]));
+          el('p', { text: 'Projects come in your course packages. Add a package with projects from the Catalog or Library, then add it to My packages.' }), el('a.btn', { href: '#/catalog', text: 'Open the catalog' })]));
         return;
       }
       var mine = list.filter(function (p) { return p.enrollment; });

@@ -17,7 +17,7 @@ contextBridge.exposeInMainWorld('api', {
   plan: { pack: call('plan:pack'), project: call('plan:project'), calendar: call('plan:calendar'), today: call('plan:today') },
   projects: { list: call('projects:list') },
   certs: { list: call('certs:list') },
-  mine: { add: call('mine:add'), remove: call('mine:remove') },
+  mine: { add: call('mine:add'), removalInfo: call('mine:removalInfo'), remove: call('mine:remove') },
   groups: { list: call('groups:list'), save: call('groups:save'), remove: call('groups:delete'), setForPack: call('groups:setForPack') },
   catalog: { sources: call('catalog:sources'), addFolder: call('catalog:addFolder'), addFolderPath: call('catalog:addFolderPath'), addUrl: call('catalog:addUrl'),
     remove: call('catalog:remove'), list: call('catalog:list'), fetch: call('catalog:fetch') },

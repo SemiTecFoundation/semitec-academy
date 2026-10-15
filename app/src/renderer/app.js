@@ -316,10 +316,8 @@
         var gs = groupsOf(p);
         var actions = el('div.card-actions', { onclick: function (e) { e.stopPropagation(); } }, p.mine ? [
           el('button.btn.small', { type: 'button', text: '🗂 Groups' + (gs.length ? ' (' + gs.length + ')' : ''), onclick: function () { packGroupsDialog(p); } }),
-          el('button.btn.small.ghost', { type: 'button', text: 'Remove from mine', title: 'Removes it from My packages; it stays installed — you choose whether your progress is kept', onclick: function () {
-            var has = p.progress.saved || (p.plan && p.plan.enrolled);
-            if (!has) return api.mine.remove(p.id).then(function () { reload('Removed from My packages: ' + p.title); });
-            resetProgressDialog(p, { remove: true, done: function (r, reset) { reload('Removed from My packages: ' + p.title + (reset ? ' — progress reset' : ' — progress kept')); } }); } })]
+          el('button.btn.small.ghost', { type: 'button', text: 'Remove from My packages', title: 'Removes it only from your packages; it stays installed for this computer', onclick: function () {
+            removeFromMyPackages(p, function (reset) { reload('Removed from My packages: ' + p.title + (reset ? ' — progress reset' : ' — progress kept')); }); } })]
           : [el('button.btn.small.primary', { type: 'button', text: '＋ Add to My packages', onclick: function () { api.mine.add(p.id).then(function () { reload('Added to My packages: ' + p.title); }); } })]);
         return el('div.pack-card', { role: 'link', tabindex: 0, onclick: function () { location.hash = '#/pack/' + encodeURIComponent(p.id); }, onkeydown: function (e) { if (e.key === 'Enter' && e.target === e.currentTarget) location.hash = '#/pack/' + encodeURIComponent(p.id); } }, [cv,
           el('div.pack-body', null, [
@@ -470,6 +468,36 @@
     }).catch(function (e) {
       modal('This file cannot be added', [el('div.errbox', { text: e.message })], [el('button.btn.primary', { type: 'button', text: 'OK', onclick: function () { document.querySelector('.modal-back').remove(); } })]);
     });
+  }
+
+  /* Removal is different from uninstalling a package for the whole computer.  A user cannot leave a
+     project plan behind: first show every active plan and require an explicit stop-and-remove choice. */
+  function removeFromMyPackages(p, done) {
+    api.mine.removalInfo(p.id).then(function (info) {
+      if (info.coursePlan || (info.projects || []).length) return stopPlansAndRemoveDialog(p, info, done);
+      var has = p.progress.saved || (p.plan && p.plan.enrolled);
+      if (!has) return api.mine.remove(p.id).then(function () { done(false); });
+      resetProgressDialog(p, { remove: true, done: function (r, reset) { done(reset); } });
+    }).catch(function (e) { toast('⚠ ' + e.message, true); });
+  }
+  function stopPlansAndRemoveDialog(p, info, done) {
+    var erase = el('input', { type: 'checkbox', id: 'remove-plans-progress' });
+    var entries = [];
+    if (info.coursePlan) entries.push(el('li', { text: 'Course study plan' }));
+    (info.projects || []).forEach(function (project) { entries.push(el('li', { text: 'Project plan: ' + project.title })); });
+    var body = [
+      el('p', { text: '“' + p.title + '” has active plans. Removing it from My packages must stop these plans so they no longer appear in your calendar or Projects.' }),
+      el('ul', null, entries),
+      el('label.check', null, [erase, el('span', { text: ' Also delete my saved learning and project progress, notes and certificates' })]),
+      el('p.muted.small', { text: 'If you leave this unchecked, the plans stop now and saved progress remains available if you add this package again.' })
+    ];
+    var mo = modal('Stop plans and remove package', body, [
+      el('button.btn', { type: 'button', text: 'Cancel', onclick: function () { mo.close(); } }),
+      el('button.btn.primary', { type: 'button', text: 'Stop plans and remove', onclick: function () {
+        var reset = erase.checked;
+        var action = reset ? api.progress.reset(p.id).then(function () { return api.mine.remove(p.id); }) : api.mine.remove(p.id, { stopPlans: true });
+        action.then(function () { mo.close(); done(reset); }).catch(function (e) { toast('⚠ ' + e.message, true); });
+      } })]);
   }
 
   /* reset dialog: start a package from 0 (progress, quiz results, notes, study plan, certificates of this package) */

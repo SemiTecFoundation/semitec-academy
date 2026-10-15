@@ -494,7 +494,7 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   /* remove from My packages with "reset my progress", add again: starts from 0 */
   await win.evaluate(() => { location.hash = '#/library'; }); await sleep(300);
   await win.click('.lib-tabs button[data-k="mine"]'); await win.waitForSelector('.pack-card');
-  await win.click('.pack-card:has-text("FPGA Starter") button:has-text("Remove from mine")');
+  await win.click('.pack-card:has-text("FPGA Starter") button:has-text("Remove from My packages")');
   await win.waitForSelector('.modal #rp-chk');
   const dlg = await win.textContent('.modal');
   await shot(win, '11b-remove-reset-dialog');

@@ -74,8 +74,8 @@ Windows, macOS and Linux machines and attaches them to the release. Locally:
    - **projects** — advanced lab-style work: start a separate weekly plan, tick weeks, keep notes,
      follow milestones, deliverables, rubric, learning path and a brief PDF.
 8. Collects **certificates**: one per completed training and course certificates only when the package
-   publisher offers one; view, print and save as PDF. **Projects** lists all projects of installed packages
-   and those with an active plan.
+   publisher offers one; view, print and save as PDF. **Projects** lists work from the student's *My
+   packages* and separately tracks the plans they have started.
 
 ## Folder
 
@@ -177,6 +177,7 @@ every package; a package has its own **content version** for updates. See [`docs
 | 1.6.1 | new development signing key — the first one was published by mistake and is no longer trusted |
 | 1.6.2 | production signing key `4c71eba82f86fcca`, the only trusted key; no development key is trusted any more; real contact details |
 | 1.7.0 | locally trusted partner publisher keys; optional publisher feedback contact and package certificate; clearer independent project plans |
+| 1.7.1 | projects follow each student's *My packages*; package removal stops active course and project plans after confirmation; stale plan references are cleaned on sign-in |
 
 ## License, package ownership and partner publishing
 
@@ -188,6 +189,6 @@ certificate. A student or university chooses which publisher signing keys to tru
 
 ## Status
 
-Working prototype (v1.7.0), all features covered by `npm test`; installers for Windows, macOS and Linux,
+Working prototype (v1.7.1), all features covered by `npm test`; installers for Windows, macOS and Linux,
 built on real runners for each system and attached to every release.
 Next: code signing (RELEASING.md), and the proposals in [`docs/PROPOSALS.md`](docs/PROPOSALS.md) — self-study features first; multi-user features belong to the Foundation platform.

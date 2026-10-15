@@ -42,6 +42,7 @@ target app). Current table:
 | 1.6.0 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | prerequisites (`"prerequisite": true`) shown before the course and not counted; attached materials (`for`) no longer count; reset the progress of a package |
 | 1.6.1 – 1.6.2 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | no content-format change — signing keys and installer metadata only |
 | 1.7.0 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | no content-format change — local publisher keys, contact metadata and optional package certificates |
+| 1.7.1 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | no content-format change — projects follow My packages; removal stops active plans after confirmation and clears stale plan references |
 
 A pack **without** videos and other materials still opens in 1.0.0 (the packer writes
 `minAppVersion: 1.0.0`); a pack with a video needs 1.1.0; a lab with source files needs 1.2.0; a Markdown reading needs 1.3.0 (reading format 1 = PDF, 2 = Markdown); a project needs 1.4.0.

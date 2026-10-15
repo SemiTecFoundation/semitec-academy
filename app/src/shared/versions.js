@@ -56,6 +56,11 @@ const HISTORY = [
     app: '1.7.0',
     pack: [1], training: [1], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
     notes: 'Locally trusted publisher keys, publisher feedback contact, optional package certificates, and clearer independent project plans.'
+  },
+  {
+    app: '1.7.1',
+    pack: [1], training: [1], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
+    notes: 'Projects follow My packages; removing a package stops its active plans after confirmation and clears stale plan references on sign-in.'
   }
 ];
 

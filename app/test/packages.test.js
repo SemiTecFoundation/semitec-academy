@@ -9,6 +9,7 @@ const path = require('node:path');
 const { unzipSync, zipSync } = require('fflate');
 const { buildPack, readPack, peekPack, generateKeyPair, keyId, loadTrustedKeys } = require('../src/shared/packfmt');
 const makeLibrary = require('../src/main/library');
+const makeMine = require('../src/main/mine');
 const makePlanner = require('../src/main/planner');
 const { checkSpec, assemble } = require('../src/shared/spec');
 const { DB } = require('../src/main/db');
@@ -112,6 +113,38 @@ test('signed test packages install, upgrade and remove within the packages folde
   assert.deepEqual(fs.readdirSync(lib.packsDir), []);
   assert.equal(db.get('SELECT id FROM packs WHERE id=?', [manifest.id]), null);
   assert.equal(fs.readFileSync(path.join(victim, 'keep.txt'), 'utf8'), 'Unrelated data');
+});
+
+test('removing from My packages requires active project plans to be stopped first', async t => {
+  const { lib, db, write } = await setup(t);
+  const projectPack = { ...manifest, id: 'org.example.project-removal', items: [{ id: 'capstone', type: 'project', format: 1, title: 'Memory BIST capstone' }] };
+  lib.importFile(write(buildPack({ manifest: projectPack, files, privateKeyPem: keys.privateKey })), { devMode: false });
+  const mine = makeMine({ db, lib });
+  mine.add(7, projectPack.id);
+  db.run('INSERT INTO enrollments(user_id,pack_id,item_id,start_date,plan,enrolled_at) VALUES(?,?,?,?,?,?)', [7, projectPack.id, '', '2026-10-16', '{}', '2026-10-16T09:00:00.000Z']);
+  db.run('INSERT INTO enrollments(user_id,pack_id,item_id,start_date,plan,enrolled_at) VALUES(?,?,?,?,?,?)', [7, projectPack.id, 'capstone', '2026-10-16', '{}', '2026-10-16T09:00:00.000Z']);
+  db.run('INSERT INTO progress(user_id,pack_id,item_id,item_type,state,percent,completed_at,updated_at) VALUES(?,?,?,?,?,?,?,?)', [7, projectPack.id, 'capstone', 'project', '{"weeks":{"1":"2026-10-16"}}', 10, null, '2026-10-16T09:00:00.000Z']);
+
+  assert.deepEqual(mine.removalInfo(7, projectPack.id), { coursePlan: true, projects: [{ id: 'capstone', title: 'Memory BIST capstone', startDate: '2026-10-16' }] });
+  assert.throws(() => mine.remove(7, projectPack.id), /Stop the active course or project plan/);
+  mine.remove(7, projectPack.id, { stopPlans: true });
+  assert.equal(db.get('SELECT * FROM user_packs WHERE user_id=? AND pack_id=?', [7, projectPack.id]), null);
+  assert.equal(db.get('SELECT * FROM enrollments WHERE user_id=? AND pack_id=?', [7, projectPack.id]), null);
+  assert.equal(db.get('SELECT * FROM progress WHERE user_id=? AND pack_id=?', [7, projectPack.id]).percent, 10, 'progress is retained unless the user explicitly resets it');
+});
+
+test('sign-in cleanup removes only orphaned package selections and plans', async t => {
+  const { lib, db } = await setup(t);
+  const mine = makeMine({ db, lib });
+  const orphan = 'org.example.removed-package';
+  db.run('INSERT INTO user_packs(user_id,pack_id,added_at) VALUES(?,?,?)', [5, orphan, '2026-10-16T09:00:00.000Z']);
+  db.run('INSERT INTO enrollments(user_id,pack_id,item_id,start_date,plan,enrolled_at) VALUES(?,?,?,?,?,?)', [5, orphan, 'project', '2026-10-16', '{}', '2026-10-16T09:00:00.000Z']);
+  db.run('INSERT INTO progress(user_id,pack_id,item_id,item_type,state,percent,completed_at,updated_at) VALUES(?,?,?,?,?,?,?,?)', [5, orphan, 'project', 'project', '{}', 15, null, '2026-10-16T09:00:00.000Z']);
+  const cleaned = mine.cleanupOrphans(5);
+  assert.deepEqual(cleaned, { userPacks: 1, plans: 1, groups: 0 });
+  assert.equal(db.get('SELECT * FROM user_packs WHERE user_id=? AND pack_id=?', [5, orphan]), null);
+  assert.equal(db.get('SELECT * FROM enrollments WHERE user_id=? AND pack_id=?', [5, orphan]), null);
+  assert.equal(db.get('SELECT * FROM progress WHERE user_id=? AND pack_id=?', [5, orphan]).percent, 15, 'learning record remains available if the package is re-added');
 });
 
 test('unsigned test packages require Developer mode', async t => {

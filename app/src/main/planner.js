@@ -50,7 +50,9 @@ module.exports = function planner({ db, lib }) {
     return { project: p, enrollment: en, today: S.today(now), plan: en ? S.projectPlan(p, en.startDate, projectState(userId, packId, itemId), now) : null };
   }
   function enrolledPacks(userId) {
-    return db.all('SELECT pack_id, item_id FROM enrollments WHERE user_id=?', [userId]).filter(r => lib.manifestOf(r.pack_id));
+    /* Ignore stale rows from a package another user has uninstalled. The join also keeps calendar
+       and dashboard loading proportional to packages that still exist. */
+    return db.all('SELECT e.pack_id, e.item_id FROM enrollments e JOIN packs p ON p.id=e.pack_id WHERE e.user_id=?', [userId]);
   }
 
   /* calendar events between from and to (YYYY-MM-DD, inclusive) */
@@ -108,10 +110,11 @@ module.exports = function planner({ db, lib }) {
     return out;
   }
 
-  /* all project items of all installed packages, with the student's enrollment and progress */
+  /* Projects belong to this user's My packages. Installed packages are shared by every account on
+     the computer, so showing all of them here made projects survive a user's package removal. */
   function projects(userId, now) {
     const out = [];
-    for (const r of db.all('SELECT id FROM packs ORDER BY title')) {
+    for (const r of db.all('SELECT p.id FROM packs p JOIN user_packs u ON u.pack_id=p.id WHERE u.user_id=? ORDER BY p.title', [userId])) {
       const m = lib.manifestOf(r.id);
       for (const it of (m.items || []).filter(i => i.type === 'project')) {
         let p = null; try { p = projectJson(r.id, it); } catch (e) { continue; }

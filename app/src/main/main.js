@@ -209,7 +209,7 @@ function registerIpc() {
 
   api('auth:exists', (username) => S.auth.exists(username));
   api('auth:register', (data) => { S.user = S.auth.register(data); S.db.setting('lastUser', S.user.username); return S.user; });
-  api('auth:login', (data) => { S.user = S.auth.login(data); S.db.setting('lastUser', S.user.username); return S.user; });
+  api('auth:login', (data) => { S.user = S.auth.login(data); S.mine.cleanupOrphans(S.user.id); S.db.setting('lastUser', S.user.username); return S.user; });
   api('auth:logout', () => { S.user = null; return true; });
   api('auth:lastUser', () => S.db.setting('lastUser'));
   api('auth:changePassword', (data) => S.auth.changePassword(S.user.id, data), { needsUser: true });
@@ -222,7 +222,8 @@ function registerIpc() {
   }, { needsUser: true });
   /* My packages and groups (1.5.0) */
   api('mine:add', (packId) => S.mine.add(S.user.id, packId), { needsUser: true });
-  api('mine:remove', (packId) => S.mine.remove(S.user.id, packId), { needsUser: true });
+  api('mine:removalInfo', (packId) => S.mine.removalInfo(S.user.id, packId), { needsUser: true });
+  api('mine:remove', (packId, options) => S.mine.remove(S.user.id, packId, options), { needsUser: true });
   api('groups:list', () => S.mine.groups(S.user.id), { needsUser: true });
   api('groups:save', (o) => S.mine.saveGroup(S.user.id, o), { needsUser: true });
   api('groups:delete', (id) => S.mine.deleteGroup(S.user.id, id), { needsUser: true });

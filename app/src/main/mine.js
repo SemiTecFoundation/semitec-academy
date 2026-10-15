@@ -15,12 +15,44 @@ module.exports = function mine({ db, lib }) {
     if (!g) throw new Error('Group not found');
     return g;
   }
+  /* Removing a package from "My packages" is personal: the package can remain installed for
+     other people who use this computer.  A course or project plan must be stopped first, so it
+     cannot keep appearing in the calendar after its package has left this user's library. */
+  function removalInfo(userId, packId) {
+    const m = lib.manifestOf(packId);
+    const titles = {};
+    if (m) (m.items || []).forEach(it => { titles[it.id] = it.title || it.id; });
+    const plans = db.all('SELECT item_id, start_date FROM enrollments WHERE user_id=? AND pack_id=? ORDER BY item_id', [userId, packId]);
+    return {
+      coursePlan: plans.some(p => !p.item_id),
+      projects: plans.filter(p => p.item_id).map(p => ({ id: p.item_id, title: titles[p.item_id] || p.item_id, startDate: p.start_date }))
+    };
+  }
   return {
     add,
-    remove(userId, packId) {
+    removalInfo,
+    remove(userId, packId, options = {}) {
+      const plans = removalInfo(userId, packId);
+      if ((plans.coursePlan || plans.projects.length) && !options.stopPlans) {
+        throw new Error('Stop the active course or project plan before removing this package from My packages');
+      }
+      if (options.stopPlans) db.run('DELETE FROM enrollments WHERE user_id=? AND pack_id=?', [userId, packId]);
       db.run('DELETE FROM user_packs WHERE user_id=? AND pack_id=?', [userId, packId]);
       db.run('DELETE FROM pack_group_items WHERE pack_id=? AND group_id IN (SELECT id FROM pack_groups WHERE user_id=?)', [packId, userId]);
-      return true;
+      return plans;
+    },
+    /* A package can be uninstalled from the computer by another user.  Keep completed learning
+       records, but remove this user's dangling library entries and plans so they never return as
+       a ghost project or calendar event after an upgrade. */
+    cleanupOrphans(userId) {
+      const missing = 'NOT EXISTS (SELECT 1 FROM packs p WHERE p.id=';
+      const userPacks = db.get('SELECT COUNT(*) AS n FROM user_packs u WHERE u.user_id=? AND ' + missing + 'u.pack_id)', [userId]).n;
+      const plans = db.get('SELECT COUNT(*) AS n FROM enrollments e WHERE e.user_id=? AND ' + missing + 'e.pack_id)', [userId]).n;
+      const groups = db.get('SELECT COUNT(*) AS n FROM pack_group_items i JOIN pack_groups g ON g.id=i.group_id WHERE g.user_id=? AND ' + missing + 'i.pack_id)', [userId]).n;
+      db.run('DELETE FROM pack_group_items WHERE group_id IN (SELECT id FROM pack_groups WHERE user_id=?) AND ' + missing + 'pack_group_items.pack_id)', [userId]);
+      db.run('DELETE FROM enrollments WHERE user_id=? AND ' + missing + 'enrollments.pack_id)', [userId]);
+      db.run('DELETE FROM user_packs WHERE user_id=? AND ' + missing + 'user_packs.pack_id)', [userId]);
+      return { userPacks, plans, groups };
     },
     ids(userId) { const m = {}; db.all('SELECT pack_id, added_at FROM user_packs WHERE user_id=?', [userId]).forEach(r => { m[r.pack_id] = r.added_at; }); return m; },
     groups(userId) {
