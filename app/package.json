@@ -12,7 +12,9 @@
   "scripts": {
     "start": "electron .",
     "sync-engine": "node tools/sync-engine.js",
-    "test": "node test/e2e.js",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "node --test test/packages.test.js",
+    "test:e2e": "node test/e2e.js",
     "dist": "electron-builder --publish never",
     "dist:win": "electron-builder --win nsis --x64 --publish never",
     "dist:mac": "electron-builder --mac dmg --arm64 --x64 --publish never",

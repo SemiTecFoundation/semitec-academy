@@ -5,14 +5,15 @@ local account, and add **SemiTec Learning Packages** (`.stlp`) — one signed fi
 trainings, labs, readings, videos and other materials. Progress is saved per student in a local database.
 New packages and new versions of packages can be added at any time; the app does not need to change.
 
+This repository contains the app, package-building tools and automated test fixtures. Course sources
+and built course packages belong in `semitec-academy-materials`. No course package is distributed here.
+
 ```
-  semitec-academy-skills/AcademyTemplates/     semitec-academy/                            student PC
- ┌──────────────────────────────────┐        ┌──────────────────────────────┐      ┌──────────────────────────────┐
- │ skills/training                   ─┐      │ <pack folder>/pack-spec.json │      │ SemiTec Academy              │
- │ skills/lab-manual                   ┤ ───► │ packer/stlp.js check/create  │ ───► │  account → library → package │
- │ PDFs, Markdown, videos, files     ─┘      │ dist/<id>-<version>.stlp     │ .stlp│  sections, progress, quizzes │
- │ skills/package (AI skill)         ──────► │                              │      │  local DB (SQLite)           │
- └──────────────────────────────────┘        └──────────────────────────────┘      └──────────────────────────────┘
+semitec-academy-skills       authoring templates and skills
+             ↓
+semitec-academy-materials    course sources → pack-spec.json → built .stlp packages
+             ↑                                      ↓
+semitec-academy              packer tools            students install packages in the app
 ```
 
 ## Install
@@ -91,7 +92,7 @@ Academy/
 │   └── test/e2e.js           end-to-end test (Playwright + Electron)
 ├── packer/stlp.js            CLI: check · create · inspect · keygen · bundle-skill (+ step-by-step commands)
 ├── app/test/fixtures/        the end-to-end suite's own packages (test data, not course content)
-├── dist/                     built packages (.stlp)
+├── app/test/packages.test.js package validation, safe installation and fixture tests (Node.js)
 ├── installers/<version>/     built installers, local only — released ones are attached to the release
 ├── .github/workflows/        GitHub Actions: build + release the installers on Windows, macOS, Linux
 └── keys/README.md            where signing keys live (public halves only; see docs/KEYS.md)
@@ -110,12 +111,16 @@ Requires **Node.js 20+**.
 cd app
 npm install                       # Electron, pdf.js, sql.js, fflate, marked, DOMPurify
 npm start                         # run the app
-npm test                          # 75 end-to-end checks (Linux CI: xvfb-run -a npm test)
+npm test                          # package tests + desktop checks (Linux CI: xvfb-run -a npm test)
+npm run test:unit                 # package tests without opening Electron
 ```
 
 `npm test` needs no signing key and no second checkout: it builds its own fixture packages with a
 throwaway key ([`app/test/fixtures/build.js`](app/test/fixtures/build.js)) and points the app at that
 key, so nothing in this repository is signed with the production key.
+The desktop suite uses a temporary profile and data folder and removes its test data after the run.
+CI runs the package tests on Windows, macOS and Linux and the desktop checks on Linux for main-branch
+updates and pull requests. Built `.stlp` files are ignored and rejected by CI; keep only fixture sources here.
 
 To try a package in the app by hand, build it unsigned and switch on *Developer mode* in *Settings →
 Application* (the app installs unsigned packages only then):

@@ -101,10 +101,14 @@ subsection / step id inside an item). Renaming an id resets that progress.
 ## How the app opens a pack
 
 1. Unzip in memory; reject paths that are absolute, contain `..`, or are outside `content/`.
-2. Parse `manifest.json`; check every file's SHA-256; reject missing or extra files.
+2. Parse `manifest.json`; require a lowercase reverse-domain package id (for example,
+   `org.example.test-pack`), never a filesystem path. Check every file's SHA-256; reject missing or extra files.
 3. Verify the signature against the trusted keys.
 4. Check compatibility (`format`, `minAppVersion`, each item's `format`) — see VERSIONING.md.
 5. Extract to `<data>/packs/<id>/` (temp folder, then swap) and record the manifest in the database.
+
+Package-id and directory checks also apply to trusted signatures and Developer mode. Removal validates
+the id before changing the database or deleting files.
 
 The content is **readable** by anyone who unzips the file (it is compressed and signed, not encrypted).
 Signing guarantees *who made it* and *that it was not changed*.

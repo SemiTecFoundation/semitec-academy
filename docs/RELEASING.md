@@ -21,7 +21,7 @@ downloadable artifacts without releasing.
 ## Checklist
 1. Raise `app/package.json → version`; update `src/shared/versions.js` if content formats changed
    (VERSIONING.md); README versions table; ROADMAP.
-2. `npm test` (75 end-to-end checks).
+2. `npm test` (package safety/fixture tests and end-to-end desktop checks).
 3. Build the installers; test a built app: `E2E_EXECUTABLE=<unpacked app binary> npm test`
    (e.g. `../installers/<v>/linux-unpacked/semitec-academy`).
 4. Release the `academy-templates:package` skill for the same version (its CHANGELOG, `bundle-skill`).

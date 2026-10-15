@@ -9,9 +9,18 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const { unzipSync, zipSync, strToU8, strFromU8 } = require('fflate');
+const { PACK_ID } = require('./validate');
 
 const MAX_FILES = 5000, MAX_TOTAL = 2 * 1024 * 1024 * 1024; // 2 GB uncompressed
 const sha256 = (buf) => crypto.createHash('sha256').update(buf).digest('hex');
+
+/* Package ids become directory names. Enforce the authoring rule at every container boundary,
+   including signed packages and Developer mode; neither is permission to use a filesystem path. */
+function assertPackId(id) {
+  if (typeof id !== 'string' || id !== id.trim() || !PACK_ID.test(id)) {
+    throw new Error('Invalid package id: expected lowercase reverse-domain form, e.g. org.example.test-pack');
+  }
+}
 
 function safeRel(p) {
   if (typeof p !== 'string' || !p || p.length > 400) return false;
@@ -48,6 +57,7 @@ function loadTrustedKeys(dir) {
 /* ---------- build ---------- */
 /* files: { 'content/...': Buffer }, manifest: object (files section is filled here) */
 function buildPack({ manifest, files, privateKeyPem }) {
+  assertPackId(manifest && manifest.id);
   const m = JSON.parse(JSON.stringify(manifest));
   m.files = {};
   for (const [p, buf] of Object.entries(files).sort()) {
@@ -80,7 +90,8 @@ function readPack(bytes, trustedKeys = {}) {
   const manifestBytes = Buffer.from(entries['manifest.json']);
   let manifest;
   try { manifest = JSON.parse(manifestBytes.toString('utf8')); } catch (e) { throw new Error('manifest.json is not valid JSON'); }
-  if (!manifest.id || !manifest.version || !manifest.files) throw new Error('manifest.json is incomplete');
+  assertPackId(manifest && manifest.id);
+  if (!manifest.version || !manifest.files) throw new Error('manifest.json is incomplete');
   /* every content file must be listed with the right hash, and nothing extra may be present */
   let total = 0;
   const files = {};
@@ -119,6 +130,7 @@ function peekPack(bytes, trustedKeys = {}) {
   if (!e['manifest.json']) throw new Error('manifest.json missing — not a SemiTec package');
   const manifestBytes = Buffer.from(e['manifest.json']);
   const manifest = JSON.parse(manifestBytes.toString('utf8'));
+  assertPackId(manifest && manifest.id);
   let signature = { status: 'unsigned' };
   if (e['signature.json']) {
     const s = JSON.parse(strFromU8(e['signature.json'])); const key = trustedKeys[s.keyId];
@@ -146,4 +158,4 @@ function extractTo(dir, files) {
   }
 }
 
-module.exports = { sha256, safeRel, keyId, generateKeyPair, loadTrustedKeys, buildPack, readPack, peekPack, extractTo };
+module.exports = { sha256, safeRel, assertPackId, keyId, generateKeyPair, loadTrustedKeys, buildPack, readPack, peekPack, extractTo };

@@ -24,12 +24,12 @@ SemiTec content. Nothing here is, and no key has to be committed for the tests t
 
 ```bash
 node app/test/fixtures/build.js      # see what it produces, in a temp folder
-cd app && npm test                   # builds the fixtures, then runs the 75 checks
+cd app && npm test                   # package regressions, then the desktop checks
 ```
 
 ## Changing a fixture
 
-The 75 checks assert this content **exactly** — item titles and ids, a 7-week study plan, a 30-week
+The desktop checks assert this content **exactly** — item titles and ids, a 7-week study plan, a 30-week
 project, 6 lab source files, a 4-question lab quiz, specific page and outline counts. Editing a fixture
 breaks the suite, so treat these as part of the test, not as courses to keep current.
 
@@ -41,9 +41,8 @@ node packer/stlp.js check  app/test/fixtures/fpga-starter/pack-spec.json
 node packer/stlp.js check  app/test/fixtures/demo-partner/pack-spec.json
 ```
 
-## Testing a different package
-
-`STPACK=/path/to/pack.stlp npm test` points the suite at your own package. Most checks will fail — they
-assert the fixture's content — so this is useful for the install, signature and compatibility steps
-only, and the package must be signed by a key the app already trusts (`app/trusted-keys/`), because
-`STPACK` leaves the real trust store in place.
+The suite always uses these fixtures; it does not accept `STPACK` overrides. To check a real course,
+run `packer/stlp.js check` against its spec in the materials repository, then test it manually.
+Built `.stlp` files must stay outside this repository. The desktop suite removes its generated
+packages, throwaway key, profile and data directory after each run; screenshots remain in the ignored
+`app/test/screenshots/` folder for inspection.

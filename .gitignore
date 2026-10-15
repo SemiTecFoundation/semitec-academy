@@ -4,6 +4,10 @@ app/test/screenshots/
 .DS_Store
 installers/
 
+# Course packages belong in semitec-academy-materials; tests build their own in temporary folders.
+*.stlp
+/dist/
+
 # Signing keys and certificates: never commit private keys
 *.key.pem
 *.key

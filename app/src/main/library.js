@@ -2,12 +2,12 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const { readPack, extractTo } = require('../shared/packfmt');
+const { readPack, extractTo, assertPackId } = require('../shared/packfmt');
 const { supports, cmp } = require('../shared/versions');
 const S = require('../shared/schedule');
 
 module.exports = function library({ db, dataDir, trustedKeys }) {
-  const packsDir = path.join(dataDir, 'packs');
+  const packsDir = path.resolve(dataDir, 'packs');
   fs.mkdirSync(packsDir, { recursive: true });
   const cache = {};
 
@@ -16,7 +16,12 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
     const r = db.get('SELECT manifest FROM packs WHERE id=?', [id]);
     return r ? (cache[id] = JSON.parse(r.manifest)) : null;
   }
-  function packDir(id) { return path.join(packsDir, id); }
+  function packDir(id) {
+    assertPackId(id);
+    const dir = path.resolve(packsDir, id);
+    if (path.dirname(dir) !== packsDir) throw new Error('Package directory must be inside the packages folder');
+    return dir;
+  }
 
   /* Inspect without installing: used for the confirmation dialog. */
   function inspect(filePath) {
@@ -39,13 +44,17 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
     if (installedVersion && cmp(m.version, installedVersion) < 0 && !devMode) {
       throw new Error(`A newer version (${installedVersion}) of this pack is already installed.`);
     }
-    /* extract to a temp folder, then swap */
-    const tmp = path.join(packsDir, '.tmp-' + Date.now());
-    extractTo(tmp, pack.files);
-    fs.writeFileSync(path.join(tmp, '.manifest.json'), pack.manifestBytes);
     const dir = packDir(m.id);
-    if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
-    fs.renameSync(tmp, dir);
+    /* Validate the destination before writing; each import gets its own staging directory. */
+    const tmp = fs.mkdtempSync(path.join(packsDir, '.tmp-'));
+    try {
+      extractTo(tmp, pack.files);
+      fs.writeFileSync(path.join(tmp, '.manifest.json'), pack.manifestBytes);
+      if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
+      fs.renameSync(tmp, dir);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
     db.run(`INSERT INTO packs(id,version,title,publisher,signature,signed_by,signed_dev,manifest,installed_at,installed_by) VALUES(?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(id) DO UPDATE SET version=excluded.version,title=excluded.title,publisher=excluded.publisher,signature=excluded.signature,
             signed_by=excluded.signed_by,signed_dev=excluded.signed_dev,manifest=excluded.manifest,installed_at=excluded.installed_at,installed_by=excluded.installed_by`,
@@ -104,8 +113,9 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
       return { manifest: Object.assign({}, m, { files: undefined, items }), signature: r.signature, signedBy: r.signed_by, signedDev: !!r.signed_dev, installedAt: r.installed_at, progress: prog, summary: summary(m, prog) };
     },
     remove(id) {
+      const dir = packDir(id); // reject unsafe ids before changing the database or filesystem
       db.run('DELETE FROM packs WHERE id=?', [id]);
-      fs.rmSync(packDir(id), { recursive: true, force: true });
+      fs.rmSync(dir, { recursive: true, force: true });
       delete cache[id];
     },
     /* start a package from 0: delete this user's progress of every item (training states, quizzes, notes,

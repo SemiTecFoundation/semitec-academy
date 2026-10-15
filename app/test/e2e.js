@@ -2,8 +2,8 @@
    Runs a fresh profile: first-run setup, account creation, pack install (signed), training / reading / lab
    progress, logout / login, second user, tampered and unsigned packs, restart.
    Usage:  npm test            (Linux CI: xvfb-run -a npm test)
-   Env:    STPACK=path/to/pack.stlp (default: the fixtures, built fresh by fixtures/build.js)
-           SHOTS=folder for screenshots (default: test/screenshots) */
+   Env:    SHOTS=folder for screenshots (default: test/screenshots)
+           E2E_EXECUTABLE=path to a built app (default: run the sources) */
 'use strict';
 const { _electron: electron } = require('playwright');
 const fs = require('fs'), os = require('os'), path = require('path');
@@ -12,25 +12,31 @@ const { unzipSync, zipSync } = require('fflate');
 const APP = path.join(__dirname, '..');
 /* The suite builds its own fixture packages with a throwaway key (fixtures/build.js) and points the
    app at that key with SEMITEC_TRUSTED_KEYS, so no package signed with the production key is ever
-   committed — a fixture installs in this test and nowhere else. STPACK=<file.stlp> tests your own
-   package instead, which must be signed by a key the app already trusts. */
-const FIXTURES = process.env.STPACK ? null : require('./fixtures/build').build();
-if (FIXTURES) process.env.SEMITEC_TRUSTED_KEYS = FIXTURES.trustedDir;
-const PACK = path.resolve(process.env.STPACK || FIXTURES.packs['org.semitec.fpga-starter']);
+   committed — a fixture installs in this test and nowhere else. The assertions require these
+   exact fixtures; use the packer to check other packages separately. */
+const FIXTURES = require('./fixtures/build').build();
+process.env.SEMITEC_TRUSTED_KEYS = FIXTURES.trustedDir;
+const PACK = FIXTURES.packs['org.semitec.fpga-starter'];
 const SHOTS = path.resolve(process.env.SHOTS || path.join(__dirname, 'screenshots'));
 const HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'stl-test-'));
+const PROFILE = path.join(HOME, 'profile');
+const tempDirs = [HOME, FIXTURES.dir];
+let runningApp, catalogServer;
 fs.mkdirSync(SHOTS, { recursive: true });
-let failures = 0;
-const check = (cond, msg) => { console.log((cond ? '  ✓ ' : '  ✗ ') + msg); if (!cond) failures++; };
+let failures = 0, checkCount = 0;
+const check = (cond, msg) => { checkCount++; console.log((cond ? '  ✓ ' : '  ✗ ') + msg); if (!cond) failures++; };
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 async function launch() {
   const app = await electron.launch({
     /* E2E_EXECUTABLE=<installed / unpacked app binary> tests a built installer instead of the sources */
     executablePath: process.env.E2E_EXECUTABLE || require('electron'),
-    args: process.env.E2E_EXECUTABLE ? ['--no-sandbox'] : ['--no-sandbox', APP], cwd: APP,
+    args: [...(process.env.E2E_EXECUTABLE ? [] : [APP]), '--no-sandbox', '--user-data-dir=' + PROFILE], cwd: APP,
     env: Object.assign({}, process.env, { HOME, XDG_CONFIG_HOME: path.join(HOME, '.config'), XDG_DOCUMENTS_DIR: path.join(HOME, 'Documents') })
   });
+  runningApp = app;
+  const profile = await app.evaluate(({ app }) => app.getPath('userData'));
+  if (fs.realpathSync(profile) !== fs.realpathSync(PROFILE)) throw new Error('Test app is not using its temporary profile: ' + profile);
   const win = await app.firstWindow();
   global.__win = win;
   await win.setViewportSize({ width: 1320, height: 860 }).catch(() => {});
@@ -47,6 +53,11 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
 
   console.log('1. First run');
   await win.waitForSelector('text=Welcome to SemiTec Academy');
+  const testData = path.join(HOME, 'data');
+  fs.mkdirSync(testData);
+  await app.evaluate(({ dialog }, dir) => { dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [dir] }); }, testData);
+  await win.click('button:has-text("Choose another folder")');
+  await win.waitForFunction(dir => document.querySelector('.path').textContent === dir, testData);
   await shot(win, '01-setup');
   await win.click('text=Continue →');
 
@@ -354,6 +365,7 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   console.log('6f. Catalog: folder and catalog link, install from another publisher');
   const DIST = path.dirname(PACK);
   const CAT = fs.mkdtempSync(path.join(os.tmpdir(), 'stl-cat-'));
+  tempDirs.push(CAT);
   /* only the two packs these checks are about — one installed, one from another publisher — so that
      further fixture packs cannot change the counts below */
   const CAT_IDS = ['org.semitec.fpga-starter', 'org.example.mbist-track'];
@@ -363,6 +375,7 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   require('child_process').execFileSync(process.execPath, [path.join(APP, '..', 'packer', 'stlp.js'), 'catalog', CAT, '--name', 'Test catalog'], { stdio: 'ignore' });
   const http = require('http');
   const srv = http.createServer((q, r) => { const f = path.join(CAT, decodeURIComponent(q.url.split('?')[0])); if (!f.startsWith(CAT) || !fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'Content-Type': f.endsWith('.json') ? 'application/json' : f.endsWith('.svg') ? 'image/svg+xml' : 'application/octet-stream' }); r.end(fs.readFileSync(f)); });
+  catalogServer = srv;
   await new Promise(ok => srv.listen(0, '127.0.0.1', ok));
   const catUrl = 'http://127.0.0.1:' + srv.address().port + '/catalog.json';
   await win.click('.ui-nav a:has-text("Catalog")');
@@ -512,6 +525,14 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   check(rs.pct === 0 && rs.saved === 0 && !rs.en && rs.start && !rs.btn, 'pack page "Reset progress": back to 0 %, no enrollment, "Start" again (' + JSON.stringify(rs) + ')');
   await app.close();
 
-  console.log(failures ? `\n${failures} check(s) FAILED` : '\nAll checks passed');
-  process.exit(failures ? 1 : 0);
-})().catch(async e => { console.error(e); try { await global.__win.screenshot({ path: path.join(SHOTS, 'FAILED.png') }); console.log('screenshot: FAILED.png'); } catch (x) {} process.exit(1); });
+  console.log(failures ? `\n${failures} of ${checkCount} check(s) FAILED` : `\nAll ${checkCount} checks passed`);
+  process.exitCode = failures ? 1 : 0;
+})().catch(async e => {
+  console.error(e);
+  try { await global.__win.screenshot({ path: path.join(SHOTS, 'FAILED.png') }); console.log('screenshot: FAILED.png'); } catch (x) {}
+  process.exitCode = 1;
+}).finally(async () => {
+  if (catalogServer) { catalogServer.closeAllConnections(); catalogServer.close(); }
+  if (runningApp) await runningApp.close().catch(() => {});
+  for (const dir of tempDirs) fs.rmSync(dir, { recursive: true, force: true });
+});
