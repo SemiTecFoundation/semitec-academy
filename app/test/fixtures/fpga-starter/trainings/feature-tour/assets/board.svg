@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="800" height="500" fill="#ffffff"/>
+  <rect x="10" y="10" width="780" height="480" rx="22" fill="#1e6b43" stroke="#124a2c" stroke-width="4"/>
+  <g fill="none" stroke="#2f8a59" stroke-width="2" opacity=".8">
+    <path d="M200 260H330M240 300H330M510 200H560M510 260H560M420 350V410M120 90H330V170M95 415H300"/>
+    <path d="M660 60V120H510"/>
+  </g>
+  <g fill="#c9a227"><circle cx="30" cy="30" r="8"/><circle cx="770" cy="30" r="8"/><circle cx="30" cy="470" r="8"/><circle cx="770" cy="470" r="8"/></g>
+  <!-- FPGA / SoC -->
+  <rect x="330" y="170" width="180" height="180" rx="8" fill="#20262e" stroke="#9aa5b1" stroke-width="2"/>
+  <rect x="345" y="185" width="150" height="150" rx="4" fill="#2b323c"/>
+  <text x="420" y="255" text-anchor="middle" fill="#e6edf3" font-size="20" font-weight="700">SoC</text>
+  <text x="420" y="278" text-anchor="middle" fill="#9aa5b1" font-size="12">PS + PL</text>
+  <!-- DDR -->
+  <g fill="#20262e" stroke="#9aa5b1" stroke-width="1.5"><rect x="560" y="170" width="100" height="60" rx="4"/><rect x="560" y="245" width="100" height="60" rx="4"/></g>
+  <g fill="#e6edf3" font-size="12" text-anchor="middle"><text x="610" y="205">DDR4</text><text x="610" y="280">DDR4</text></g>
+  <!-- crystal -->
+  <rect x="235" y="115" width="50" height="26" rx="13" fill="#c0c7cf" stroke="#8a939c"/><text x="260" y="132" font-size="10" text-anchor="middle" fill="#20262e">OSC</text>
+  <!-- USB -->
+  <rect x="10" y="60" width="90" height="60" rx="4" fill="#c0c7cf" stroke="#8a939c" stroke-width="2"/><rect x="22" y="78" width="60" height="22" fill="#4b5560"/><text x="55" y="140" text-anchor="middle" fill="#e6edf3" font-size="12">USB-UART</text>
+  <!-- JTAG -->
+  <rect x="640" y="40" width="120" height="44" rx="4" fill="#20262e"/>
+  <g fill="#c9a227"><circle cx="652" cy="54" r="4"/><circle cx="652" cy="70" r="4"/><circle cx="666" cy="54" r="4"/><circle cx="666" cy="70" r="4"/><circle cx="680" cy="54" r="4"/><circle cx="680" cy="70" r="4"/><circle cx="694" cy="54" r="4"/><circle cx="694" cy="70" r="4"/><circle cx="708" cy="54" r="4"/><circle cx="708" cy="70" r="4"/><circle cx="722" cy="54" r="4"/><circle cx="722" cy="70" r="4"/><circle cx="736" cy="54" r="4"/><circle cx="736" cy="70" r="4"/><circle cx="750" cy="54" r="4"/><circle cx="750" cy="70" r="4"/></g>
+  <text x="700" y="102" text-anchor="middle" fill="#e6edf3" font-size="12">JTAG header</text>
+  <!-- power -->
+  <rect x="10" y="380" width="85" height="70" rx="6" fill="#20262e"/><circle cx="52" cy="415" r="16" fill="#4b5560"/><text x="52" y="468" text-anchor="middle" fill="#e6edf3" font-size="12">12 V</text>
+  <!-- LEDs -->
+  <g><rect x="300" y="410" width="14" height="10" rx="2" fill="#ff5a5a"/><rect x="328" y="410" width="14" height="10" rx="2" fill="#ffd84d"/><rect x="356" y="410" width="14" height="10" rx="2" fill="#62e08a"/><rect x="384" y="410" width="14" height="10" rx="2" fill="#5aa8ff"/></g>
+  <text x="349" y="440" text-anchor="middle" fill="#e6edf3" font-size="12">LEDs</text>
+  <!-- buttons -->
+  <g><rect x="450" y="400" width="26" height="26" rx="4" fill="#c0c7cf"/><circle cx="463" cy="413" r="8" fill="#4b5560"/><rect x="490" y="400" width="26" height="26" rx="4" fill="#c0c7cf"/><circle cx="503" cy="413" r="8" fill="#4b5560"/><rect x="530" y="400" width="26" height="26" rx="4" fill="#c0c7cf"/><circle cx="543" cy="413" r="8" fill="#4b5560"/></g>
+  <text x="503" y="444" text-anchor="middle" fill="#e6edf3" font-size="12">Push buttons</text>
+  <!-- SD -->
+  <rect x="650" y="380" width="120" height="70" rx="4" fill="#c0c7cf" stroke="#8a939c" stroke-width="2"/><rect x="665" y="395" width="90" height="40" fill="#8a939c"/><text x="710" y="420" text-anchor="middle" fill="#20262e" font-size="12">microSD</text>
+</svg>

@@ -1,0 +1,64 @@
+{
+  "id": "training-template-tour",
+  "version": "1.0",
+  "title": "Training Template — Feature Tour",
+  "subtitle": "SemiTec Foundation · interactive trainings",
+  "language": "en",
+  "layout": "sidebar",
+  "theme": "foundation",
+  "themes": [
+    "foundation",
+    "midnight",
+    "paper"
+  ],
+  "allowViewSwitch": true,
+  "passThreshold": 0.75,
+  "showCorrectAnswers": "afterPass",
+  "requireSequential": true,
+  "topicWord": "Topic",
+  "hours": "2",
+  "schedule": {
+    "weeks": 2,
+    "topics": [
+      {
+        "week": 1,
+        "topics": [
+          "welcome",
+          "scroll-and-learn",
+          "click-to-expand",
+          "zoom-in",
+          "multi-tabs"
+        ]
+      },
+      {
+        "week": 2,
+        "topics": [
+          "click-to-reveal",
+          "animations",
+          "drag-and-drop",
+          "quiz-types",
+          "views-and-themes"
+        ]
+      }
+    ]
+  },
+  "delivery": {
+    "mode": "standalone",
+    "urlParams": true,
+    "resume": true
+  },
+  "labels": {},
+  "topics": [
+    "01-welcome.json",
+    "02-scroll-and-learn.json",
+    "03-click-to-expand.json",
+    "04-zoom-in.json",
+    "05-multi-tabs.json",
+    "06-click-to-reveal.json",
+    "07-animations.json",
+    "08-drag-and-drop.json",
+    "09-quiz-types.json",
+    "10-views-and-themes.json"
+  ],
+  "certificate": "certificate.json"
+}

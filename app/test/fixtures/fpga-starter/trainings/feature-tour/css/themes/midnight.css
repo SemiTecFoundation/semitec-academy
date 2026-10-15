@@ -1,0 +1,33 @@
+/* Theme: midnight — dark UI with violet accent. */
+:root {
+  --bg: #0e1117;
+  --surface: #161b22;
+  --surface-2: #1f2630;
+  --text: #dbe2ea;
+  --heading: #f2f5f9;
+  --muted: #8b97a8;
+  --accent: #a78bfa;
+  --accent-ink: #160f2b;
+  --accent-soft: #2a2343;
+  --good: #3fb97a;
+  --bad: #f2716b;
+  --warn: #e3b341;
+  --border: #2d3540;
+  --track: #2d3540;
+  --focus: #c4b5fd;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font: "Inter", "Segoe UI", system-ui, -apple-system, "Noto Sans Armenian", Arial, sans-serif;
+  --font-head: "Inter", "Segoe UI", system-ui, -apple-system, "Noto Sans Armenian", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  --font-size: 16px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .4);
+  --head-bg: #0b0e13;
+  --head-ink: #f2f5f9;
+  --toc-bg: #12161d;
+  --toc-ink: #dbe2ea;
+  --code-bg: #0a0d12;
+  --code-ink: #e6edf3;
+  --quiz-bg: #141922;
+}

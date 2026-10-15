@@ -7,7 +7,7 @@ teachers, classes, administrators or servers inside the app.
 Everything that needs several people and a server belongs to the **Foundation platform**: admin role,
 teachers and classes, assignments, graded exams, hand-in of lab reports, calendars, projects,
 careers and so on. Those proposals were moved to
-`Platform/Spec/_ideas/academy-to-platform.md` (an internal document, not published in this repository).
+`academy-to-platform.md` (an internal document, published in neither repository).
 How the two can meet later is described in [the last section](#how-the-app-and-the-platform-fit-together).
 
 **Principles for every proposal below**
@@ -55,11 +55,13 @@ marked done in ROADMAP.md (A7 prerequisites and A16 catalog are implemented).
 **Suggested order**
 0. **v1.4.0 (done):** library search and filters, enrollment and study plans, calendar, Today panel,
    projects, certificates, installers.
-1. **v1.5 "self-study basics":** A1 My mistakes, A2 Notes and bookmarks, A15 Backup, A13 Armenian UI,
+1. **v1.5.0 (done):** dashboard, A16 catalogue (folders and catalog links), publishers, package groups.
+2. **v1.6.x (done):** A7 Prerequisites, course-order view, reset progress; production signing key.
+3. **Next "self-study basics":** A1 My mistakes, A2 Notes and bookmarks, A15 Backup, A13 Armenian UI,
    A14 dark mode / text size. Small, no format change, big effect on daily use.
-2. **v1.6 "learn better":** A4 Planner, A5 Review, A6 Practice tests, A7 Prerequisites, A3 Search.
-3. **v1.7 "hands-on":** A9 HDL playground, A10 Lab bench, A11 Glossary.
-4. **Later:** A8 certificates, A16 catalogue, A17 learning record, A12 AI helper, A18 feedback.
+4. **Then "learn better":** A4 Planner, A5 Review, A6 Practice tests, A3 Search inside a course.
+5. **Then "hands-on":** A9 HDL playground, A10 Lab bench, A11 Glossary.
+6. **Later:** A8 certificates, A17 learning record, A12 AI helper, A18 feedback.
 
 ---
 

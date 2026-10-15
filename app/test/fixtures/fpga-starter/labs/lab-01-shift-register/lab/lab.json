@@ -1,0 +1,148 @@
+{
+  "title": "Lab 1: A 4-bit shift register on the FPGA",
+  "summary": "Describe a 4-bit **serial-in, parallel-out** shift register in SystemVerilog, simulate it, and run it on the board: a push button is the clock, a switch the serial input, four LEDs show the register.",
+  "difficulty": "beginner",
+  "estimatedTime": "2 h",
+  "equipment": [
+    "AMD AUP-ZU3 (or any FPGA board)",
+    "Vivado 2024.2+"
+  ],
+  "objectives": [
+    "Write sequential logic with `always_ff`",
+    "Verify a design with a self-checking testbench",
+    "Debounce a push button",
+    "Map ports to pins and program the board"
+  ],
+  "manual": "manual.pdf",
+  "steps": [
+    {
+      "id": "project",
+      "title": "Create the Vivado project",
+      "md": "Create an **RTL project** for your board. Download the lab files (**Files** tab → *Download all*) and add `src/rtl/*.sv` as design sources and `src/sim/tb_shift4.sv` as a simulation source.",
+      "manualPage": 3
+    },
+    {
+      "id": "rtl",
+      "title": "Write the shift register",
+      "md": "Describe the register with one `always_ff` block. On reset all bits are 0; otherwise the bits move one place and `d_in` enters at bit 0.",
+      "code": "always_ff @(posedge clk)\n  if (rst) q <= '0;\n  else     q <= {q[2:0], d_in};",
+      "hint": "The concatenation `{q[2:0], d_in}` builds the new 4-bit value.",
+      "files": [
+        "src/rtl/shift4.sv"
+      ],
+      "manualPage": 3
+    },
+    {
+      "id": "testbench",
+      "title": "Simulate with a testbench",
+      "md": "Write `tb_shift4.sv`: 10 ns clock, reset for two cycles, shift in **1, 0, 1, 1** and check `q == 4'b1011` with an assertion.",
+      "hint": "`assert (q == 4'b1011) else $error(\"q = %b\", q);`",
+      "files": [
+        "src/sim/tb_shift4.sv"
+      ],
+      "manualPage": 3
+    },
+    {
+      "id": "debounce",
+      "title": "Debounce the button",
+      "md": "Add `debounce.sv`: accept a new button level only after it was stable for **10 ms**. Drive the shift-register clock from its output.",
+      "manualPage": 4,
+      "files": [
+        "src/rtl/debounce.sv",
+        "src/rtl/top.sv"
+      ]
+    },
+    {
+      "id": "constraints",
+      "title": "Constraints, implementation and timing",
+      "md": "Map `BTN0 → btn`, `SW0 → d_in`, `LED0..3 → q[0..3]`. Run implementation and check that the timing summary has **no failing paths**.",
+      "files": [
+        "src/constraints/top.xdc"
+      ],
+      "manualPage": 4
+    },
+    {
+      "id": "board",
+      "title": "Run it on the board",
+      "md": "Program the device. Set SW0, press the button, and watch the bit move along the LEDs. After 1, 0, 1, 1 the LEDs show `1011`.",
+      "manualPage": 4
+    }
+  ],
+  "quiz": {
+    "title": "Lab 1 check",
+    "passThreshold": 0.75,
+    "questions": [
+      {
+        "id": "q1",
+        "type": "single",
+        "text": "What does `q <= {q[2:0], d_in};` do on a clock edge?",
+        "options": [
+          "Shifts the bits one place and puts `d_in` into bit 0",
+          "Rotates the bits without using `d_in`",
+          "Copies `d_in` into all four bits"
+        ],
+        "correct": [
+          0
+        ],
+        "review": [
+          "rtl"
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "multiple",
+        "text": "Why must the push button be debounced before it is used as a clock?",
+        "options": [
+          "A bouncing button produces several edges per press",
+          "Without debouncing the register may shift more than once per press",
+          "Debouncing makes the LEDs brighter",
+          "Debouncing is needed only in simulation"
+        ],
+        "correct": [
+          0,
+          1
+        ],
+        "review": [
+          "debounce"
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "order",
+        "text": "Put the design steps in order.",
+        "items": [
+          "Write the RTL",
+          "Simulate with a testbench",
+          "Run implementation and check timing",
+          "Program the board"
+        ],
+        "review": [
+          "rtl",
+          "testbench",
+          "constraints",
+          "board"
+        ]
+      },
+      {
+        "id": "q4",
+        "type": "single",
+        "text": "After shifting in 1, 0, 1, 1, what do the LEDs `q[3:0]` show?",
+        "options": [
+          "1011",
+          "1101",
+          "0000",
+          "1111"
+        ],
+        "correct": [
+          0
+        ],
+        "shuffle": false,
+        "review": [
+          "board",
+          "testbench"
+        ]
+      }
+    ]
+  },
+  "files": "src"
+}

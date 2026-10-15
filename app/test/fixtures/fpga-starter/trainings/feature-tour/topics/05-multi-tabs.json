@@ -1,0 +1,166 @@
+{
+  "id": "multi-tabs",
+  "title": "Multi Tabs",
+  "duration": "5 min",
+  "summary": "Show **alternatives side by side** — the same idea in several languages, tools or views.",
+  "subsections": [
+    {
+      "id": "hdl-tabs",
+      "title": "One flip-flop, three languages",
+      "blocks": [
+        {
+          "type": "tabs",
+          "tabs": [
+            {
+              "label": "Verilog",
+              "blocks": [
+                {
+                  "type": "code",
+                  "language": "verilog",
+                  "code": "always @(posedge clk)\n  if (rst) q <= 1'b0;\n  else     q <= d;"
+                }
+              ]
+            },
+            {
+              "label": "VHDL",
+              "blocks": [
+                {
+                  "type": "code",
+                  "language": "vhdl",
+                  "code": "process(clk) begin\n  if rising_edge(clk) then\n    if rst = '1' then q <= '0';\n    else q <= d; end if;\n  end if;\nend process;"
+                }
+              ]
+            },
+            {
+              "label": "SystemVerilog",
+              "blocks": [
+                {
+                  "type": "code",
+                  "language": "systemverilog",
+                  "code": "always_ff @(posedge clk)\n  if (rst) q <= '0;\n  else     q <= d;"
+                },
+                {
+                  "type": "callout",
+                  "kind": "tip",
+                  "md": "`always_ff` tells tools you **intend** a flip-flop; they warn you if the code is not one."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mixed-tabs",
+      "title": "Tabs with any content",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "A tab can hold text, tables, pictures — any block."
+        },
+        {
+          "type": "tabs",
+          "tabs": [
+            {
+              "label": "Overview",
+              "md": "A **testbench** drives the design under test (DUT) and checks its outputs."
+            },
+            {
+              "label": "Parts",
+              "blocks": [
+                {
+                  "type": "table",
+                  "columns": [
+                    "Part",
+                    "Role"
+                  ],
+                  "rows": [
+                    [
+                      "Driver",
+                      "applies stimulus"
+                    ],
+                    [
+                      "Monitor",
+                      "observes signals"
+                    ],
+                    [
+                      "Scoreboard",
+                      "compares with the reference model"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "Picture",
+              "blocks": [
+                {
+                  "type": "svg",
+                  "src": "assets/fsm.svg",
+                  "caption": "Any block works inside a tab"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "quiz": {
+    "questions": [
+      {
+        "id": "q1",
+        "type": "single",
+        "text": "Which SystemVerilog keyword states that you intend a flip-flop?",
+        "options": [
+          "`always_ff`",
+          "`always_comb`",
+          "`initial`",
+          "`assign`"
+        ],
+        "correct": [
+          0
+        ],
+        "review": [
+          "hdl-tabs"
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "single",
+        "text": "Which testbench part compares outputs with a reference model?",
+        "options": [
+          "Driver",
+          "Monitor",
+          "Scoreboard"
+        ],
+        "correct": [
+          2
+        ],
+        "review": [
+          "mixed-tabs"
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "multiple",
+        "text": "What can a tab contain?",
+        "options": [
+          "Markdown text",
+          "Code",
+          "Tables",
+          "Pictures"
+        ],
+        "correct": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "review": [
+          "mixed-tabs"
+        ]
+      }
+    ]
+  }
+}

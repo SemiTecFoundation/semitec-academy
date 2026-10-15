@@ -1,0 +1,146 @@
+{
+  "id": "drag-and-drop",
+  "title": "Drag and Drop",
+  "duration": "8 min",
+  "summary": "Learn by doing: **order** steps and **sort items into groups**. These activities do not count for the quiz — practise as much as you like.",
+  "subsections": [
+    {
+      "id": "order-flow",
+      "title": "Put the design flow in order",
+      "blocks": [
+        {
+          "type": "sort",
+          "prompt": "Arrange the FPGA design flow from first to last step.",
+          "items": [
+            "Write RTL",
+            "Simulate",
+            "Synthesise",
+            "Place & route",
+            "Generate bitstream",
+            "Program the board"
+          ]
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "md": "No mouse or on a touch screen? Use the **▲ ▼** arrows on each row. Press **Check** as often as you like."
+        }
+      ]
+    },
+    {
+      "id": "categorize-logic",
+      "title": "Combinational or sequential?",
+      "blocks": [
+        {
+          "type": "categorize",
+          "prompt": "Which building blocks are **combinational** and which are **sequential**?",
+          "categories": [
+            {
+              "id": "comb",
+              "label": "Combinational"
+            },
+            {
+              "id": "seq",
+              "label": "Sequential"
+            }
+          ],
+          "items": [
+            {
+              "text": "Multiplexer",
+              "category": "comb"
+            },
+            {
+              "text": "Adder",
+              "category": "comb"
+            },
+            {
+              "text": "Decoder",
+              "category": "comb"
+            },
+            {
+              "text": "D flip-flop",
+              "category": "seq"
+            },
+            {
+              "text": "Counter",
+              "category": "seq"
+            },
+            {
+              "text": "Shift register",
+              "category": "seq"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "quiz": {
+    "questions": [
+      {
+        "id": "q1",
+        "type": "match",
+        "text": "Drag each item to the correct group.",
+        "categories": [
+          {
+            "id": "comb",
+            "label": "Combinational"
+          },
+          {
+            "id": "seq",
+            "label": "Sequential"
+          }
+        ],
+        "items": [
+          {
+            "text": "Comparator",
+            "category": "comb"
+          },
+          {
+            "text": "Encoder",
+            "category": "comb"
+          },
+          {
+            "text": "FIFO",
+            "category": "seq"
+          },
+          {
+            "text": "Register file",
+            "category": "seq"
+          }
+        ],
+        "review": [
+          "categorize-logic"
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "order",
+        "text": "Order these steps of the design flow.",
+        "items": [
+          "Synthesise",
+          "Place & route",
+          "Generate bitstream"
+        ],
+        "review": [
+          "order-flow"
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "single",
+        "text": "Which step comes directly **after** writing RTL?",
+        "options": [
+          "Simulate",
+          "Program the board",
+          "Place & route"
+        ],
+        "correct": [
+          0
+        ],
+        "review": [
+          "order-flow"
+        ]
+      }
+    ]
+  }
+}

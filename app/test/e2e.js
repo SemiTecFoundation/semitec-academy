@@ -2,7 +2,7 @@
    Runs a fresh profile: first-run setup, account creation, pack install (signed), training / reading / lab
    progress, logout / login, second user, tampered and unsigned packs, restart.
    Usage:  npm test            (Linux CI: xvfb-run -a npm test)
-   Env:    STPACK=path/to/pack.stlp (default: fixtures/packs/org.semitec.fpga-starter-1.6.0.stlp)
+   Env:    STPACK=path/to/pack.stlp (default: the fixtures, built fresh by fixtures/build.js)
            SHOTS=folder for screenshots (default: test/screenshots) */
 'use strict';
 const { _electron: electron } = require('playwright');
@@ -10,8 +10,13 @@ const fs = require('fs'), os = require('os'), path = require('path');
 const { unzipSync, zipSync } = require('fflate');
 
 const APP = path.join(__dirname, '..');
-/* the test's own fixture packages — not shipped course content; see fixtures/README.md */
-const PACK = path.resolve(process.env.STPACK || path.join(__dirname, 'fixtures', 'packs', 'org.semitec.fpga-starter-1.6.0.stlp'));
+/* The suite builds its own fixture packages with a throwaway key (fixtures/build.js) and points the
+   app at that key with SEMITEC_TRUSTED_KEYS, so no package signed with the production key is ever
+   committed — a fixture installs in this test and nowhere else. STPACK=<file.stlp> tests your own
+   package instead, which must be signed by a key the app already trusts. */
+const FIXTURES = process.env.STPACK ? null : require('./fixtures/build').build();
+if (FIXTURES) process.env.SEMITEC_TRUSTED_KEYS = FIXTURES.trustedDir;
+const PACK = path.resolve(process.env.STPACK || FIXTURES.packs['org.semitec.fpga-starter']);
 const SHOTS = path.resolve(process.env.SHOTS || path.join(__dirname, 'screenshots'));
 const HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'stl-test-'));
 fs.mkdirSync(SHOTS, { recursive: true });
@@ -354,7 +359,7 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   const CAT_IDS = ['org.semitec.fpga-starter', 'org.example.mbist-track'];
   const catPacks = fs.readdirSync(DIST).filter(f => f.endsWith('.stlp') && CAT_IDS.some(id => f.startsWith(id + '-')));
   for (const f of catPacks) fs.copyFileSync(path.join(DIST, f), path.join(CAT, f));
-  check(catPacks.length === CAT_IDS.length, 'the 2 catalog packs are built in dist/ (' + catPacks.join(', ') + ')');
+  check(catPacks.length === CAT_IDS.length, 'the 2 catalog packs were built from the fixtures (' + catPacks.join(', ') + ')');
   require('child_process').execFileSync(process.execPath, [path.join(APP, '..', 'packer', 'stlp.js'), 'catalog', CAT, '--name', 'Test catalog'], { stdio: 'ignore' });
   const http = require('http');
   const srv = http.createServer((q, r) => { const f = path.join(CAT, decodeURIComponent(q.url.split('?')[0])); if (!f.startsWith(CAT) || !fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'Content-Type': f.endsWith('.json') ? 'application/json' : f.endsWith('.svg') ? 'image/svg+xml' : 'application/octet-stream' }); r.end(fs.readFileSync(f)); });

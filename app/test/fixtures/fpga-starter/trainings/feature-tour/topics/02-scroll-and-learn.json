@@ -1,0 +1,139 @@
+{
+  "id": "scroll-and-learn",
+  "title": "Scroll and Learn",
+  "duration": "8 min",
+  "summary": "A sticky picture that **changes while you scroll** through the explanation — great for step-by-step processes.",
+  "objectives": [
+    "Follow a process step by step by scrolling",
+    "Know how to mark SVG parts for each step"
+  ],
+  "subsections": [
+    {
+      "id": "shift-register",
+      "title": "Example: a 4-bit shift register",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "Scroll slowly. The diagram on the left follows the step you are reading."
+        },
+        {
+          "type": "scrolly",
+          "src": "assets/shift-register.svg",
+          "steps": [
+            {
+              "title": "Reset",
+              "md": "A shift register is a chain of **D flip-flops** sharing one clock. After reset every flip-flop holds `0`."
+            },
+            {
+              "title": "First clock edge",
+              "md": "On the rising edge, **FF0** captures the serial input `D_in = 1`. The other flip-flops capture the value of their left neighbour (still 0)."
+            },
+            {
+              "title": "Second clock edge",
+              "md": "Everything **moves one place to the right**: the `1` goes to FF1 and the new input bit `0` enters FF0."
+            },
+            {
+              "title": "Parallel read",
+              "md": "After **four edges** the serial stream `1, 0, 1, 1` sits in the register and can be read **in parallel** as `Q3..Q0 = 1011`. This is a *serial-in, parallel-out* (SIPO) register."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "how-to-build",
+      "title": "How to build your own",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "Draw an SVG and add `data-step=\"n\"` to the elements that should appear at step *n*. Add `data-until=\"m\"` if an element should disappear after step *m*. The current step is highlighted, earlier steps are dimmed."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "code": "{ \"type\": \"scrolly\", \"src\": \"assets/shift-register.svg\",\n  \"steps\": [\n    { \"title\": \"Reset\", \"md\": \"All flip-flops hold 0.\" },\n    { \"title\": \"First edge\", \"md\": \"FF0 captures D_in.\" }\n  ] }"
+        },
+        {
+          "type": "code",
+          "language": "svg",
+          "code": "<g data-step=\"2\" data-until=\"2\"> … shown only in step 2 … </g>\n<g data-step=\"4\"> … shown from step 4 on … </g>"
+        }
+      ]
+    }
+  ],
+  "quiz": {
+    "questions": [
+      {
+        "id": "q1",
+        "type": "single",
+        "text": "In the example, where is the first input bit after the **second** clock edge?",
+        "options": [
+          "FF0",
+          "FF1",
+          "FF2",
+          "FF3"
+        ],
+        "correct": [
+          1
+        ],
+        "shuffle": false,
+        "review": [
+          "shift-register"
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "single",
+        "text": "How many clock edges are needed to load 4 bits into a 4-bit SIPO register?",
+        "options": [
+          "1",
+          "2",
+          "4",
+          "8"
+        ],
+        "correct": [
+          2
+        ],
+        "shuffle": false,
+        "review": [
+          "shift-register"
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "multiple",
+        "text": "Which SVG attributes control what is visible in each step?",
+        "options": [
+          "`data-step`",
+          "`data-until`",
+          "`data-zoom`",
+          "`data-quiz`"
+        ],
+        "correct": [
+          0,
+          1
+        ],
+        "review": [
+          "how-to-build"
+        ]
+      },
+      {
+        "id": "q4",
+        "type": "truefalse",
+        "text": "In a scroll-and-learn block the picture stays in place while the text scrolls.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "correct": [
+          0
+        ],
+        "shuffle": false,
+        "review": [
+          "how-to-build",
+          "shift-register"
+        ]
+      }
+    ]
+  }
+}

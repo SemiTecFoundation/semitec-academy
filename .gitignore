@@ -12,3 +12,6 @@ installers/
 *.p8
 .env
 .env.*
+
+# the end-to-end fixtures are built fresh by app/test/fixtures/build.js
+app/test/fixtures/packs/

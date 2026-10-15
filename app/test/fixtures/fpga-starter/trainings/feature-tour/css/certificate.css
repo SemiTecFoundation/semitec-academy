@@ -1,0 +1,119 @@
+/* certificate.css — completion certificate.
+   Colors come from certificate.json → style {accent, accent2, paper, ink}; defaults below.
+   Designs: .design-classic | .design-modern | .design-minimal     Fonts: .font-serif | .font-sans */
+
+.certificate {
+  --cert-accent: #1f4e79;
+  --cert-accent2: #c9a227;
+  --cert-paper: #fffdf7;
+  --cert-ink: #1d2433;
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  aspect-ratio: 297 / 210;
+  margin: 0 auto;
+  background: var(--cert-paper);
+  color: var(--cert-ink);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .18);
+  overflow: hidden;
+  container-type: inline-size;
+}
+.certificate.portrait { aspect-ratio: 210 / 297; max-width: 720px; }
+.certificate.font-serif { font-family: "Georgia", "Cambria", "Times New Roman", serif; }
+.certificate.font-sans { font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+
+.cert-frame {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 6cqw 8cqw;
+  gap: 1.3cqw;
+}
+.cert-top { display: flex; align-items: center; gap: 1.6cqw; margin-bottom: .6cqw; }
+.cert-logo { height: 6cqw; width: auto; }
+.cert-logotext {
+  width: 6cqw; height: 6cqw; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--cert-accent); color: var(--cert-paper);
+  font-weight: 700; font-size: 2cqw; letter-spacing: .05em;
+}
+.cert-issuer { font-size: 1.6cqw; letter-spacing: .18em; text-transform: uppercase; color: var(--cert-accent); font-weight: 600; }
+.cert-title { font-size: 4.6cqw; line-height: 1.1; color: var(--cert-accent); font-weight: 700; letter-spacing: .02em; }
+.cert-subtitle { font-size: 1.6cqw; opacity: .8; }
+.cert-presented { margin-top: 1.4cqw; font-size: 1.6cqw; font-style: italic; opacity: .85; }
+.cert-name {
+  font-size: 5cqw; line-height: 1.15; font-weight: 700;
+  padding: 0 3cqw .6cqw; border-bottom: .25cqw solid var(--cert-accent2);
+  min-width: 50%;
+}
+.cert-body { font-size: 1.8cqw; max-width: 75%; line-height: 1.45; }
+.cert-body strong { color: var(--cert-accent); }
+.cert-topics { font-size: 1.2cqw; max-width: 64%; opacity: .75; line-height: 1.5; }
+.cert-signs { display: flex; gap: 8cqw; margin-top: 2.4cqw; justify-content: center; flex-wrap: wrap; }
+.cert-sign { min-width: 18cqw; }
+.sign-line { border-top: .15cqw solid currentColor; margin-bottom: .6cqw; opacity: .7; }
+.sign-name { font-size: 1.6cqw; font-weight: 600; }
+.sign-role { font-size: 1.25cqw; opacity: .7; }
+.cert-foot {
+  position: absolute; left: 6cqw; right: 6cqw; bottom: 4cqw;
+  display: flex; justify-content: space-between; font-size: 1.1cqw; opacity: .65;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+.cert-seal {
+  position: absolute; right: 7cqw; bottom: 8cqw;
+  width: 11cqw; height: 11cqw; border-radius: 50%;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--cert-accent2) 70%, white), var(--cert-accent2));
+  color: var(--cert-paper);
+  box-shadow: 0 0 0 .5cqw var(--cert-paper), 0 0 0 .8cqw var(--cert-accent2);
+  font-weight: 700; font-size: 1.5cqw; letter-spacing: .08em; text-transform: uppercase;
+  transform: rotate(-12deg);
+}
+.cert-seal span { max-width: 80%; line-height: 1.15; }
+
+/* ---------- design: classic (double frame, corner ornaments) ---------- */
+.design-classic .cert-frame { margin: 2.4cqw; border: .5cqw double var(--cert-accent); }
+.design-classic .cert-frame::before {
+  content: ""; position: absolute; inset: 1cqw; border: .12cqw solid var(--cert-accent2); pointer-events: none;
+}
+.design-classic .cert-frame::after {
+  content: ""; position: absolute; inset: -.5cqw; pointer-events: none;
+  background:
+    radial-gradient(circle, var(--cert-accent2) 0 .9cqw, transparent 1cqw) top left / 4cqw 4cqw no-repeat,
+    radial-gradient(circle, var(--cert-accent2) 0 .9cqw, transparent 1cqw) top right / 4cqw 4cqw no-repeat,
+    radial-gradient(circle, var(--cert-accent2) 0 .9cqw, transparent 1cqw) bottom left / 4cqw 4cqw no-repeat,
+    radial-gradient(circle, var(--cert-accent2) 0 .9cqw, transparent 1cqw) bottom right / 4cqw 4cqw no-repeat;
+}
+.design-classic .cert-foot { bottom: 5cqw; left: 7cqw; right: 7cqw; }
+
+/* ---------- design: modern (color band on the left, left-aligned) ---------- */
+.design-modern { background: linear-gradient(90deg, var(--cert-accent) 0 22%, var(--cert-paper) 22%); }
+.design-modern::before {
+  content: ""; position: absolute; left: 22%; top: 0; bottom: 0; width: 1.2cqw; background: var(--cert-accent2);
+}
+.design-modern .cert-frame { left: 22%; align-items: flex-start; text-align: left; padding-left: 7cqw; }
+.design-modern .cert-top { position: absolute; left: -22cqw; width: 22cqw; top: 6cqw; flex-direction: column; justify-content: center; }
+.design-modern .cert-logotext { background: var(--cert-paper); color: var(--cert-accent); }
+.design-modern .cert-issuer { color: var(--cert-paper); max-width: 16cqw; text-align: center; font-size: 1.3cqw; }
+.design-modern .cert-title { text-transform: uppercase; letter-spacing: .08em; font-size: 4cqw; }
+.design-modern .cert-name { border-bottom: none; padding: 0; position: relative; }
+.design-modern .cert-name::after { content: ""; display: block; width: 10cqw; height: .5cqw; background: var(--cert-accent2); margin-top: 1cqw; }
+.design-modern .cert-body, .design-modern .cert-topics { max-width: 92%; }
+.design-modern .cert-signs { justify-content: flex-start; }
+.design-modern .cert-foot { left: calc(22% + 7cqw); }
+.design-modern .cert-seal { right: 5cqw; bottom: 7cqw; }
+
+/* ---------- design: minimal (thin rule, lots of space) ---------- */
+.design-minimal { box-shadow: 0 2px 12px rgba(0, 0, 0, .1); }
+.design-minimal .cert-frame { margin: 3cqw; border: .1cqw solid color-mix(in srgb, var(--cert-ink) 25%, transparent); }
+.design-minimal .cert-title { font-weight: 300; letter-spacing: .25em; text-transform: uppercase; font-size: 3.2cqw; color: var(--cert-ink); }
+.design-minimal .cert-name { font-weight: 400; border-bottom-width: .12cqw; border-color: var(--cert-accent); }
+.design-minimal .cert-seal { width: 9cqw; height: 9cqw; right: 5.5cqw; bottom: 6.5cqw; background: none; color: var(--cert-accent); box-shadow: inset 0 0 0 .2cqw var(--cert-accent); transform: none; }
+
+/* ---------- print: A4, only the certificate ---------- */
+@media print {
+  @page { size: A4 landscape; margin: 0; }
+  .certificate { max-width: none; width: 297mm; height: 210mm; aspect-ratio: auto; box-shadow: none; }
+  .certificate.portrait { width: 210mm; height: 297mm; }
+  .certificate, .certificate * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

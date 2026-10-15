@@ -1,0 +1,238 @@
+{
+  "id": "quiz-types",
+  "title": "Quiz Types",
+  "duration": "6 min",
+  "summary": "Six question types are available. This topic's quiz uses **all of them**.",
+  "subsections": [
+    {
+      "id": "types",
+      "title": "The question types",
+      "blocks": [
+        {
+          "type": "table",
+          "columns": [
+            "Type",
+            "The student…",
+            "Key fields"
+          ],
+          "rows": [
+            [
+              "`single`",
+              "selects one answer",
+              "`options`, `correct: [i]`"
+            ],
+            [
+              "`truefalse`",
+              "selects True or False",
+              "`options`, `correct`"
+            ],
+            [
+              "`multiple`",
+              "selects **all** correct answers",
+              "`options`, `correct: [i, j, …]`"
+            ],
+            [
+              "`order`",
+              "drags items into order",
+              "`items` in the correct order"
+            ],
+            [
+              "`match`",
+              "drags items into groups",
+              "`categories`, `items[].category`"
+            ],
+            [
+              "`hotspot`",
+              "clicks area(s) on a picture",
+              "`src`, `spots`, `correct: [ids]`"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "review-links",
+      "title": "Review links and retries",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "Every question can name the subsections that teach its answer:"
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "code": "{ \"type\": \"multiple\", \"text\": \"…\",\n  \"options\": [\"A\", \"B\", \"C\"], \"correct\": [0, 2],\n  \"review\": [\"types\"],\n  \"explain\": \"Shown after passing.\" }"
+        },
+        {
+          "type": "text",
+          "md": "If the student fails, the result box lists exactly those subsections as links. `explain` is shown after the quiz is passed (setting `showCorrectAnswers`)."
+        }
+      ]
+    },
+    {
+      "id": "threshold",
+      "title": "Pass threshold",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "`passThreshold` in `training.json` sets the default (e.g. `0.75`). A single quiz can override it with its own `passThreshold` — this quiz requires **100 %**."
+        }
+      ]
+    }
+  ],
+  "quiz": {
+    "title": "All question types",
+    "passThreshold": 1.0,
+    "questions": [
+      {
+        "id": "q1",
+        "type": "single",
+        "text": "Which type lets the student pick **exactly one** answer?",
+        "options": [
+          "`single`",
+          "`multiple`",
+          "`match`"
+        ],
+        "correct": [
+          0
+        ],
+        "review": [
+          "types"
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "multiple",
+        "text": "Which types use **drag and drop**?",
+        "options": [
+          "`order`",
+          "`match`",
+          "`truefalse`",
+          "`hotspot`"
+        ],
+        "correct": [
+          0,
+          1
+        ],
+        "review": [
+          "types"
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "truefalse",
+        "text": "A single quiz can have a different pass threshold than the rest of the training.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "correct": [
+          0
+        ],
+        "shuffle": false,
+        "review": [
+          "threshold"
+        ]
+      },
+      {
+        "id": "q4",
+        "type": "order",
+        "text": "Order what happens when a student fails a quiz.",
+        "items": [
+          "Check answers",
+          "See the review links",
+          "Re-read the subsections",
+          "Try again"
+        ],
+        "review": [
+          "review-links"
+        ]
+      },
+      {
+        "id": "q5",
+        "type": "match",
+        "text": "Match each field to its question type.",
+        "categories": [
+          {
+            "id": "hot",
+            "label": "hotspot"
+          },
+          {
+            "id": "match",
+            "label": "match"
+          },
+          {
+            "id": "order",
+            "label": "order"
+          }
+        ],
+        "items": [
+          {
+            "text": "`spots`",
+            "category": "hot"
+          },
+          {
+            "text": "`categories`",
+            "category": "match"
+          },
+          {
+            "text": "`items` in correct order",
+            "category": "order"
+          }
+        ],
+        "review": [
+          "types"
+        ]
+      },
+      {
+        "id": "q6",
+        "type": "hotspot",
+        "text": "Click the **memory** chips on the board.",
+        "src": "assets/board.svg",
+        "spots": [
+          {
+            "x": 41.25,
+            "y": 34,
+            "w": 22.5,
+            "h": 36,
+            "id": "soc"
+          },
+          {
+            "x": 70,
+            "y": 34,
+            "w": 12.5,
+            "h": 27,
+            "id": "ddr"
+          },
+          {
+            "x": 1.25,
+            "y": 12,
+            "w": 11.25,
+            "h": 17,
+            "id": "usb"
+          },
+          {
+            "x": 80,
+            "y": 8,
+            "w": 15,
+            "h": 13,
+            "id": "jtag"
+          },
+          {
+            "x": 81.25,
+            "y": 76,
+            "w": 15,
+            "h": 14,
+            "id": "sd"
+          }
+        ],
+        "correct": [
+          "ddr"
+        ],
+        "review": [
+          "types"
+        ]
+      }
+    ]
+  }
+}

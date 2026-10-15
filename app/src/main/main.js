@@ -19,7 +19,9 @@ const ROOT = path.join(__dirname, '..');                       // src/
 const RENDERER = path.join(ROOT, 'renderer');
 const ENGINE = path.join(ROOT, 'engine', 'training');
 const PDFJS = path.dirname(require.resolve('pdfjs-dist/package.json'));
-const TRUSTED_KEYS = path.join(ROOT, '..', 'trusted-keys');
+/* SEMITEC_TRUSTED_KEYS lets the end-to-end suite point the app at a throwaway key, so the
+   repository never has to carry a package signed with the production key. Not used in a release. */
+const TRUSTED_KEYS = process.env.SEMITEC_TRUSTED_KEYS || path.join(ROOT, '..', 'trusted-keys');
 
 const argData = (process.argv.find(a => a.startsWith('--data-dir=')) || '').slice(11);
 const CONFIG_FILE = () => path.join(app.getPath('userData'), 'config.json');

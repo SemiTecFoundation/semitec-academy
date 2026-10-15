@@ -71,7 +71,7 @@
 - [x] Production signing key `4c71eba82f86fcca` is the only trusted key; no development key is
       trusted (KEYS.md). Real contact details in the installer metadata
 
-## v1.6 — self-study basics (PROPOSALS.md)
+## Next — self-study basics (PROPOSALS.md)
 - [ ] My mistakes (A1), notes and bookmarks (A2), backup / move (A15), Armenian UI (A13), dark mode and text size (A14)
 
 ## v1.7 — learn better
@@ -83,6 +83,7 @@
 - [ ] Stream large videos from the package instead of loading the whole package into memory at install
 
 ## v2 — connected (with the Foundation platform)
-- [ ] Package catalogue and updates (A16)
+- [x] Package catalogue and updates (A16) — shipped in 1.5.0 (folders and catalog links); syncing with
+      a Foundation server is what remains
 - [ ] Optional sign-in with a platform account; sync progress and certificates
       (same state JSON as `training_progress`; design: academy-to-platform.md, an internal note published in neither repository, PL5)

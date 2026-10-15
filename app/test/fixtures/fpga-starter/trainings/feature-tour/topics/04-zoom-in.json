@@ -1,0 +1,120 @@
+{
+  "id": "zoom-in",
+  "title": "Zoom In and Compare",
+  "duration": "6 min",
+  "summary": "Large diagrams open in a **zoom viewer**; two pictures can be compared with a **slider**.",
+  "subsections": [
+    {
+      "id": "zoom-viewer",
+      "title": "Zoom viewer",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "Click the diagram. In the viewer use the **mouse wheel** or **+ / −** to zoom, **drag** to move, **double-click** to reset, **Esc** to close."
+        },
+        {
+          "type": "image",
+          "src": "assets/soc-diagram.svg",
+          "alt": "Example SoC block diagram",
+          "caption": "Click to zoom — the small labels become readable."
+        }
+      ]
+    },
+    {
+      "id": "compare",
+      "title": "Before / after slider",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "Drag the handle to compare **placement** with **routing** of the same small design."
+        },
+        {
+          "type": "compare",
+          "before": "assets/placed.svg",
+          "after": "assets/routed.svg",
+          "labels": [
+            "Placed",
+            "Routed"
+          ],
+          "caption": "Same cells, before and after routing"
+        },
+        {
+          "type": "callout",
+          "kind": "info",
+          "md": "Both pictures must have the **same size**; the slider shows the left part of *before* and the right part of *after*."
+        }
+      ]
+    }
+  ],
+  "quiz": {
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple",
+        "text": "How can you zoom inside the zoom viewer?",
+        "options": [
+          "Mouse wheel",
+          "The + / − buttons",
+          "Pressing Esc",
+          "Right-click"
+        ],
+        "correct": [
+          0,
+          1
+        ],
+        "review": [
+          "zoom-viewer"
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "single",
+        "text": "In the diagram, which block connects the PS and the PL?",
+        "options": [
+          "AXI interfaces",
+          "GPU",
+          "SD/eMMC",
+          "Push buttons"
+        ],
+        "correct": [
+          0
+        ],
+        "review": [
+          "zoom-viewer"
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "single",
+        "text": "What does the **routed** picture show that the placed one does not?",
+        "options": [
+          "Real horizontal / vertical wires",
+          "More cells",
+          "A clock tree only"
+        ],
+        "correct": [
+          0
+        ],
+        "review": [
+          "compare"
+        ]
+      },
+      {
+        "id": "q4",
+        "type": "truefalse",
+        "text": "The two pictures of a compare slider should have the same size.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "correct": [
+          0
+        ],
+        "shuffle": false,
+        "review": [
+          "compare"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,218 @@
+{
+  "id": "views-and-themes",
+  "title": "Different Views, Themes, Delivery & Certificate",
+  "duration": "6 min",
+  "summary": "Two layouts, any number of themes, three delivery modes and a configurable certificate — all without touching the code.",
+  "subsections": [
+    {
+      "id": "layouts",
+      "title": "Two layouts",
+      "blocks": [
+        {
+          "type": "tabs",
+          "tabs": [
+            {
+              "label": "Sidebar",
+              "md": "Contents on the **left**, content next to it. Topics expand to show subtopics. The ☰ button slides the panel in and out. Best for long trainings on desktop."
+            },
+            {
+              "label": "Top bar",
+              "md": "Content uses the **full width**. Topics sit in a bar at the **top**; the arrow opens a drop-down with subtopics. The ☰ button shows / hides the bar."
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "title": "Try it now",
+          "md": "Open **View ▾** in the header and switch the layout. Set the default in `training.json` → `\"layout\": \"sidebar\" | \"topbar\"`."
+        }
+      ]
+    },
+    {
+      "id": "themes",
+      "title": "Themes",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "A theme is a small CSS file with **variables only** (colours, fonts, corner radius). Three are included: *foundation*, *midnight* (dark) and *paper*."
+        },
+        {
+          "type": "code",
+          "language": "css",
+          "code": ":root {\n  --bg: #f4f6fa;  --surface: #ffffff;\n  --text: #1d2433; --accent: #1f6feb;\n  --radius: 12px;  --font: \"Inter\", sans-serif;\n}"
+        },
+        {
+          "type": "callout",
+          "kind": "key",
+          "md": "New look? Ask the AI: *create a theme `css/themes/ocean.css` with teal accent and rounded corners*, then add `\"ocean\"` to `themes` in `training.json`."
+        }
+      ]
+    },
+    {
+      "id": "delivery",
+      "title": "Delivery modes",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "The same training can be delivered in three ways:"
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Mode",
+            "Topics",
+            "Progress",
+            "Typical use"
+          ],
+          "rows": [
+            [
+              "`standalone`",
+              "unlocked by quizzes",
+              "saved in the browser",
+              "a link or a file you send to students"
+            ],
+            [
+              "`preview`",
+              "**all open**",
+              "not saved",
+              "review by authors, teachers, sponsors"
+            ],
+            [
+              "`platform`",
+              "unlocked by quizzes",
+              "saved by **your platform** (database)",
+              "students log in to a portal and continue on any device"
+            ]
+          ]
+        },
+        {
+          "type": "accordion",
+          "items": [
+            {
+              "title": "How to open each mode",
+              "md": "- `index.html` or `dist/training.html` → standalone\n- `index.html?mode=preview` or `dist/training-preview.html` → preview\n- a platform embeds the training and passes the user and the saved progress → platform"
+            },
+            {
+              "title": "How a platform saves progress",
+              "md": "Three options: a **REST URL** the training reads and writes, an **iframe** whose parent page receives `progress` messages, or a **JavaScript adapter** on the same page. All of them store one JSON object per user and training. See `INTEGRATION.md`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "certificate",
+      "title": "The certificate",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "After the last quiz the **Certificate** item unlocks. The student types a name and can print it or save it as PDF.\n\nEverything on it comes from `certificate.json`: title, texts with placeholders like `{name}`, `{training}`, `{score}`, `{date}`, signatures, logo, and the style — `design` (*classic*, *modern*, *minimal*), `font`, and colours."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "code": "\"style\": { \"design\": \"modern\", \"font\": \"sans\",\n           \"accent\": \"#12305a\", \"accent2\": \"#c9a227\" }"
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "title": "See it before finishing",
+          "md": "Open the training in **preview** mode (`?mode=preview` or `dist/training-preview.html`): the Certificate page shows a sample certificate with controls for design, font, orientation and colours, and the matching `style` JSON."
+        }
+      ]
+    }
+  ],
+  "quiz": {
+    "questions": [
+      {
+        "id": "q1",
+        "type": "single",
+        "text": "Which layout uses the full width for content with topics on top?",
+        "options": [
+          "Sidebar",
+          "Top bar"
+        ],
+        "correct": [
+          1
+        ],
+        "shuffle": false,
+        "review": [
+          "layouts"
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "multiple",
+        "text": "What does a theme file define?",
+        "options": [
+          "Colours",
+          "Fonts",
+          "Corner radius",
+          "Quiz questions"
+        ],
+        "correct": [
+          0,
+          1,
+          2
+        ],
+        "review": [
+          "themes"
+        ]
+      },
+      {
+        "id": "q5",
+        "type": "multiple",
+        "text": "In which modes are topics unlocked by passing quizzes?",
+        "options": [
+          "standalone",
+          "preview",
+          "platform"
+        ],
+        "correct": [
+          0,
+          2
+        ],
+        "shuffle": false,
+        "review": [
+          "delivery"
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "single",
+        "text": "Which file controls the certificate texts and design?",
+        "options": [
+          "`certificate.json`",
+          "`index.html`",
+          "`js/app.js`"
+        ],
+        "correct": [
+          0
+        ],
+        "review": [
+          "certificate"
+        ]
+      },
+      {
+        "id": "q4",
+        "type": "multiple",
+        "text": "Which certificate designs are built in?",
+        "options": [
+          "classic",
+          "modern",
+          "minimal",
+          "retro"
+        ],
+        "correct": [
+          0,
+          1,
+          2
+        ],
+        "review": [
+          "certificate"
+        ]
+      }
+    ]
+  }
+}

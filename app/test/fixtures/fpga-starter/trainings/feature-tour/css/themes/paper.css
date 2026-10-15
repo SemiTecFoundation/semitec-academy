@@ -1,0 +1,33 @@
+/* Theme: paper — warm, book-like, serif headings, square corners. */
+:root {
+  --bg: #f6f1e7;
+  --surface: #fffdf8;
+  --surface-2: #f1eadc;
+  --text: #2b2620;
+  --heading: #3b2a18;
+  --muted: #7a6d5c;
+  --accent: #a4462b;
+  --accent-ink: #fffdf8;
+  --accent-soft: #f5e1d6;
+  --good: #3f7d3a;
+  --bad: #b3261e;
+  --warn: #b7791f;
+  --border: #e2d7c3;
+  --track: #e6dccb;
+  --focus: #d98a6f;
+  --radius: 4px;
+  --radius-sm: 3px;
+  --font: "Source Serif 4", "Georgia", "Cambria", "Noto Serif Armenian", serif;
+  --font-head: "Playfair Display", "Georgia", "Noto Serif Armenian", serif;
+  --font-mono: "IBM Plex Mono", Consolas, monospace;
+  --font-size: 17px;
+  --shadow: 0 6px 20px rgba(59, 42, 24, .14);
+  --shadow-sm: 0 1px 2px rgba(59, 42, 24, .12);
+  --head-bg: #fffdf8;
+  --head-ink: #3b2a18;
+  --toc-bg: #fbf7ef;
+  --toc-ink: #2b2620;
+  --code-bg: #2b2620;
+  --code-ink: #f6f1e7;
+  --quiz-bg: #fffdf8;
+}

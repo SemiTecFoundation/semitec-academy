@@ -1,0 +1,27 @@
+{
+  "enabled": true,
+  "title": "Certificate of Completion",
+  "subtitle": "Interactive training programme",
+  "presented": "This certificate is proudly presented to",
+  "body": "for successfully completing the training **{training}** with an average quiz score of **{score}** ({hours} hours).",
+  "issuer": "SemiTec Foundation",
+  "logo": "",
+  "logoText": "SF",
+  "signatures": [
+    { "name": "Arman Manukyan, PhD", "role": "Training supervisor" },
+    { "name": "SemiTec Foundation", "role": "Programme office" }
+  ],
+  "idPrefix": "SF-",
+  "topicsList": true,
+  "sealText": "Verified",
+  "style": {
+    "design": "classic",
+    "font": "serif",
+    "orientation": "landscape",
+    "accent": "#12305a",
+    "accent2": "#c9a227",
+    "paper": "#fffdf7",
+    "ink": "#1d2433",
+    "seal": true
+  }
+}

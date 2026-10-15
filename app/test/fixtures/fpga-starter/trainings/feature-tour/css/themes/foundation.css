@@ -1,0 +1,34 @@
+/* Theme: foundation — light, blue/teal, SemiTec Foundation look.
+   A theme only sets variables. Copy this file to create a new theme and list it in training.json → "themes". */
+:root {
+  --bg: #f4f6fa;
+  --surface: #ffffff;
+  --surface-2: #eef2f7;
+  --text: #1d2433;
+  --heading: #12305a;
+  --muted: #5e6b80;
+  --accent: #1f6feb;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3edfd;
+  --good: #1a9b5c;
+  --bad: #d64545;
+  --warn: #d9932b;
+  --border: #dbe2ec;
+  --track: #dde4ee;
+  --focus: #7aa7ff;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font: "Inter", "Segoe UI", system-ui, -apple-system, "Noto Sans Armenian", Arial, sans-serif;
+  --font-head: "Inter", "Segoe UI", system-ui, -apple-system, "Noto Sans Armenian", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  --font-size: 16px;
+  --shadow: 0 8px 28px rgba(18, 48, 90, .12);
+  --shadow-sm: 0 1px 3px rgba(18, 48, 90, .08);
+  --head-bg: #12305a;
+  --head-ink: #ffffff;
+  --toc-bg: #ffffff;
+  --toc-ink: #1d2433;
+  --code-bg: #0f1720;
+  --code-ink: #e6edf3;
+  --quiz-bg: #fbfcff;
+}

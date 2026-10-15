@@ -8,7 +8,7 @@ New packages and new versions of packages can be added at any time; the app does
 ```
   semitec-academy-skills/AcademyTemplates/     semitec-academy/                            student PC
  ┌──────────────────────────────────┐        ┌──────────────────────────────┐      ┌──────────────────────────────┐
- │ skills/training                   ─┐      │ packs/<name>/pack-spec.json  │      │ SemiTec Academy              │
+ │ skills/training                   ─┐      │ <pack folder>/pack-spec.json │      │ SemiTec Academy              │
  │ skills/lab-manual                   ┤ ───► │ packer/stlp.js check/create  │ ───► │  account → library → package │
  │ PDFs, Markdown, videos, files     ─┘      │ dist/<id>-<version>.stlp     │ .stlp│  sections, progress, quizzes │
  │ skills/package (AI skill)         ──────► │                              │      │  local DB (SQLite)           │
@@ -104,11 +104,7 @@ The AI skill that builds packages is part of the **Academy Templates** plugin
 
 ## Quick start (developer)
 
-Requires **Node.js 20+**. To rebuild the sample package or run `npm run sync-engine`, clone the
-[skills repository](https://github.com/SemiTecFoundation/semitec-academy-skills) next to this one, so
-that `semitec-academy/` and `semitec-academy-skills/` share a parent folder — two items of
-two items of the test fixture `app/test/fixtures/fpga-starter` and the training engine come from
-there. Everything else works without it.
+Requires **Node.js 20+**.
 
 ```bash
 cd app
@@ -117,16 +113,24 @@ npm start                         # run the app
 npm test                          # 75 end-to-end checks (Linux CI: xvfb-run -a npm test)
 ```
 
-Build the sample package and add it in the app:
+`npm test` needs no signing key and no second checkout: it builds its own fixture packages with a
+throwaway key ([`app/test/fixtures/build.js`](app/test/fixtures/build.js)) and points the app at that
+key, so nothing in this repository is signed with the production key.
+
+To try a package in the app by hand, build it unsigned and switch on *Developer mode* in *Settings →
+Application* (the app installs unsigned packages only then):
 
 ```bash
-node packer/stlp.js check  app/test/fixtures/fpga-starter/pack-spec.json
-node packer/stlp.js create app/test/fixtures/fpga-starter/pack-spec.json \
-    --key <offline>/semitec-foundation.key.pem --out app/test/fixtures/packs
-#   no key at hand? add --unsigned instead and turn on Developer mode in Settings
-#   this rebuilds the test fixture; real courses are built from sources kept outside this repository
-# → dist/org.semitec.fpga-starter-1.6.0.stlp   (drag it onto the app window)
+node packer/stlp.js check    <pack-spec.json>
+node packer/stlp.js create   <pack-spec.json> --unsigned --out /tmp
+#   → /tmp/<id>-<version>.stlp   (drag it onto the app window)
 ```
+
+A release package is signed with the production key instead — see [`docs/KEYS.md`](docs/KEYS.md).
+
+`npm run sync-engine` is the one command that needs the
+[skills repository](https://github.com/SemiTecFoundation/semitec-academy-skills) cloned next to this
+one, so that `semitec-academy/` and `semitec-academy-skills/` share a parent folder.
 
 ## Make a package (author)
 

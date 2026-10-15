@@ -1,0 +1,187 @@
+{
+  "id": "welcome",
+  "title": "Welcome & How It Works",
+  "duration": "5 min",
+  "summary": "A short tour of the training template. Every topic in this demo is named after a **feature** you can use in your own trainings.",
+  "objectives": [
+    "Navigate topics and subtopics",
+    "Understand how quizzes unlock the next topic",
+    "Know where the content comes from (JSON files)"
+  ],
+  "subsections": [
+    {
+      "id": "navigation",
+      "title": "Navigating the training",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "Every **subtopic is one page**: scroll to read it, then press **Next** at the bottom. The row of numbered pills above the text shows the parts of the topic — the last one (✎) is the quiz.\n\nThe **contents** panel lists all topics. Click the small arrow next to a topic to **expand** it and jump to any subtopic. Use the ☰ button in the header to **show or hide** the contents panel. On a phone it slides in over the page."
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Where",
+            "What you can do"
+          ],
+          "rows": [
+            [
+              "Next / Previous",
+              "Move to the next or previous page (subtopic, quiz, topic)"
+            ],
+            [
+              "Numbered pills",
+              "Jump between the parts of the current topic"
+            ],
+            [
+              "☰ button",
+              "Show / hide the contents"
+            ],
+            [
+              "Topic row",
+              "Open the topic (locked topics show 🔒)"
+            ],
+            [
+              "Arrow ›",
+              "Expand the list of subtopics"
+            ],
+            [
+              "View ▾",
+              "Switch layout (sidebar / top bar), theme, reset progress"
+            ],
+            [
+              "Progress bar",
+              "Share of topics you have passed"
+            ]
+          ],
+          "caption": "Main controls"
+        }
+      ]
+    },
+    {
+      "id": "quizzes",
+      "title": "Quizzes and passing",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "Every topic ends with a **quiz** page. You need the **pass threshold** (75 % in this demo) to unlock the next topic.\n\n- If you do not pass, the quiz tells you **which subtopics to read again** — click a link to open that page. A yellow box on those pages leads you **back to the quiz**.\n- Then press **Try again**: the answers are shuffled and you can retry as often as you like.\n- Some questions have **more than one correct answer** — they say *Select all correct answers*."
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "title": "Progress is saved",
+          "md": "Your progress is saved — in this browser, or by your learning platform when the training is opened from it. Next time you open the training it continues where you stopped."
+        }
+      ]
+    },
+    {
+      "id": "content-source",
+      "title": "Where the content comes from",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "Nothing is hard-coded in the page. The training is described by plain JSON files:"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "training.json        title, settings, list of topics\ntopics/01-....json   one file per topic: subsections + quiz\ncertificate.json     certificate texts and style\ncss/themes/*.css     colours and fonts\nassets/              pictures and SVG animations"
+        },
+        {
+          "type": "callout",
+          "kind": "key",
+          "title": "Made for AI",
+          "md": "Because everything is JSON, you can ask an AI assistant to *write a topic about X with a scroll-and-learn diagram and a 5-question quiz* and drop the file into `topics/`."
+        }
+      ]
+    }
+  ],
+  "quiz": {
+    "title": "Warm-up quiz",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "single",
+        "text": "What happens if your quiz score is below the pass threshold?",
+        "options": [
+          "The next topic opens anyway",
+          "You see which subtopics to re-read and can try again",
+          "The training restarts from the beginning"
+        ],
+        "correct": [
+          1
+        ],
+        "review": [
+          "quizzes"
+        ],
+        "explain": "Failing only points you back to the right subtopics; you can retry immediately."
+      },
+      {
+        "id": "q2",
+        "type": "multiple",
+        "text": "Which of these are JSON files in a training?",
+        "options": [
+          "`training.json`",
+          "`topics/01-welcome.json`",
+          "`certificate.json`",
+          "`css/themes/foundation.css`"
+        ],
+        "correct": [
+          0,
+          1,
+          2
+        ],
+        "review": [
+          "content-source"
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "truefalse",
+        "text": "The ☰ button shows or hides the contents panel.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "correct": [
+          0
+        ],
+        "shuffle": false,
+        "review": [
+          "navigation"
+        ]
+      },
+      {
+        "id": "q4",
+        "type": "single",
+        "text": "Where can you switch between the sidebar and the top-bar layout?",
+        "options": [
+          "In the *View ▾* menu",
+          "Only by editing the HTML",
+          "It cannot be changed"
+        ],
+        "correct": [
+          0
+        ],
+        "review": [
+          "navigation"
+        ]
+      },
+      {
+        "id": "q5",
+        "type": "single",
+        "text": "How do you move to the next subtopic?",
+        "options": [
+          "Press **Next** at the bottom of the page",
+          "Scroll past the end of the page",
+          "Reload the page"
+        ],
+        "correct": [
+          0
+        ],
+        "review": [
+          "navigation"
+        ]
+      }
+    ]
+  }
+}

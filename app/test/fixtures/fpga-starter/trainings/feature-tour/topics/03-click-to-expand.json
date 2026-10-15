@@ -1,0 +1,150 @@
+{
+  "id": "click-to-expand",
+  "title": "Click to Expand",
+  "duration": "6 min",
+  "summary": "Hide details until the student asks for them: **accordions** and **flip cards**.",
+  "subsections": [
+    {
+      "id": "accordion",
+      "title": "Accordion: verification techniques",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "Click a row to open it. With `\"single\": true` only one row stays open."
+        },
+        {
+          "type": "accordion",
+          "single": true,
+          "items": [
+            {
+              "title": "Directed tests",
+              "open": true,
+              "md": "Hand-written stimuli for a known scenario. Simple and readable, but they only check what you thought of."
+            },
+            {
+              "title": "Constrained-random stimulus",
+              "md": "The testbench generates random but **legal** inputs. Finds corner cases nobody planned for."
+            },
+            {
+              "title": "Functional coverage",
+              "md": "Measures **which scenarios were exercised** (covergroups, bins). Tells you when random testing is *done*."
+            },
+            {
+              "title": "Assertions (SVA)",
+              "blocks": [
+                {
+                  "type": "text",
+                  "md": "Properties checked **every clock cycle**, in simulation and formally:"
+                },
+                {
+                  "type": "code",
+                  "language": "systemverilog",
+                  "code": "assert property (@(posedge clk) req |-> ##[1:3] ack);"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "flipcards",
+      "title": "Flip cards: memory types",
+      "blocks": [
+        {
+          "type": "flipcards",
+          "md": "Click a card to see the back side.",
+          "cards": [
+            {
+              "front": "SRAM",
+              "back": "6 transistors per bit, fast, no refresh. Used for caches and on-chip buffers."
+            },
+            {
+              "front": "DRAM",
+              "back": "1 transistor + 1 capacitor per bit. Dense, but needs **refresh**."
+            },
+            {
+              "front": "Flash",
+              "back": "Non-volatile. Keeps data without power; slow writes, limited endurance."
+            },
+            {
+              "front": "ECC",
+              "back": "Extra check bits that **correct single-bit** and detect double-bit errors (SECDED)."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "quiz": {
+    "questions": [
+      {
+        "id": "q1",
+        "type": "multiple",
+        "text": "Which statements about **SRAM** are true?",
+        "options": [
+          "Needs periodic refresh",
+          "Typically 6 transistors per bit",
+          "Used for caches",
+          "Keeps data without power"
+        ],
+        "correct": [
+          1,
+          2
+        ],
+        "review": [
+          "flipcards"
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "single",
+        "text": "Which technique tells you **which scenarios** have been exercised?",
+        "options": [
+          "Directed tests",
+          "Functional coverage",
+          "Waveform viewing",
+          "Linting"
+        ],
+        "correct": [
+          1
+        ],
+        "review": [
+          "accordion"
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "single",
+        "text": "What does SECDED ECC do?",
+        "options": [
+          "Corrects single-bit errors and detects double-bit errors",
+          "Corrects any number of errors",
+          "Only detects errors, never corrects"
+        ],
+        "correct": [
+          0
+        ],
+        "review": [
+          "flipcards"
+        ]
+      },
+      {
+        "id": "q4",
+        "type": "truefalse",
+        "text": "An accordion block can contain other blocks (e.g. code) inside a row.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "correct": [
+          0
+        ],
+        "shuffle": false,
+        "review": [
+          "accordion"
+        ]
+      }
+    ]
+  }
+}

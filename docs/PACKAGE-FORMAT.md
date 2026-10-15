@@ -17,7 +17,8 @@ org.semitec.fpga-starter-1.0.0.stlp
     └── materials/<id>/<file>        zip, xdc, images, PDFs …
 ```
 
-File name convention: `<pack id>-<pack version>.stlp`. MIME type suggestion: `application/vnd.semitec.package+zip`.
+File name convention: `<pack id>-<pack version>.stlp`. Media type: `application/x-semitec-learning-package` — the one the installers register for `.stlp`
+(`build.fileAssociations` and `build.linux.mimeTypes` in `app/package.json`).
 
 ## manifest.json
 

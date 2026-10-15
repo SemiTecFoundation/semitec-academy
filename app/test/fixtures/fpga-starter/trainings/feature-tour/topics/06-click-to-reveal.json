@@ -1,0 +1,299 @@
+{
+  "id": "click-to-reveal",
+  "title": "Click to Reveal",
+  "duration": "7 min",
+  "summary": "Pulsing **hotspots** on a picture: click one to read about that part.",
+  "subsections": [
+    {
+      "id": "board-tour",
+      "title": "Tour of a development board",
+      "blocks": [
+        {
+          "type": "reveal",
+          "src": "assets/board.svg",
+          "hint": "Click the numbered areas to explore the board.",
+          "caption": "A generic SoC/FPGA development board",
+          "spots": [
+            {
+              "x": 41.25,
+              "y": 34,
+              "w": 22.5,
+              "h": 36,
+              "label": "1",
+              "title": "SoC (PS + PL)",
+              "md": "The main chip. The **processing system** runs software, the **programmable logic** holds your hardware designs."
+            },
+            {
+              "x": 70,
+              "y": 34,
+              "w": 12.5,
+              "h": 27,
+              "label": "2",
+              "title": "DDR4 memory",
+              "md": "External working memory for the processors. Connected to the DDR controller of the PS."
+            },
+            {
+              "x": 80,
+              "y": 8,
+              "w": 15,
+              "h": 13,
+              "label": "3",
+              "title": "JTAG header",
+              "md": "IEEE 1149.1 test access port: **program and debug** the chip, read internal registers, run BIST."
+            },
+            {
+              "x": 1.25,
+              "y": 12,
+              "w": 11.25,
+              "h": 17,
+              "label": "4",
+              "title": "USB-UART",
+              "md": "Serial console to talk to software on the board from your PC."
+            },
+            {
+              "x": 29,
+              "y": 22.5,
+              "w": 7,
+              "h": 6.5,
+              "label": "5",
+              "title": "Oscillator",
+              "md": "Reference **clock** for the PLLs / MMCMs that generate all internal clocks."
+            },
+            {
+              "x": 1.25,
+              "y": 76,
+              "w": 10.6,
+              "h": 16,
+              "label": "6",
+              "title": "Power input",
+              "md": "12 V input. On-board regulators create all the lower rails."
+            },
+            {
+              "x": 37,
+              "y": 81,
+              "w": 13,
+              "h": 9,
+              "label": "7",
+              "title": "LEDs",
+              "md": "Simplest debug output: drive them from PL logic or from software via GPIO."
+            },
+            {
+              "x": 56,
+              "y": 79,
+              "w": 14.5,
+              "h": 11,
+              "label": "8",
+              "title": "Push buttons",
+              "md": "User inputs — remember to **debounce** and synchronise them!"
+            },
+            {
+              "x": 81.25,
+              "y": 76,
+              "w": 15,
+              "h": 14,
+              "label": "9",
+              "title": "microSD slot",
+              "md": "Boot medium: holds the boot image and the Linux file system."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "make-hotspots",
+      "title": "How to place hotspots",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "Each spot is a rectangle in **percent** of the picture: `x`, `y` = top-left corner, `w`, `h` = size. That way spots stay in place at any screen size."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "code": "{ \"label\": \"3\", \"title\": \"JTAG header\",\n  \"x\": 80, \"y\": 8, \"w\": 15, \"h\": 13,\n  \"md\": \"IEEE 1149.1 test access port …\" }"
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "md": "For an SVG with a `viewBox` of 800 × 500, a part at x = 640 px is at 640 / 8 = **80 %**."
+        }
+      ]
+    }
+  ],
+  "quiz": {
+    "questions": [
+      {
+        "id": "q1",
+        "type": "hotspot",
+        "text": "Click the part used to **program and debug** the chip through IEEE 1149.1.",
+        "src": "assets/board.svg",
+        "spots": [
+          {
+            "x": 41.25,
+            "y": 34,
+            "w": 22.5,
+            "h": 36,
+            "id": "soc"
+          },
+          {
+            "x": 70,
+            "y": 34,
+            "w": 12.5,
+            "h": 27,
+            "id": "ddr"
+          },
+          {
+            "x": 1.25,
+            "y": 12,
+            "w": 11.25,
+            "h": 17,
+            "id": "usb"
+          },
+          {
+            "x": 80,
+            "y": 8,
+            "w": 15,
+            "h": 13,
+            "id": "jtag"
+          },
+          {
+            "x": 1.25,
+            "y": 76,
+            "w": 10.6,
+            "h": 16,
+            "id": "pwr"
+          },
+          {
+            "x": 37,
+            "y": 81,
+            "w": 13,
+            "h": 9,
+            "id": "leds"
+          },
+          {
+            "x": 56,
+            "y": 79,
+            "w": 14.5,
+            "h": 11,
+            "id": "btn"
+          },
+          {
+            "x": 81.25,
+            "y": 76,
+            "w": 15,
+            "h": 14,
+            "id": "sd"
+          },
+          {
+            "x": 29,
+            "y": 22.5,
+            "w": 7,
+            "h": 6.5,
+            "id": "osc"
+          }
+        ],
+        "correct": [
+          "jtag"
+        ],
+        "review": [
+          "board-tour"
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "hotspot",
+        "text": "Select **all** parts that a student can use as simple user I/O (input or output).",
+        "src": "assets/board.svg",
+        "spots": [
+          {
+            "x": 41.25,
+            "y": 34,
+            "w": 22.5,
+            "h": 36,
+            "id": "soc"
+          },
+          {
+            "x": 70,
+            "y": 34,
+            "w": 12.5,
+            "h": 27,
+            "id": "ddr"
+          },
+          {
+            "x": 1.25,
+            "y": 12,
+            "w": 11.25,
+            "h": 17,
+            "id": "usb"
+          },
+          {
+            "x": 80,
+            "y": 8,
+            "w": 15,
+            "h": 13,
+            "id": "jtag"
+          },
+          {
+            "x": 1.25,
+            "y": 76,
+            "w": 10.6,
+            "h": 16,
+            "id": "pwr"
+          },
+          {
+            "x": 37,
+            "y": 81,
+            "w": 13,
+            "h": 9,
+            "id": "leds"
+          },
+          {
+            "x": 56,
+            "y": 79,
+            "w": 14.5,
+            "h": 11,
+            "id": "btn"
+          },
+          {
+            "x": 81.25,
+            "y": 76,
+            "w": 15,
+            "h": 14,
+            "id": "sd"
+          },
+          {
+            "x": 29,
+            "y": 22.5,
+            "w": 7,
+            "h": 6.5,
+            "id": "osc"
+          }
+        ],
+        "correct": [
+          "leds",
+          "btn"
+        ],
+        "review": [
+          "board-tour"
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "single",
+        "text": "A picture is 800 px wide. A spot starts at x = 200 px. What is its `x` value?",
+        "options": [
+          "20",
+          "25",
+          "200",
+          "0.25"
+        ],
+        "correct": [
+          1
+        ],
+        "review": [
+          "make-hotspots"
+        ]
+      }
+    ]
+  }
+}

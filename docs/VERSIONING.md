@@ -7,7 +7,7 @@ breaking in old apps.
 |---|---|---|---|
 | **App version** | `app/package.json → version` | the installed program (e.g. 1.0.0, 1.1.0, 2.0.0) | app developers, at each release |
 | **Format versions** | `app/src/shared/versions.js → HISTORY` | how a pack container / training / reading / lab is written (integers: 1, 2, …) | app developers, when the content structure changes |
-| **Pack version** | `packs/<name>/pack-spec.json → pack.version` | the content of one course pack (1.0.0 → 1.0.1 → 1.1.0) | authors, when they update a pack |
+| **Pack version** | `<pack folder>/pack-spec.json → pack.version` | the content of one course pack (1.0.0 → 1.0.1 → 1.1.0) | authors, when they update a pack |
 
 ## The compatibility table
 
@@ -22,7 +22,6 @@ const HISTORY = [
   { app: '1.4.0', pack: [1], training: [1], reading: [1, 2], lab: [1, 2], video: [1], material: [1], project: [1] },
   …
   { app: '1.6.0', pack: [1], training: [1], reading: [1, 2], lab: [1, 2], video: [1], material: [1], project: [1] },
-  { app: '1.4.0', pack: [1], training: [1], reading: [1, 2], lab: [1, 2], video: [1], material: [1], project: [1] },
   // example of the future:
   // { app: '1.4.0', …, lab: [1, 2, 3] },   // lab format 3: adds report upload
   // { app: '2.0.0', pack: [1, 2], training: [1, 2], reading: [1], lab: [1, 2] }
@@ -86,4 +85,4 @@ The packer picks the item format from the content (a lab without `files` stays f
 1. `npm run sync-engine` if the training template changed; run `npm test`.
 2. Bump `app/package.json → version`; add a `HISTORY` row if formats changed; update this table.
 3. Add new trusted public keys to `app/trusted-keys/` if any (see KEYS.md).
-4. Build installers (ROADMAP: `npm run dist`), sign them, publish with release notes listing supported formats.
+4. Build installers (RELEASING.md: `npm run dist:win|mac|linux`), sign them, publish with release notes listing supported formats.

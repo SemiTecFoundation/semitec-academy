@@ -1,0 +1,137 @@
+{
+  "id": "animations",
+  "title": "Animations",
+  "duration": "7 min",
+  "summary": "Two kinds of motion: a **step-by-step player** you control, and a **continuous SVG animation** with pause.",
+  "subsections": [
+    {
+      "id": "stepper",
+      "title": "Step-by-step player: a sequence detector",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "Press **Play** or use **Back / Next**. Each step reveals part of the state machine."
+        },
+        {
+          "type": "stepper",
+          "src": "assets/fsm.svg",
+          "interval": 2200,
+          "steps": [
+            {
+              "title": "States",
+              "md": "Four states: **S0** idle, **S1** saw `1`, **S2** saw `10`, **S3** saw `101` — output is 1 only in S3 (a *Moore* machine)."
+            },
+            {
+              "title": "S0 → S1",
+              "md": "Input `1` starts a possible match."
+            },
+            {
+              "title": "S1 → S2",
+              "md": "Input `0` continues the match: we have seen `10`."
+            },
+            {
+              "title": "S2 → S3",
+              "md": "Input `1` completes `101`: the detector outputs **1**."
+            },
+            {
+              "title": "All other arcs",
+              "md": "Self-loops and back-arcs keep partial matches, e.g. from S3 a `0` goes to S2 because `10` is again a valid prefix (**overlapping** detection)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waveform",
+      "title": "Continuous animation: waveforms",
+      "blocks": [
+        {
+          "type": "text",
+          "md": "The SVG below animates by itself with CSS `@keyframes`. Use **Pause** to freeze it and study one moment."
+        },
+        {
+          "type": "svg",
+          "src": "assets/clock-wave.svg",
+          "controls": true,
+          "caption": "The flip-flop output q takes the value of data at each rising clock edge"
+        },
+        {
+          "type": "callout",
+          "kind": "info",
+          "md": "Any animation written inside the SVG (`<style>@keyframes …</style>`) works. The **Pause** button freezes all of it."
+        }
+      ]
+    }
+  ],
+  "quiz": {
+    "questions": [
+      {
+        "id": "q1",
+        "type": "order",
+        "text": "Put the states visited for the input `1, 0, 1` in order (starting after reset).",
+        "items": [
+          "S0",
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "review": [
+          "stepper"
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "single",
+        "text": "In which state is the detector output 1?",
+        "options": [
+          "S0",
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "correct": [
+          3
+        ],
+        "shuffle": false,
+        "review": [
+          "stepper"
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "single",
+        "text": "When does the flip-flop output `q` change in the waveform?",
+        "options": [
+          "At the rising clock edge",
+          "Whenever data changes",
+          "At the falling clock edge"
+        ],
+        "correct": [
+          0
+        ],
+        "review": [
+          "waveform"
+        ]
+      },
+      {
+        "id": "q4",
+        "type": "multiple",
+        "text": "Which controls does the step-by-step player have?",
+        "options": [
+          "Play / Pause",
+          "Back",
+          "Next",
+          "Zoom"
+        ],
+        "correct": [
+          0,
+          1,
+          2
+        ],
+        "review": [
+          "stepper"
+        ]
+      }
+    ]
+  }
+}
