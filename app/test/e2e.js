@@ -281,11 +281,11 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   check(nev >= 3, 'calendar shows ' + nev + ' plan bars this month');
   await sleep(500); await shot(win, '10h-calendar');
 
-  console.log('6d. Project: enroll, weekly plan, notes, brief');
+  console.log('6d. Project: start plan, weekly plan, notes, brief');
   await win.click('.ui-nav a:has-text("Projects")');
   await win.waitForSelector('.proj-card');
   await win.click('.seg button:has-text("My projects")');                /* bug fix: an empty "My projects" tab */
-  check(await win.getAttribute('.seg button[data-k="mine"]', 'aria-selected') === 'true' && !(await win.$('.proj-card')) && await win.isVisible('text=You are not enrolled in a project yet'), 'My projects (empty) is selected and says so');
+  check(await win.getAttribute('.seg button[data-k="mine"]', 'aria-selected') === 'true' && !(await win.$('.proj-card')) && await win.isVisible('text=You have not started a project plan yet'), 'My projects (empty) is selected and explains how to start a plan');
   await win.click('.seg button:has-text("All projects")');
   check(await win.getAttribute('.seg button[data-k="all"]', 'aria-selected') === 'true' && (await win.$$('.proj-card')).length === 1, 'All projects selected again and listed');
   await win.click('.cat-chip:has-text("Diploma")');
@@ -293,12 +293,12 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   await sleep(500); await shot(win, '10i-projects');
   await win.click('.proj-card');
   await win.waitForSelector('.proj-head');
-  await win.click('.proj-head button:has-text("Enroll")');
+  await win.click('.proj-head button:has-text("Start project plan")');
   await win.waitForSelector('.modal input[type=date]');
   await win.fill('.modal input[type=date]', ago(15));                  // week 3 of 30
-  await win.click('.modal button:has-text("Enroll")');
+  await win.click('.modal button:has-text("Start plan")');
   await win.waitForSelector('.proj-head .plan-box.on');
-  check(/week 3 of 30/.test(await win.textContent('.proj-head')), 'project enrolled, week 3 of 30');
+  check(/week 3 of 30/.test(await win.textContent('.proj-head')), 'project plan started, week 3 of 30');
   await win.waitForSelector('.week-row');
   const boxes = await win.$$('.week-row .week-ck input');
   await boxes[0].check(); await sleep(250);
