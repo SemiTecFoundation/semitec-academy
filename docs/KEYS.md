@@ -6,10 +6,12 @@ The app ships Foundation keys in `app/trusted-keys/`; a computer owner can add a
 
 ## What the app trusts
 
-`app/trusted-keys/` holds exactly one key: the **production** key `semitec-foundation` —
-`semitec-foundation.pub.pem` plus `semitec-foundation.json` (`"development": false`). Every released
-pack is signed with it and the app shows those packs as **✔ Verified**. Only public halves are ever in
-this repository; `.gitignore` blocks `*.key.pem`, `*.p12`, `*.pfx`, `*.p8` and `.env` with no exception.
+`app/trusted-keys/` is the app's default trust list. It currently holds the **production** key
+`semitec-foundation` — `semitec-foundation.pub.pem` plus `semitec-foundation.json`
+(`"development": false`). Foundation releases signed with it show as **✔ Verified**. The list may also
+contain a public key for a partner the Foundation has deliberately chosen to trust by default. Only public
+halves are ever in this repository; `.gitignore` blocks `*.key.pem`, `*.p12`, `*.pfx`, `*.p8` and
+`.env` with no exception.
 
 **No development key is trusted by default.** Development does not need one: build drafts with
 `--unsigned` and switch on *Developer mode* (Settings, or `SEMITEC_DEV=1`), which accepts unsigned
@@ -34,9 +36,26 @@ node packer/stlp.js keygen /secure/offline/folder --name "SemiTec Foundation"
 ## Partner publishers
 
 A partner organisation or department runs `keygen`, keeps the `.key.pem` private and gives recipients
-only its `.pub.pem` plus the fingerprint. Each school or user adds that public file under *Trusted
-publishers* and confirms the fingerprint independently. The partner can then sign and distribute packages
-without a Foundation approval step or an app release. See [PUBLISHING.md](PUBLISHING.md).
+only its `.pub.pem`, matching `.json` file and fingerprint. Each school or user adds that public file
+under *Trusted publishers* and confirms the fingerprint independently. The partner can then sign and
+distribute packages without a Foundation approval step or an app release. See [PUBLISHING.md](PUBLISHING.md).
+
+## Optional Foundation default trust for a partner
+
+The Foundation may choose to ship a partner's **public** key in `app/trusted-keys/` in a future Academy
+release. That lets new installations accept packages signed by that key without each recipient importing it
+first. It is optional: a partner can publish normally with local recipient trust, and signing with a partner
+key does not automatically add it to the app.
+
+Before adding a key, obtain the partner's `.pub.pem`, matching `.json` and fingerprint through a
+verified channel; confirm the company controls the key; and add only those two public files to
+`app/trusted-keys/`. Set `"development": false` in the public metadata, test the app, then release the
+updated Academy installer. Never request, receive or store the partner's private key.
+
+Default trust identifies a known publisher key. It does not transfer ownership of the partner's materials
+or make every package and certificate Foundation-issued or academically approved. If a key is replaced or
+compromised, follow the rotation procedure below: ship the new public key, have the partner re-sign its
+current packages, then remove the old key in a later app release.
 
 ## Rotation / compromise
 

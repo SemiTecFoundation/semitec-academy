@@ -38,6 +38,17 @@ Foundation public keys are shipped in the app for Foundation releases. Locally a
 the Academy data folder, travel when that data folder is moved, and can be removed at any time. Removing a
 key stops future installs with it; it does not delete existing materials or progress.
 
+### Optional Foundation default trust for a partner
+
+The Foundation may intentionally include a verified partner **public** key in a future Academy release.
+That makes the key trusted by default for new installations; the partner still owns and protects its
+private key. It is not required for partner publishing and it is not automatic after a company signs its
+first package. See [KEYS.md](KEYS.md#optional-foundation-default-trust-for-a-partner) for the verification,
+release and rotation procedure.
+
+Including a key identifies a known publisher key. It does not make every package, course certificate or
+claim by that publisher Foundation-issued or Foundation-approved.
+
 ## Rights and names
 
 The application and packer are [Apache-2.0](../LICENSE). Course materials remain the responsibility of
