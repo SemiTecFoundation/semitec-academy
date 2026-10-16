@@ -172,6 +172,7 @@ function buildDir(dir, defaultOut, quiet) {
       r.info[it.id] && r.info[it.id].srcFiles && r.info[it.id].srcFiles.length ? { srcFiles: r.info[it.id].srcFiles } : {},
       r.info[it.id] && r.info[it.id].schedule ? { schedule: r.info[it.id].schedule } : {},
       it.type === 'project' && r.info[it.id] ? { durationWeeks: r.info[it.id].durationWeeks, summary: r.info[it.id].summary } : {},
+      it.type === 'training' && r.info[it.id] && r.info[it.id].entry ? { entry: r.info[it.id].entry } : {},
       it.plannedWeeks != null ? { plannedWeeks: it.plannedWeeks } : {},
       it.for ? { for: it.for } : {},
       it.prerequisite ? { prerequisite: true } : {},

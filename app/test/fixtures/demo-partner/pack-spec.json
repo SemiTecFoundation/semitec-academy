@@ -19,6 +19,9 @@
   "readings": [
     { "id": "mbist-primer", "title": "Memory BIST in one page", "source": "readings/mbist-primer.md", "estimatedTime": "10 min", "plannedWeeks": 1 }
   ],
+  "trainings": [
+    { "id": "logic-playground", "title": "Interactive logic gate", "source": "trainings/logic-playground", "description": "A small custom JavaScript training used to verify the packaged web runtime.", "estimatedTime": "10 min" }
+  ],
   "projects": [
     { "id": "mbist-jtag", "source": "projects/mbist-jtag", "category": "diploma", "description": "Diploma project, 30 weeks: March tests, JTAG access, verification" }
   ]

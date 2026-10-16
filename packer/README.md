@@ -24,3 +24,9 @@ Authoring guide: `../docs/AUTHORING.md`.
 `accentSoft`). The checker validates its hex colours and button-text contrast, then writes package format
 2, which requires Academy 1.8.0. It styles package details and non-training materials only; training
 themes and certificate styles remain in their respective source folders.
+
+Training format 1 is the standard Academy JSON template. Training format 2 is an explicit custom local web
+folder: `training.json` declares `"format": 2` and `"runtime": { "kind": "web", "entry": "index.html" }`.
+The checker keeps its local HTML, JavaScript, CSS and assets, requires Academy 1.9.0, and rejects an
+individual training certificate. The lesson saves its state through `window.SemiTecAcademy`; it cannot use
+the network, Electron or Node APIs inside Academy.

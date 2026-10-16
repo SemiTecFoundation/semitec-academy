@@ -62,7 +62,6 @@ function checkSpec(specPath) {
       cur = { type, id, title: e.title || '', source: e.source || e.url || '', errors: [], warnings: [] }; rows.push(cur);
       if (!ID.test(id)) rep.error(w, 'id must be lowercase letters, digits, - . _');
       if (ids.has(id)) rep.error(w, 'duplicate id (ids must be unique in the whole pack)'); ids.add(id);
-      formats[type] = Math.max(formats[type] || 0, CURRENT[type]);
       let info = null;
       if (type === 'training') info = e.source ? C.training(src, w) : rep.error(w, 'missing "source" (training folder)');
       if (type === 'lab') info = e.source ? C.lab(src, w) : rep.error(w, 'missing "source" (lab folder with lab.json)');
@@ -77,7 +76,8 @@ function checkSpec(specPath) {
       }
       if (type === 'material') { if (e.source) info = C.material(src, w); else if (e.url) C.url(e.url, w); else rep.error(w, 'needs "source" (file) or "url"'); }
       if (info && info.size) totalSize += info.size;
-      if (info && info.format) formats[type] = Math.max(formats[type], info.format);
+      if (info && info.format) formats[type] = Math.max(formats[type] || 0, info.format);
+      else if (type !== 'training') formats[type] = Math.max(formats[type] || 0, CURRENT[type]);
       const title = e.title || (info && info.title) || (e.source ? path.basename(e.source).replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ') : id);
       if (!e.title && !(info && info.title)) rep.warn(w, `no "title" — using "${title}"`);
       cur.title = title;
@@ -142,8 +142,12 @@ function assemble(specPath, outDir, result) {
     if (it.type === 'project' && (it.category || (it._info && it._info.category))) o.category = it.category || it._info.category;
     if (it.type === 'training') {
       o.path = 'trainings/' + it.id;
-      copyDir(it._src, path.join(outDir, o.path), (n, d) => (d && ['js', 'tools', 'examples', 'dist', 'reference', 'node_modules'].includes(n)) || ['index.html', 'README.md', 'SKILL.md', 'INTEGRATION.md'].includes(n));
-      for (const f of ['css/app.css', 'css/certificate.css']) fs.rmSync(path.join(outDir, o.path, f), { force: true });
+      const customWeb = it._info && it._info.format === 2;
+      copyDir(it._src, path.join(outDir, o.path), (n, d) => customWeb
+        ? (d && ['tools', 'examples', 'dist', 'reference', 'node_modules'].includes(n)) || ['README.md', 'SKILL.md', 'INTEGRATION.md'].includes(n)
+        : (d && ['js', 'tools', 'examples', 'dist', 'reference', 'node_modules'].includes(n)) || ['index.html', 'README.md', 'SKILL.md', 'INTEGRATION.md'].includes(n));
+      if (customWeb) o.entry = it._info.entry;
+      else for (const f of ['css/app.css', 'css/certificate.css']) fs.rmSync(path.join(outDir, o.path, f), { force: true });
     } else if (it.type === 'lab') {
       o.path = 'labs/' + it.id; copyDir(it._src, path.join(outDir, o.path));
     } else if (it.type === 'project') {

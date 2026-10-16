@@ -706,7 +706,7 @@
       }
       api.progress.get(packId, it.id).then(function (prev) {
         var base = 'stl://pack/' + encodeURIComponent(packId) + '/';
-        if (it.type === 'training') openTraining(body, base + it.path + '/index.html' + (sub === 'certificate' ? '#certificate' : ''), prev, save);
+        if (it.type === 'training') openTraining(body, base + it.path + '/' + (it.entry || 'index.html') + (sub === 'certificate' ? '#certificate' : ''), prev, save, it.format === 2);
         else if (it.type === 'project') S.cleanup = window.ProjectsUI.open({ host: body, packId: packId, item: it, base: base + it.path + '/', state: prev ? prev.state : null, save: save, tab: sub });
         else if (it.type === 'reading' && /\.(md|markdown)$/i.test(it.file)) S.cleanup = window.MarkdownView.open({ host: body, url: base + it.file, title: it.title, state: prev ? prev.state : null, save: save, toast: toast });
         else if (it.type === 'reading') openReading(body, base + it.file, prev, save);
@@ -718,8 +718,8 @@
   }
 
   /* training: the training engine runs in an iframe (stl://pack origin) and talks to us with postMessage */
-  function openTraining(body, url, prev, save) {
-    var frame = el('iframe', { src: url, title: 'Training' });
+  function openTraining(body, url, prev, save, customWeb) {
+    var frame = el('iframe', customWeb ? { src: url, title: 'Training', sandbox: 'allow-scripts allow-same-origin' } : { src: url, title: 'Training' });
     function onMsg(e) {
       if (e.source !== frame.contentWindow) return;
       var d = e.data || {}; if (d.source !== 'semitec-training') return;
@@ -728,7 +728,12 @@
           user: { id: String(S.user.id), name: S.user.displayName }, lockName: true }, 'stl://pack');
       } else if ((d.type === 'progress' || d.type === 'state') && d.detail && d.detail.state) {
         var st = d.detail.state; prev = { state: st };
-        save(st, st.percent || 0, !!st.completedAt);
+        /* Format-1 engine keeps percent/completedAt inside its state. The format-2 bridge deliberately
+           keeps those delivery fields beside author state so a lesson need not copy Academy fields. */
+        var percent = Number(d.detail.percent);
+        if (!Number.isFinite(percent)) percent = Number(st.percent) || 0;
+        var completed = d.detail.completed === true || !!st.completedAt;
+        save(st, Math.max(0, Math.min(100, percent)), completed);
       }
     }
     window.addEventListener('message', onMsg);

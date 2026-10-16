@@ -135,7 +135,7 @@ the id before changing the database or deleting files.
 The content is **readable** by anyone who unzips the file (it is compressed and signed, not encrypted).
 Signing guarantees *who made it* and *that it was not changed*.
 
-## Item formats (version 1)
+## Item formats
 
 ### training — format 1
 Content of the web training template (`skills/training`):
@@ -143,6 +143,38 @@ Content of the web training template (`skills/training`):
 No engine files: the app supplies the engine (`index.html`, `js/`, `css/app.css`) and runs the training
 in *platform* mode, saving the training's progress state per user. Field reference:
 `skills/training/reference/content-format.md`.
+
+### training — format 2 (custom local web, app ≥ 1.9.0)
+
+Use this only when an interactive lesson needs its own JavaScript runtime. Its `training.json` declares a
+local entry page; the whole folder is included in the package.
+
+```json
+{
+  "format": 2,
+  "id": "logic-playground",
+  "title": "Logic playground",
+  "runtime": { "kind": "web", "entry": "index.html" }
+}
+```
+
+`runtime.kind` is always `"web"`; `runtime.entry` is a relative local `.html` file, such as
+`index.html`. The folder may contain local `js/`, CSS, images, fonts and media. It must not depend on a
+CDN, network service, Electron, Node.js, a preload API, nested frames or forms: Academy serves it in a
+sandboxed frame under a policy that blocks network connections and external embedding.
+
+Academy injects one small browser API, `window.SemiTecAcademy`, so the lesson can restore and save its
+own state. It has `requestState()`, `onState(fn)`, `getState()`, `getUser()`, `save(state, { percent,
+completed })` and `complete(state)`. `state` must be an object and `percent` is 0–100. For example:
+
+```js
+SemiTecAcademy.onState(({ state }) => restore(state || {}));
+SemiTecAcademy.save({ selectedGate: "AND" }, { percent: 50 });
+SemiTecAcademy.complete({ selectedGate: "AND", solved: true });
+```
+
+Completion counts toward the optional **package** certificate. Format 2 does not produce an individual
+training certificate because its page and certificate design are publisher-controlled.
 
 ### reading — format 1 (PDF) and 2 (Markdown, app ≥ 1.3.0)
 **Format 1:** a PDF file (`items[].file`). The app's reader saves `{ pages, seen: [page numbers], last, completed }`.

@@ -1,0 +1,11 @@
+{
+  "format": 2,
+  "id": "logic-playground",
+  "version": "1.0.0",
+  "title": "Interactive logic gate",
+  "hours": "10 min",
+  "runtime": {
+    "kind": "web",
+    "entry": "index.html"
+  }
+}

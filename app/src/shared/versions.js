@@ -66,6 +66,11 @@ const HISTORY = [
     app: '1.8.0',
     pack: [1, 2], training: [1], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
     notes: 'Package format 2 adds a publisher-defined, accessible accent style for package details and non-training material views.'
+  },
+  {
+    app: '1.9.0',
+    pack: [1, 2], training: [1, 2], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
+    notes: 'Training format 2 is a self-contained custom web training: local HTML, CSS and JavaScript run in a sandboxed iframe and use the Academy bridge to save progress.'
   }
 ];
 
@@ -99,6 +104,6 @@ function supports(manifest, appVersion = APP_VERSION) {
   }
   return { ok: reasons.length === 0, reasons };
 }
-const CURRENT = { pack: 2, training: 1, reading: 1, lab: 1, video: 1, material: 1, project: 1 };
+const CURRENT = { pack: 2, training: 2, reading: 1, lab: 1, video: 1, material: 1, project: 1 };
 
 module.exports = { APP_VERSION, HISTORY, CURRENT, cmp, capabilities, minAppFor, supports };

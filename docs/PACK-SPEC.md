@@ -56,7 +56,7 @@ students' progress is stored per id, so keep them stable between versions.
     ]
   },
 
-  "trainings": [                               // web training template folders (training.json + topics/)
+  "trainings": [                               // Academy JSON folders, or custom-web folders (format 2)
     { "id": "shift-registers", "title": "Shift registers", "source": "trainings/shift-registers",
       "description": "Theory for Lab 1", "estimatedTime": "30 min" }
   ],
@@ -127,6 +127,33 @@ Interactive trainings have their own theme files. Make a matching `css/themes/<c
 the training's `themes`, and use it as the training's default `theme`. Certificates use their separate
 `certificate.json → style` colours.
 
+### Custom web trainings (Academy ≥ 1.9.0)
+
+The normal training template uses `training.json` plus `topics/` JSON and remains the default. Use a
+custom web training only when the lesson already has, or genuinely needs, its own browser JavaScript
+interactions. The source folder is listed under `trainings` exactly like a normal training, but its
+`training.json` is:
+
+```json
+{
+  "format": 2,
+  "id": "logic-playground",
+  "title": "Logic playground",
+  "hours": "1 h",
+  "runtime": { "kind": "web", "entry": "index.html" }
+}
+```
+
+Keep `index.html`, JavaScript, CSS, images and fonts in that folder. `entry` must point to a local HTML
+file below the training folder; the packer includes those local files and raises the package's minimum
+version to **Academy 1.9.0**. Do not use CDNs, fetch/XHR, remote images, Electron/Node APIs, embedded
+frames or forms: the app blocks network access and external embedding.
+
+The page receives `window.SemiTecAcademy`. Restore with `onState`, save with
+`save(state, { percent })`, and call `complete(state)` when the learner finishes. The state is a plain
+object saved per user. Format 2 may count toward the optional package certificate, but it does not create
+an individual training certificate.
+
 ### How "other materials" are shown
 
 | File | In the app |
@@ -178,7 +205,7 @@ Application → Trusted publishers*; this is their local trust decision, not Fou
 | Material | Checks |
 |---|---|
 | pack | id format, version `X.Y.Z`, title; cover is an image |
-| training | folder exists; `training.json` valid with id, title, topics; every topic file exists and is valid; unique topic / subsection ids; known block types; all assets exist; scroll / step SVGs have `data-step`; quizzes: question types, correct indices in range, single-answer types have one answer, `review` points to real subsections; certificate file exists |
+| training | format 1: folder exists; `training.json` has id, title, topics; every topic file exists and is valid; unique topic / subsection ids; known block types; all assets exist; scroll / step SVGs have `data-step`; quizzes: question types, correct indices in range, single-answer types have one answer, `review` points to real subsections; certificate file exists. Format 2: required local `runtime.kind: "web"` and local HTML `runtime.entry`; no individual training certificate |
 | lab | `lab.json` valid; title; steps with unique ids and titles; manual PDF exists and is a PDF; source files listed in `files` exist (warning above 50 MB); step `files` links point to listed files; quiz as above with `review` → step ids |
 | reading | PDF: exists, is a PDF, not truncated · Markdown: UTF-8, has headings, every local image / link exists and lies inside the document's folder (packed with it) |
 | video | `.mp4`/`.webm`, real MP4/WebM header, size warning above 500 MB; poster is an image |

@@ -130,12 +130,13 @@ module.exports = function planner({ db, lib }) {
     return out;
   }
 
-  /* certificates earned: training certificates (from the training state) and package certificates (everything completed) */
+  /* certificates earned: JSON-training certificates (from the training state) and package certificates.
+     Custom web trainings can complete a package, but Academy cannot generate a certificate inside their own UI. */
   function certificates(userId, displayName) {
     const out = [];
     for (const r of db.all('SELECT id FROM packs ORDER BY title')) {
       const m = lib.manifestOf(r.id), prog = progressMap(userId, r.id);
-      for (const it of (m.items || []).filter(i => i.type === 'training')) {
+      for (const it of (m.items || []).filter(i => i.type === 'training' && i.format !== 2)) {
         const p = prog[it.id]; if (!p || !p.completedAt) continue;
         let st = {}; try { st = JSON.parse(p.state); } catch (e) {}
         const c = st.certificate || {};

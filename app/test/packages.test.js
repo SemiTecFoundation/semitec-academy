@@ -12,7 +12,7 @@ const makeLibrary = require('../src/main/library');
 const makeMine = require('../src/main/mine');
 const makePlanner = require('../src/main/planner');
 const { checkSpec, assemble } = require('../src/shared/spec');
-const { validatePack } = require('../src/shared/validate');
+const { validatePack, collectFiles } = require('../src/shared/validate');
 const { supports } = require('../src/shared/versions');
 const { DB } = require('../src/main/db');
 
@@ -195,6 +195,23 @@ test('a completed package receives a course certificate only when its publisher 
   assert.equal(certs[0].config.issuer, 'Example publisher');
 });
 
+test('a completed custom web training counts for its package certificate but not a template training certificate', () => {
+  const manifest = {
+    format: 1, id: 'org.example.web-course', version: '1.0.0', title: 'Web course',
+    certificate: { title: 'Web course certificate' },
+    items: [{ id: 'logic-playground', type: 'training', format: 2, title: 'Logic playground', estimatedTime: '30 min' }]
+  };
+  const db = { all(sql) {
+    if (sql.startsWith('SELECT id FROM packs')) return [{ id: manifest.id }];
+    if (sql.startsWith('SELECT item_id')) return [{ item_id: 'logic-playground', percent: 100, completed_at: '2026-10-16T10:00:00.000Z', updated_at: '2026-10-16T10:00:00.000Z', item_type: 'training', state: JSON.stringify({ certificate: { id: 'must-not-be-listed' } }) }];
+    throw new Error('Unexpected query: ' + sql);
+  } };
+  const planner = makePlanner({ db, lib: { manifestOf: () => manifest } });
+  const certs = planner.certificates(1, 'Student Name');
+  assert.deepEqual(certs.map(c => c.kind), ['package']);
+  assert.equal(certs[0].items, 1);
+});
+
 test('a package spec preserves an optional author feedback contact', t => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'stl-contact-test-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
@@ -237,4 +254,50 @@ test('package branding refuses unsafe colours and unsupported fields', t => {
   const checked = checkSpec(specPath);
   assert.ok(checked.errors.some(e => e.includes('accent') && e.includes('six-digit hex colour')));
   assert.ok(checked.errors.some(e => e.includes('unknown field "css"')));
+});
+
+test('custom web training packages preserve local JavaScript and require the web-training capable app', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'stl-custom-web-test-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const training = path.join(root, 'training');
+  fs.mkdirSync(path.join(training, 'js'), { recursive: true });
+  fs.writeFileSync(path.join(training, 'training.json'), JSON.stringify({
+    format: 2, id: 'logic-playground', title: 'Logic playground', hours: '30 min',
+    runtime: { kind: 'web', entry: 'index.html' }
+  }));
+  fs.writeFileSync(path.join(training, 'index.html'), '<!doctype html><title>Logic playground</title><script src="js/logic.js"></script>');
+  fs.writeFileSync(path.join(training, 'js', 'logic.js'), 'window.logicPlayground = true;');
+  const specPath = path.join(root, 'pack-spec.json');
+  fs.writeFileSync(specPath, JSON.stringify({
+    pack: { id: 'org.example.logic-playground', version: '1.0.0', title: 'Logic playground' },
+    trainings: [{ id: 'logic-playground', source: 'training' }]
+  }));
+  const checked = checkSpec(specPath);
+  assert.deepEqual(checked.errors, []);
+  assert.equal(checked.formats.training, 2);
+  assert.equal(checked.minApp, '1.9.0');
+  const assembled = path.join(root, 'assembled');
+  const pack = assemble(specPath, assembled, checked);
+  assert.equal(pack.items[0].entry, 'index.html');
+  assert.deepEqual(validatePack(assembled).errors, []);
+  const packed = collectFiles(assembled, pack);
+  assert.ok(packed['content/trainings/logic-playground/index.html']);
+  assert.ok(packed['content/trainings/logic-playground/js/logic.js']);
+  assert.equal(supports({ format: 1, minAppVersion: '1.9.0', items: [{ id: 'logic-playground', type: 'training', format: 2 }] }).ok, true);
+  assert.equal(supports({ format: 1, minAppVersion: '1.9.0', items: [{ id: 'logic-playground', type: 'training', format: 2 }] }, '1.8.0').ok, false);
+});
+
+test('custom web training refuses an unsafe entry page and an individual certificate', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'stl-custom-web-invalid-test-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(root, 'training'));
+  fs.writeFileSync(path.join(root, 'training', 'certificate.json'), '{}');
+  fs.writeFileSync(path.join(root, 'training', 'training.json'), JSON.stringify({
+    format: 2, id: 'bad-web', title: 'Bad web', certificate: 'certificate.json', runtime: { kind: 'web', entry: '../outside.html' }
+  }));
+  const specPath = path.join(root, 'pack-spec.json');
+  fs.writeFileSync(specPath, JSON.stringify({ pack: { id: 'org.example.bad-web', version: '1.0.0', title: 'Bad web' }, trainings: [{ id: 'bad-web', source: 'training' }] }));
+  const checked = checkSpec(specPath);
+  assert.ok(checked.errors.some(e => /runtime.entry must be a local/.test(e)));
+  assert.ok(checked.errors.some(e => /does not support an individual training certificate/.test(e)));
 });

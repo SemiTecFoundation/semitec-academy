@@ -102,6 +102,19 @@ function fileResponse(p, extraHeaders = {}, req = null) {
   return new Response(fs.readFileSync(p), { headers });
 }
 const TRAINING_CONFIG = `<script>window.TRAINING_CONFIG = { mode: 'platform', progress: 'postMessage', urlParams: false, parentOrigin: 'stl://app', initTimeout: 8000, resume: true, allowReset: false };</script>\n  `;
+/* A custom training is publisher content, not part of Academy's renderer. It has no preload bridge,
+   runs in an iframe sandbox, cannot connect to the network and may only load local package files.
+   Inline handlers are allowed because authored interactive lessons commonly create SVG/HTML controls
+   from strings; Electron's renderer sandbox and the strict origin bridge still isolate it from Academy. */
+const CUSTOM_TRAINING_CSP = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self' data:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'";
+function customTrainingResponse(file, headers, entry) {
+  let html = fs.readFileSync(file, 'utf8');
+  /* Keep the bridge at the training root even when an author chooses web/index.html. */
+  const bridgePath = path.posix.relative(path.posix.dirname(entry), 'academy-bridge.js') || 'academy-bridge.js';
+  const bridge = '<script src="' + bridgePath + '"></script>';
+  html = /<\/head\s*>/i.test(html) ? html.replace(/<\/head\s*>/i, bridge + '</head>') : bridge + html;
+  return new Response(html, { headers: Object.assign({ 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache', 'Content-Security-Policy': CUSTOM_TRAINING_CSP }, headers) });
+}
 
 function handle(req) {
   const u = new URL(req.url);
@@ -126,6 +139,15 @@ function handle(req) {
     const tr = (m.items || []).find(it => it.type === 'training' && (rest === it.path || rest.startsWith(it.path + '/')));
     if (tr) {
       const sub = rest.slice(tr.path.length + 1);
+      if (tr.format === 2) {
+        const entry = typeof tr.entry === 'string' ? tr.entry : 'index.html';
+        const customHeaders = Object.assign({}, cors, { 'Content-Security-Policy': CUSTOM_TRAINING_CSP });
+        if (sub === 'academy-bridge.js') return fileResponse(path.join(ENGINE, 'js', 'academy-bridge.js'), customHeaders, req);
+        const inPack = within(S.lib.packDir(packId), rest);
+        if (!inPack || !fs.existsSync(inPack)) return new Response('Not found', { status: 404 });
+        if (sub === entry) return customTrainingResponse(inPack, cors, entry);
+        return fileResponse(inPack, customHeaders, req);
+      }
       if (sub === '' || sub === 'index.html') {
         const html = fs.readFileSync(path.join(ENGINE, 'index.html'), 'utf8').replace('<script src="js/md.js"></script>', TRAINING_CONFIG + '<script src="js/md.js"></script>');
         return new Response(html, { headers: { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache' } });

@@ -19,6 +19,11 @@ const IMAGE_EXT = /\.(png|jpe?g|gif|webp|svg)$/i;
 const MD_EXT = /\.(md|markdown)$/i;
 const TEXT_EXT = /\.(txt|v|sv|svh|vh|vhd|vhdl|xdc|sdc|tcl|py|c|h|cpp|hpp|json|csv|ya?ml|ini|cfg|log|sh|do|f|s|asm|m)$/i;
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
+const LOCAL_WEB_ENTRY = /^[a-zA-Z0-9][a-zA-Z0-9._/-]*\.html?$/;
+function localWebEntry(entry) {
+  return typeof entry === 'string' && LOCAL_WEB_ENTRY.test(entry)
+    && !entry.split('/').some(part => part === '.' || part === '..');
+}
 
 /* Package branding deliberately has a small, colour-only surface. Package manifests are data from
    publishers, not stylesheet input: a strict hex-only format keeps it safe to apply in the renderer. */
@@ -102,6 +107,20 @@ function checkers(report) {
       const tr = readJSON(path.join(dir, 'training.json'), w); if (!tr) return null;
       if (!tr.id) E(w, 'training.json: missing "id"');
       if (!tr.title) E(w, 'training.json: missing "title"');
+      const format = tr.format == null ? 1 : tr.format;
+      if (![1, 2].includes(format)) { E(w, 'training.json: "format" must be 1 (Academy JSON) or 2 (custom web training)'); return null; }
+      if (format === 2) {
+        const runtime = tr.runtime;
+        if (!runtime || typeof runtime !== 'object' || Array.isArray(runtime)) E(w, 'training.json: format 2 needs "runtime": { "kind": "web", "entry": "index.html" }');
+        else {
+          Object.keys(runtime).forEach(k => { if (!['kind', 'entry'].includes(k)) E(w, `training.json runtime: unknown field "${k}"`); });
+          if (runtime.kind !== 'web') E(w, 'training.json runtime.kind must be "web"');
+          if (!localWebEntry(runtime.entry)) E(w, 'training.json runtime.entry must be a local .html file inside the training, such as "index.html"');
+          else if (!exists(path.join(dir, runtime.entry))) E(w, 'training.json runtime.entry not found: ' + runtime.entry);
+        }
+        if (tr.certificate) E(w, 'training.json: format 2 does not support an individual training certificate; use the optional package certificate instead');
+        return { title: tr.title, topics: 0, hours: tr.hours, schedule: null, format: 2, entry: runtime && runtime.entry };
+      }
       if (!(tr.topics || []).length) E(w, 'training.json: no topics');
       const tids = new Set();
       for (const f of tr.topics || []) {
@@ -146,7 +165,7 @@ function checkers(report) {
         });
         schedule = { weeks, topics: plan };
       }
-      return { title: tr.title, topics: (tr.topics || []).length, hours: tr.hours, schedule };
+      return { title: tr.title, topics: (tr.topics || []).length, hours: tr.hours, schedule, format: 1 };
     },
     /* project folder (made with the project-brief template): project.json (+ brief PDF, files) */
     project(dir, w) {
@@ -318,8 +337,8 @@ function validatePack(dir) {
     if (!ID.test(it.id || '')) rep.error(w, 'id must be lowercase letters, digits, - . _');
     if (ids.has(it.id)) rep.error(w, 'duplicate id'); ids.add(it.id);
     if (!TYPES.includes(it.type)) { rep.error(w, `unknown type (${TYPES.join(' | ')})`); continue; }
-    formats[it.type] = Math.max(formats[it.type] || 0, CURRENT[it.type]);
-    if (it.type === 'training') { const r = C.training(path.join(dir, it.path || ''), w); if (r) info[it.id] = r; }
+    if (it.type !== 'training') formats[it.type] = Math.max(formats[it.type] || 0, CURRENT[it.type]);
+    if (it.type === 'training') { const r = C.training(path.join(dir, it.path || ''), w); if (r) { info[it.id] = r; formats.training = Math.max(formats.training || 0, r.format || 1); } }
     if (it.type === 'project') { const r = C.project(path.join(dir, it.path || ''), w); if (r) info[it.id] = r; }
     if (it.plannedWeeks != null && !(Number.isInteger(+it.plannedWeeks) && +it.plannedWeeks >= 0 && +it.plannedWeeks <= 104)) rep.error(w, 'plannedWeeks must be a whole number 0–104');
     if (it.type === 'lab') { const r = C.lab(path.join(dir, it.path || ''), w); if (r) { info[it.id] = r; formats.lab = Math.max(formats.lab, r.format); } }
@@ -407,7 +426,15 @@ function collectFiles(dir, pack) {
   if (pack.cover) add(pack.cover);
   if (pack.publisherLogo) add(pack.publisherLogo);
   for (const it of pack.items) {
-    if (it.type === 'training') addDir(it.path, (p) => /^(js|tools|examples|dist|reference)(\/|$)|^css\/(app|certificate)\.css$|^(index\.html|README\.md|SKILL\.md|INTEGRATION\.md)$/.test(p.slice(it.path.length + 1)));
+    if (it.type === 'training') {
+      const customWeb = it.entry != null;
+      addDir(it.path, (p) => {
+        const sub = p.slice(it.path.length + 1);
+        return customWeb
+          ? /^(tools|examples|dist|reference|node_modules)(\/|$)|^(README\.md|SKILL\.md|INTEGRATION\.md)$/.test(sub)
+          : /^(js|tools|examples|dist|reference)(\/|$)|^css\/(app|certificate)\.css$|^(index\.html|README\.md|SKILL\.md|INTEGRATION\.md)$/.test(sub);
+      });
+    }
     else if (it.type === 'lab' || it.type === 'project') addDir(it.path);
     else {
       if (it.file) add(it.file);

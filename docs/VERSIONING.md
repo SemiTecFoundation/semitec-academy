@@ -22,6 +22,7 @@ const HISTORY = [
   { app: '1.4.0', pack: [1], training: [1], reading: [1, 2], lab: [1, 2], video: [1], material: [1], project: [1] },
   …
   { app: '1.8.0', pack: [1, 2], training: [1], reading: [1, 2], lab: [1, 2], video: [1], material: [1], project: [1] }
+  { app: '1.9.0', pack: [1, 2], training: [1, 2], reading: [1, 2], lab: [1, 2], video: [1], material: [1], project: [1] }
   // example of the future:
   // { app: '1.4.0', …, lab: [1, 2, 3] },   // lab format 3: adds report upload
   // { app: '2.0.0', pack: [1, 2], training: [1, 2], reading: [1], lab: [1, 2] }
@@ -44,12 +45,15 @@ target app). Current table:
 | 1.7.0 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | no content-format change — local publisher keys, contact metadata and optional package certificates |
 | 1.7.1 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | no content-format change — projects follow My packages; removal stops active plans after confirmation and clears stale plan references |
 | 1.8.0 | 1, 2 | 1 | 1, 2 | 1, 2 | 1 | 1 | package format 2: optional publisher accent style for package details and non-training materials |
+| 1.9.0 | 1, 2 | 1, 2 | 1, 2 | 1, 2 | 1 | 1 | training format 2: self-contained local HTML/CSS/JavaScript lesson with Academy progress bridge |
 
 A pack **without** videos and other materials still opens in 1.0.0 (the packer writes
 `minAppVersion: 1.0.0`); a pack with a video needs 1.1.0; a lab with source files needs 1.2.0; a Markdown reading needs 1.3.0 (reading format 1 = PDF, 2 = Markdown); a project needs 1.4.0.
 The study-plan fields (`schedule`, `plannedWeeks`, a training's `schedule`, `certificate`) and optional
 publisher contact are additions to format 1: older apps ignore them, so they do not raise the minimum app version.
 A package with `branding` uses format 2 and needs Academy 1.8.0; a package without it stays format 1.
+A training with `"format": 2` and `runtime: { kind: "web", entry: "…" }` needs Academy 1.9.0; the
+standard JSON training remains format 1.
 A Markdown file under *Other materials* keeps material format 1: apps before 1.3 offer *Save a copy* / *Open with default app* instead of the reader.
 The packer picks the item format from the content (a lab without `files` stays format 1).
 
@@ -69,11 +73,13 @@ The packer picks the item format from the content (a lab without `files` stays f
 - An installed pack is replaced only by a **higher** pack version (developer mode allows downgrades).
 - Students' progress survives updates as long as item / subsection / step **ids stay the same**.
 
-**Training engine**
+**Training runtimes**
 - The app carries a copy of the training engine (`app/src/engine/training`, refreshed with
   `npm run sync-engine` from the web template). Changes to the engine that keep reading the same JSON
   are just a new app release. A change to the training JSON that old engines cannot read = new
   `training` format number.
+- Training format 2 is publisher-provided local web content. It is still confined to a sandboxed frame,
+  has no Electron or Node API, and saves only through `window.SemiTecAcademy`.
 
 ## What the student sees
 

@@ -400,6 +400,17 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
     return page ? { accent: getComputedStyle(page).getPropertyValue('--accent').trim(), ink: getComputedStyle(page).getPropertyValue('--accent-ink').trim() } : null;
   });
   check(brand && brand.accent === '#006B54' && brand.ink === '#FFFFFF', 'partner package applies its scoped publisher accent style');
+  await win.click('.item-row:has-text("Interactive logic gate")');
+  const webTraining = win.frameLocator('.item-body iframe');
+  await webTraining.locator('#academy-state').waitFor();
+  check(/Connected as Anna Petrosyan/.test(await webTraining.locator('#academy-state').textContent()) && await win.getAttribute('.item-body iframe', 'sandbox') === 'allow-scripts allow-same-origin', 'custom web training runs in a sandbox and receives the Academy user');
+  await webTraining.locator('#input-a').click();
+  await webTraining.locator('#input-b').click();
+  check((await webTraining.locator('#output').textContent()) === '1', 'custom JavaScript responds to both logic inputs');
+  await webTraining.locator('#complete').click();
+  await sleep(500);
+  const webProgress = await win.evaluate(() => window.api.progress.get('org.example.mbist-track', 'logic-playground'));
+  check(webProgress && webProgress.percent === 100 && webProgress.completedAt && webProgress.state.a === 1 && webProgress.state.b === 1 && webProgress.state.interactions === 2, 'custom web training saves its state and completion through the Academy bridge');
   srv.close();
 
   console.log('7. Library progress, publishers, settings');

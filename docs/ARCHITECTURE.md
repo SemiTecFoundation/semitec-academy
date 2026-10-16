@@ -28,9 +28,9 @@ layers, a private URL scheme and a single SQLite file.
 │ lab.js      lab: manual / steps / files (viewer, zip) / quiz            │
 │ pdfview.mjs PDF reader (pdf.js): pages, zoom, outline, read tracking    │
 │ markdown.js Markdown reader (marked + DOMPurify): outline, code, images │
-│   └─ <iframe stl://pack/<id>/trainings/<t>/index.html>                  │
-│        training engine in platform mode ⇄ postMessage (requestState,    │
-│        init, progress) — the app saves the state in the DB              │
+│   └─ <iframe stl://pack/<id>/trainings/<t>/<entry>.html>                │
+│        format 1: Academy training engine in platform mode; format 2:    │
+│        local publisher web page + limited progress bridge               │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -42,10 +42,11 @@ layers, a private URL scheme and a single SQLite file.
 | `stl://app/engine/…` | `src/engine/training/` (engine JS/CSS reused by the UI for quizzes and styles) |
 | `stl://app/vendor/pdfjs/…` | `node_modules/pdfjs-dist/` (build, fonts, cmaps, wasm) |
 | `stl://app/vendor/marked/…`, `…/vendor/dompurify/…` | `node_modules/marked/lib/`, `node_modules/dompurify/dist/` (Markdown → sanitised HTML) |
-| `stl://pack/<packId>/<path>` | `<data>/packs/<packId>/<path>` (with HTTP Range support so videos can seek); for a training folder, `index.html`, `js/`, `css/` come from the engine and the app injects `window.TRAINING_CONFIG = { mode: 'platform', progress: 'postMessage', … }` |
+| `stl://pack/<packId>/<path>` | `<data>/packs/<packId>/<path>` (with HTTP Range support so videos can seek). Training format 1 receives the Academy engine and injected `window.TRAINING_CONFIG`; training format 2 receives its own local entry page with an injected `window.SemiTecAcademy` progress bridge and a network-blocking CSP. |
 
 `stl://app` and `stl://pack` are different origins: training content runs isolated from the app UI
-and cannot reach `window.api`. All paths are resolved inside their root folder (no `..` escapes).
+and cannot reach `window.api`. Format 2 training pages additionally run in an iframe sandbox; their only
+Academy interface is the progress bridge. All paths are resolved inside their root folder (no `..` escapes).
 
 ## Data folder
 
@@ -73,9 +74,10 @@ SemiTec Academy/
 
 Study plans are not stored: `planner.js` computes them on request from the manifest (or `project.json`),
 the enrollment and the progress (`shared/schedule.js`), so a package update with a changed schedule
-moves the dates automatically. Certificates are derived from progress too (training state
-`certificate` / `completedAt`; a course certificate only when the package manifest includes the
-optional `certificate` object and every required item is completed).
+moves the dates automatically. Certificates are derived from progress too (standard JSON-training state
+`certificate` / `completedAt`; a course certificate only when the package manifest includes the optional
+`certificate` object and every required item is completed). A custom-web training can complete that course
+certificate but has no individual certificate entry.
 
 Migrations are numbered SQL blocks in `db.js`; the file is written atomically (temp + rename) 0.4 s
 after each change and on exit. Progress `state` JSON per item type: see PACKAGE-FORMAT.md. The
@@ -101,5 +103,6 @@ it can later be synchronised with the web platform's `training_progress` table u
 | Electron | same Chromium on every OS → trainings look identical; Node crypto (Ed25519, scrypt); mature installers |
 | sql.js instead of native SQLite | no native modules to rebuild per Electron/OS version; DB is small (KB–MB) |
 | pdf.js instead of the built-in viewer | page tracking, outline, resume, consistent UI |
-| engine copied, not inside each pack | packs stay small; one engine update improves all trainings; formats versioned explicitly |
+| engine copied for training format 1 | packs stay small; one engine update improves all standard JSON trainings; formats are versioned explicitly |
+| isolated custom runtime for training format 2 | existing local interactive lessons can work without Electron/Node/network access, while the app keeps control of user progress |
 | fflate | pure-JS zip, same code in app and packer |

@@ -1,0 +1,8 @@
+:root { color-scheme: light; font-family: system-ui, sans-serif; color: #12352e; background: #e2f4ee; }
+body { margin: 0; padding: 2rem; }
+main { max-width: 42rem; margin: 0 auto; padding: 2rem; border-radius: 1rem; background: white; box-shadow: 0 0.4rem 2rem #006b5422; }
+.eyebrow { color: #006b54; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.controls { display: flex; gap: .75rem; margin: 1.25rem 0; }
+button { border: 0; border-radius: .5rem; padding: .7rem 1rem; background: #006b54; color: white; font: inherit; font-weight: 700; cursor: pointer; }
+button:focus-visible { outline: .2rem solid #12352e; outline-offset: .2rem; }
+.result { font-size: 1.2rem; }
