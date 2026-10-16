@@ -1,4 +1,4 @@
-# The SemiTec Learning Package (`.stlp`) — format 1
+# The SemiTec Learning Package (`.stlp`) — formats 1 and 2
 
 One file that carries a complete course pack: trainings, labs, readings, videos, other materials and a cover image.
 It is a **ZIP** archive (deflate) with a fixed layout, a **manifest** that lists every file with its
@@ -24,7 +24,7 @@ File name convention: `<pack id>-<pack version>.stlp`. Media type: `application/
 
 ```json
 {
-  "format": 1,
+  "format": 2,
   "id": "org.semitec.fpga-starter",
   "version": "1.0.0",
   "title": "FPGA Starter Track",
@@ -35,10 +35,11 @@ File name convention: `<pack id>-<pack version>.stlp`. Media type: `application/
   "publisherUrl": "https://…",
   "authors": ["Arman Manukyan, PhD"],
   "contact": { "name": "Course team", "email": "courses@example.org", "url": "https://example.org" },
+  "branding": { "accent": "#006B54", "accentInk": "#FFFFFF", "accentSoft": "#E2F4EE" },
   "cover": "cover.svg",
   "created": "2026-10-13T14:46:03.689Z",
-  "minAppVersion": "1.0.0",
-  "builder": { "tool": "stlp", "toolVersion": "1.0.0", "targetApp": "1.0.0" },
+  "minAppVersion": "1.8.0",
+  "builder": { "tool": "stlp", "toolVersion": "1.8.0", "targetApp": "1.8.0" },
   "modules": [
     { "id": "getting-started", "title": "Getting started", "description": "…", "items": ["feature-tour"] }
   ],
@@ -61,7 +62,7 @@ File name convention: `<pack id>-<pack version>.stlp`. Media type: `application/
 
 | Field | Rule |
 |---|---|
-| `format` | container format; this document = **1** |
+| `format` | container format; 1 is the original format, 2 adds optional package branding |
 | `id` | reverse-domain, lowercase (`org.semitec.<name>`); never changes for the life of the pack |
 | `version` | `MAJOR.MINOR.PATCH` of the **content**; a higher version replaces the installed one |
 | `minAppVersion` | lowest app version that understands every format used (computed by the packer) |
@@ -70,6 +71,7 @@ File name convention: `<pack id>-<pack version>.stlp`. Media type: `application/
 | `items[].url` | video / material: online link instead of a file |
 | `publisherLogo`, `publisherUrl` | publisher's logo (file under `content/`) and website, shown with the publisher name |
 | `contact` | optional publisher feedback contact: `name`, `email`, `url`, `instructions`; shown in Pack details |
+| `branding` | optional publisher accent style for this package's details, labs, projects, readings and materials: required `accent` and `accentInk`, optional `accentSoft`, all `#RRGGBB`; requires package format 2 / Academy ≥ 1.8.0 |
 | `items[].for` | id of the item it belongs to (materials of a lab): shown under that item, not in the plan |
 | `items[].prerequisite` | `true`: optional refresher shown before the course; not counted in progress or the certificate, not planned (app ≥ 1.6.0) |
 | `items[].category` | project: research · diploma · thesis · course-project · capstone · internship · other |
@@ -87,6 +89,23 @@ only the counted items; prerequisites and attached materials still save their ow
 
 Item, module and step **ids are stable**: progress is stored per `pack id + item id` (and per
 subsection / step id inside an item). Renaming an id resets that progress.
+
+## Publisher style (package format 2)
+
+`branding` gives a company or university an identifiable accent while a learner is inside that one
+package. Academy applies it only to the package page and its **labs, projects, readings and other
+material views**. The application navigation, security state and other packages keep the learner's
+Academy theme. Catalog and Library cards continue to use each package's cover and publisher logo.
+
+Only three six-digit hexadecimal colours are accepted; this is intentional. A package cannot supply
+arbitrary CSS, fonts, scripts or a replacement app layout. `accent` and `accentInk` must meet 4.5:1
+contrast so button and link text stays readable. `accentSoft` is a quiet background for selected rows
+and module marks.
+
+Interactive trainings are separate web views. Give a training its matching theme by adding a
+`css/themes/<company>.css` file and selecting it in that training's `training.json`; see the Academy
+Templates training skill. Package and training certificates use their own `certificate.json → style`
+colours. The package brand does not override either of those author-controlled designs.
 
 ## signature.json
 

@@ -55,7 +55,8 @@ Windows, macOS and Linux machines and attaches them to the release. Locally:
    what is overdue, for courses and projects), the next 14 days, latest certificates and news from the catalog.
 4. Gets packages from the **Catalog** — folders (shared drive, OneDrive, USB) and catalog links published by
    the SemiTec Foundation or partner companies, set in *Settings → Application* — or adds a `.stlp` file
-   (button, drag and drop, double-click). Every package shows its **publisher with logo**.
+   (button, drag and drop, double-click). Every package shows its **publisher with logo** and cover; a
+   publisher may also define accessible accent colours for its own package, labs, projects and materials.
 5. Uses the **Library**: *My packages* (the student's own list, sorted into **groups** they create — a
    package can be in several groups) and *Explore* (every package installed on the computer, marked when it is
    already in My packages, enrolled or in progress). Both have search (also by group name / description),
@@ -178,6 +179,7 @@ every package; a package has its own **content version** for updates. See [`docs
 | 1.6.2 | production signing key `4c71eba82f86fcca`, the only trusted key; no development key is trusted any more; real contact details |
 | 1.7.0 | locally trusted partner publisher keys; optional publisher feedback contact and package certificate; clearer independent project plans |
 | 1.7.1 | projects follow each student's *My packages*; package removal stops active course and project plans after confirmation; stale plan references are cleaned on sign-in |
+| 1.8.0 | optional publisher package branding: accessible accent colours for package details, labs, projects, readings and materials; trainings and certificates retain their own designs |
 
 ## License, package ownership and partner publishing
 
@@ -189,6 +191,6 @@ certificate. A student or university chooses which publisher signing keys to tru
 
 ## Status
 
-Working prototype (v1.7.1), all features covered by `npm test`; installers for Windows, macOS and Linux,
-built on real runners for each system and attached to every release.
+Current release: **v1.8.0**. All features are covered by `npm test`; installers for Windows, macOS and Linux
+are built on real runners for each system and attached to every release.
 Next: code signing (RELEASING.md), and the proposals in [`docs/PROPOSALS.md`](docs/PROPOSALS.md) — self-study features first; multi-user features belong to the Foundation platform.

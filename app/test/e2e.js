@@ -395,6 +395,11 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   await win.click('.modal button:has-text("Install")');
   await win.waitForSelector('.hero h1:has-text("Memory Test")');
   check(true, 'package installed from the catalog');
+  const brand = await win.evaluate(() => {
+    const page = document.querySelector('.ui-page.package-brand');
+    return page ? { accent: getComputedStyle(page).getPropertyValue('--accent').trim(), ink: getComputedStyle(page).getPropertyValue('--accent-ink').trim() } : null;
+  });
+  check(brand && brand.accent === '#006B54' && brand.ink === '#FFFFFF', 'partner package applies its scoped publisher accent style');
   srv.close();
 
   console.log('7. Library progress, publishers, settings');

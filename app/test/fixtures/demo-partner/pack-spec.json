@@ -9,7 +9,12 @@
     "publisher": "Demo Partner Company",
     "publisherLogo": "publisher-logo.svg",
     "authors": ["Demo Partner Company"],
-    "cover": "cover.svg"
+    "cover": "cover.svg",
+    "branding": {
+      "accent": "#006B54",
+      "accentInk": "#FFFFFF",
+      "accentSoft": "#E2F4EE"
+    }
   },
   "readings": [
     { "id": "mbist-primer", "title": "Memory BIST in one page", "source": "readings/mbist-primer.md", "estimatedTime": "10 min", "plannedWeeks": 1 }

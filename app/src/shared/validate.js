@@ -18,6 +18,37 @@ const VIDEO_EXT = /\.(mp4|m4v|webm)$/i;
 const IMAGE_EXT = /\.(png|jpe?g|gif|webp|svg)$/i;
 const MD_EXT = /\.(md|markdown)$/i;
 const TEXT_EXT = /\.(txt|v|sv|svh|vh|vhd|vhdl|xdc|sdc|tcl|py|c|h|cpp|hpp|json|csv|ya?ml|ini|cfg|log|sh|do|f|s|asm|m)$/i;
+const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
+
+/* Package branding deliberately has a small, colour-only surface. Package manifests are data from
+   publishers, not stylesheet input: a strict hex-only format keeps it safe to apply in the renderer. */
+function colorRgb(value) {
+  return [1, 3, 5].map(i => parseInt(value.slice(i, i + 2), 16) / 255);
+}
+function luminance(value) {
+  return colorRgb(value).map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4))
+    .reduce((sum, v, i) => sum + v * [0.2126, 0.7152, 0.0722][i], 0);
+}
+function contrast(a, b) {
+  const [x, y] = [luminance(a), luminance(b)].sort((m, n) => n - m);
+  return (x + 0.05) / (y + 0.05);
+}
+function checkBranding(branding, rep, where = 'pack.branding') {
+  if (branding == null) return false;
+  if (!branding || typeof branding !== 'object' || Array.isArray(branding)) {
+    rep.error(where, 'must be an object with accent, accentInk and optional accentSoft'); return false;
+  }
+  const allowed = new Set(['accent', 'accentInk', 'accentSoft']);
+  Object.keys(branding).forEach(k => { if (!allowed.has(k)) rep.error(where, `unknown field "${k}" (use only accent, accentInk, accentSoft)`); });
+  for (const k of ['accent', 'accentInk']) {
+    if (!HEX_COLOR.test(branding[k] || '')) rep.error(`${where}.${k}`, 'must be a six-digit hex colour such as "#007A5E"');
+  }
+  if (branding.accentSoft != null && !HEX_COLOR.test(branding.accentSoft)) rep.error(`${where}.accentSoft`, 'must be a six-digit hex colour such as "#E0F3ED"');
+  if (HEX_COLOR.test(branding.accent || '') && HEX_COLOR.test(branding.accentInk || '') && contrast(branding.accent, branding.accentInk) < 4.5) {
+    rep.error(where, 'accent and accentInk need at least 4.5:1 contrast so button and link text stays readable');
+  }
+  return true;
+}
 
 /* kind of an "other material" file, used by the app to pick a viewer */
 function materialKind(file) {
@@ -259,7 +290,7 @@ function validatePack(dir) {
   const errors = [], warnings = [];
   const rep = { error: (w, m) => errors.push(`${w}: ${m}`), warn: (w, m) => warnings.push(`${w}: ${m}`) };
   const C = checkers(rep);
-  const formats = { pack: CURRENT.pack };
+  const formats = { pack: 1 };
   const pj = path.join(dir, 'pack.json');
   if (!exists(pj)) { rep.error('pack.json', 'not found'); return { errors, warnings, formats }; }
   let pack;
@@ -267,6 +298,7 @@ function validatePack(dir) {
   if (!PACK_ID.test(pack.id || '')) rep.error('pack.json', 'id must be reverse-domain style, lowercase, e.g. "org.semitec.fpga-starter"');
   if (!SEMVER.test(pack.version || '')) rep.error('pack.json', 'version must be MAJOR.MINOR.PATCH, e.g. "1.0.0"');
   if (!pack.title) rep.error('pack.json', 'missing title');
+  if (checkBranding(pack.branding, rep)) formats.pack = CURRENT.pack;
   if (pack.cover) C.image(path.join(dir, pack.cover), 'cover');
   if (pack.publisherLogo) C.image(path.join(dir, pack.publisherLogo), 'publisherLogo');
   if (pack.publisherUrl) C.url(pack.publisherUrl, 'publisherUrl');
@@ -386,4 +418,4 @@ function collectFiles(dir, pack) {
   return out;
 }
 
-module.exports = { checkers, validatePack, collectFiles, checkSchedule, checkAttachments, checkPrerequisites, PROJECT_CATEGORIES, materialKind, TYPES, ID, PACK_ID, SEMVER, MD_EXT };
+module.exports = { checkers, validatePack, collectFiles, checkBranding, checkSchedule, checkAttachments, checkPrerequisites, PROJECT_CATEGORIES, materialKind, TYPES, ID, PACK_ID, SEMVER, MD_EXT };

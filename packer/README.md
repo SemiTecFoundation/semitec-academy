@@ -19,3 +19,8 @@ Step by step in a pack folder, instead of a spec: `init`, `add-training`, `add-r
 
 Spec format: `../docs/PACK-SPEC.md`. Container format: `../docs/PACKAGE-FORMAT.md`.
 Authoring guide: `../docs/AUTHORING.md`.
+
+`pack.branding` is optional package-level colour metadata (`accent`, `accentInk`, optional
+`accentSoft`). The checker validates its hex colours and button-text contrast, then writes package format
+2, which requires Academy 1.8.0. It styles package details and non-training materials only; training
+themes and certificate styles remain in their respective source folders.

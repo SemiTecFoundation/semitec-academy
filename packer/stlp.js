@@ -156,11 +156,12 @@ function buildDir(dir, defaultOut, quiet) {
   const pack = r.pack;
   const titleOf = (it) => it.title || (it.type === 'training' ? readJSON(path.join(dir, it.path, 'training.json')).title : it.type === 'lab' ? readJSON(path.join(dir, it.path, 'lab.json')).title : it.type === 'project' ? readJSON(path.join(dir, it.path, 'project.json')).title : path.basename(it.file || it.url || it.id));
   const manifest = {
-    format: V.CURRENT.pack,
+    format: r.formats.pack,
     id: pack.id, version: pack.version, title: pack.title, description: pack.description || '', language: pack.language || 'en',
     publisher: pack.publisher || '', authors: pack.authors || [], cover: pack.cover || null,
     ...(pack.publisherLogo ? { publisherLogo: pack.publisherLogo } : {}), ...(pack.publisherUrl ? { publisherUrl: pack.publisherUrl } : {}),
     ...(pack.contact ? { contact: pack.contact } : {}),
+    ...(pack.branding ? { branding: pack.branding } : {}),
     created: new Date().toISOString(),
     minAppVersion: t.min,
     builder: { tool: 'stlp', toolVersion: V.APP_VERSION, targetApp: t.target },

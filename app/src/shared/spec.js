@@ -4,7 +4,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const { checkers, checkSchedule, checkAttachments, checkPrerequisites, PROJECT_CATEGORIES, PACK_ID, SEMVER, ID, materialKind, MD_EXT } = require('./validate');
+const { checkers, checkBranding, checkSchedule, checkAttachments, checkPrerequisites, PROJECT_CATEGORIES, PACK_ID, SEMVER, ID, materialKind, MD_EXT } = require('./validate');
 const { CURRENT, minAppFor } = require('./versions');
 
 const GROUPS = { trainings: 'training', labs: 'lab', readings: 'reading', videos: 'video', materials: 'material', projects: 'project' };
@@ -34,6 +34,7 @@ function checkSpec(specPath) {
   if (!PACK_ID.test(p.id || '')) rep.error('pack.id', 'must be reverse-domain style, lowercase, e.g. "org.semitec.fpga-starter"');
   if (!SEMVER.test(p.version || '')) rep.error('pack.version', 'must be MAJOR.MINOR.PATCH, e.g. "1.0.0"');
   if (!p.title) rep.error('pack.title', 'missing');
+  const branded = checkBranding(p.branding, rep);
   if (!p.description) rep.warn('pack.description', 'missing (shown in the library)');
   if (p.cover) C.image(abs(p.cover), 'pack.cover'); else rep.warn('pack.cover', 'no cover image (a default is used)');
   if (p.publisherLogo) C.image(abs(p.publisherLogo), 'pack.publisherLogo');
@@ -49,7 +50,7 @@ function checkSpec(specPath) {
   }
   if (p.certificate) { try { JSON.parse(fs.readFileSync(abs(p.certificate), 'utf8')); } catch (e) { rep.error('pack.certificate', 'not a readable JSON file: ' + p.certificate); } }
 
-  const items = [], ids = new Set(), formats = { pack: CURRENT.pack };
+  const items = [], ids = new Set(), formats = { pack: branded ? CURRENT.pack : 1 };
   let totalSize = 0;
   const known = new Set(Object.keys(GROUPS).concat(['pack', 'modules', 'schedule', 'specVersion', '$schema', 'notes']));
   Object.keys(spec).forEach(k => { if (!known.has(k)) rep.warn('spec', `unknown section "${k}" (ignored)`); });
@@ -130,6 +131,7 @@ function assemble(specPath, outDir, result) {
     modules: spec.modules || [], items: []
   };
   if (P.contact) pack.contact = P.contact;
+  if (P.branding) pack.branding = P.branding;
   if (spec.schedule) pack.schedule = spec.schedule;
   if (P.certificate) pack.certificate = JSON.parse(fs.readFileSync(path.resolve(base, P.certificate), 'utf8'));   // package certificate design (certificate.json of the training template)
   for (const it of r.items) {

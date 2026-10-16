@@ -40,6 +40,11 @@ students' progress is stored per id, so keep them stable between versions.
       "instructions": "Use the course title in your message."
     },
     "cover": "cover.svg",                      // optional image, about 600 × 340
+    "branding": {                                // optional: Academy ≥ 1.8.0
+      "accent": "#006B54",
+      "accentInk": "#FFFFFF",
+      "accentSoft": "#E2F4EE"
+    },
     "certificate": "certificate.json"          // optional: omit it when this package does not issue a course certificate
   },
 
@@ -98,6 +103,29 @@ students' progress is stored per id, so keep them stable between versions.
 | `for` | all (usually materials) | id of the lab / training / project this item belongs to: shown **under** that item in *Course order* and *Study plan* and in the lab's **Materials** tab, not as a row of its own; no own week needed (app ≥ 1.5.0; older apps list it normally) |
 | `prerequisite` | all | `true` = an optional **refresher** for what the course assumes (e.g. a *Digital logic* training before *Memory BIST*). Shown first under **Before you start — prerequisites**; **not counted** in progress, *in progress* status or the package certificate, and not part of the study plan (app ≥ 1.6.0; older apps count it). Cannot be combined with `for` |
 | `category` | project | `research` · `diploma` · `thesis` · `course-project` · `capstone` · `internship` · `other` — filter on the Projects page (default: from `project.json`) |
+
+### Package branding (Academy ≥ 1.8.0)
+
+`pack.branding` is optional. It gives the package's own **details page, labs, projects, readings and
+other materials** the publisher's accent colours. It does not replace the Academy navigation or the
+learner's application theme, and it does not change another package.
+
+```json
+"branding": {
+  "accent": "#006B54",
+  "accentInk": "#FFFFFF",
+  "accentSoft": "#E2F4EE"
+}
+```
+
+`accent` and `accentInk` are required six-digit hex colours and must meet a 4.5:1 contrast ratio;
+`accentSoft` is optional. No CSS, fonts, images, scripts or layout rules belong here. A branded package
+uses package format 2, so `stlp check` reports **Academy ≥ 1.8.0**. Keep the cover and publisher logo
+as the package's identity in Catalog and Library.
+
+Interactive trainings have their own theme files. Make a matching `css/themes/<company>.css`, list it in
+the training's `themes`, and use it as the training's default `theme`. Certificates use their separate
+`certificate.json → style` colours.
 
 ### How "other materials" are shown
 
@@ -158,7 +186,7 @@ Application → Trusted publishers*; this is their local trust decision, not Fou
 | project | `project.json` valid (format 1), title, weekly plan with unique week numbers inside `durationWeeks`, milestones / deliverables inside the duration, brief PDF exists |
 | links | `for` points to an existing item that is not itself attached; warning when it points to a video / material |
 | prerequisites | `prerequisite` is `true`/`false`, not combined with `for`; at least one counted item; warning when a prerequisite is listed in the `schedule` |
-| pack | `publisherLogo` is an image (warning when missing), `publisherUrl` / `contact.url` are web links, `contact.email` is an email address |
+| pack | `publisherLogo` is an image (warning when missing), `publisherUrl` / `contact.url` are web links, `contact.email` is an email address; branding uses only allowed `#RRGGBB` colours with readable button-text contrast |
 | schedule | entries have valid weeks inside `weeks`, every listed item exists; warning for items without a week; `plannedWeeks` 0–104; training `schedule` topics exist |
 | whole spec | unique ids across all materials; modules reference existing ids; minimum app version for the formats used |
 

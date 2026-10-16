@@ -61,6 +61,11 @@ const HISTORY = [
     app: '1.7.1',
     pack: [1], training: [1], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
     notes: 'Projects follow My packages; removing a package stops its active plans after confirmation and clears stale plan references on sign-in.'
+  },
+  {
+    app: '1.8.0',
+    pack: [1, 2], training: [1], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
+    notes: 'Package format 2 adds a publisher-defined, accessible accent style for package details and non-training material views.'
   }
 ];
 
@@ -94,6 +99,6 @@ function supports(manifest, appVersion = APP_VERSION) {
   }
   return { ok: reasons.length === 0, reasons };
 }
-const CURRENT = { pack: 1, training: 1, reading: 1, lab: 1, video: 1, material: 1, project: 1 };
+const CURRENT = { pack: 2, training: 1, reading: 1, lab: 1, video: 1, material: 1, project: 1 };
 
 module.exports = { APP_VERSION, HISTORY, CURRENT, cmp, capabilities, minAppFor, supports };

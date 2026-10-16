@@ -12,6 +12,8 @@ const makeLibrary = require('../src/main/library');
 const makeMine = require('../src/main/mine');
 const makePlanner = require('../src/main/planner');
 const { checkSpec, assemble } = require('../src/shared/spec');
+const { validatePack } = require('../src/shared/validate');
+const { supports } = require('../src/shared/versions');
 const { DB } = require('../src/main/db');
 
 const keys = generateKeyPair();
@@ -205,4 +207,34 @@ test('a package spec preserves an optional author feedback contact', t => {
   assert.deepEqual(checked.errors, []);
   const pack = assemble(specPath, path.join(root, 'assembled'), checked);
   assert.deepEqual(pack.contact, contact);
+});
+
+test('package branding is validated, assembled and requires the package-style capable app', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'stl-branding-test-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(root, 'notes.md'), '# Notes\n\nA short reading.\n');
+  const branding = { accent: '#006B54', accentInk: '#FFFFFF', accentSoft: '#E2F4EE' };
+  const spec = { pack: { id: 'org.example.branding-test', version: '1.0.0', title: 'Branding test', publisher: 'Example publisher', branding },
+    readings: [{ id: 'notes', source: 'notes.md' }] };
+  const specPath = path.join(root, 'pack-spec.json'); fs.writeFileSync(specPath, JSON.stringify(spec));
+  const checked = checkSpec(specPath);
+  assert.deepEqual(checked.errors, []);
+  assert.equal(checked.formats.pack, 2);
+  assert.equal(checked.minApp, '1.8.0');
+  const pack = assemble(specPath, path.join(root, 'assembled'), checked);
+  assert.deepEqual(pack.branding, branding);
+  assert.equal(validatePack(path.join(root, 'assembled')).formats.pack, 2);
+  assert.equal(supports({ format: 2, minAppVersion: '1.8.0', items: [] }).ok, true);
+});
+
+test('package branding refuses unsafe colours and unsupported fields', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'stl-invalid-branding-test-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(root, 'notes.md'), '# Notes\n\nA short reading.\n');
+  const spec = { pack: { id: 'org.example.invalid-branding', version: '1.0.0', title: 'Invalid branding', branding: { accent: 'red', accentInk: '#FFFFFF', css: 'body { display: none }' } },
+    readings: [{ id: 'notes', source: 'notes.md' }] };
+  const specPath = path.join(root, 'pack-spec.json'); fs.writeFileSync(specPath, JSON.stringify(spec));
+  const checked = checkSpec(specPath);
+  assert.ok(checked.errors.some(e => e.includes('accent') && e.includes('six-digit hex colour')));
+  assert.ok(checked.errors.some(e => e.includes('unknown field "css"')));
 });

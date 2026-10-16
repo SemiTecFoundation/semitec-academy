@@ -59,6 +59,22 @@
     var th = currentTheme();
     document.getElementById('theme-css').setAttribute('href', '/engine/css/themes/' + th + '.css');
   }
+  /* A package may supply only these three, validated colour values. Never treat publisher metadata
+     as CSS: the same defensive check is repeated here because an installed .stlp may not have been
+     made by our packer. Scope the variables to its page so the Academy navigation and other packages
+     keep the learner's selected app theme. */
+  function packageBranding(branding) {
+    var hex = /^#[0-9a-fA-F]{6}$/;
+    if (!branding || typeof branding !== 'object' || Array.isArray(branding) || !hex.test(branding.accent || '') || !hex.test(branding.accentInk || '')) return null;
+    var vars = { '--accent': branding.accent, '--accent-ink': branding.accentInk };
+    if (hex.test(branding.accentSoft || '')) vars['--accent-soft'] = branding.accentSoft;
+    return vars;
+  }
+  function applyPackageBranding(node, branding) {
+    var vars = packageBranding(branding); if (!vars) return;
+    node.classList.add('package-brand');
+    Object.keys(vars).forEach(function (name) { node.style.setProperty(name, vars[name]); });
+  }
   function coverUrl(p) { return p.cover ? 'stl://pack/' + encodeURIComponent(p.id) + '/' + p.cover : null; }
   function cover(p) {
     var c = el('div.pack-cover'); var u = coverUrl(p);
@@ -542,6 +558,7 @@
     Promise.all([api.packs.get(id), api.plan.pack(id)]).then(function (res) {
       var P = res[0], PL = res[1];
       var m = P.manifest, prog = P.progress;
+      applyPackageBranding(page, m.branding);
       var items = orderedItems(m);
       var byId0 = {}; (m.items || []).forEach(function (it) { byId0[it.id] = it; });
       var countedIts = items.filter(function (it) { return counts(it, byId0); });
@@ -639,7 +656,8 @@
       el('dt', { text: 'Installed' }), el('dd', { text: fmtDate(P.installedAt) }),
       el('dt', { text: 'Signature' }), el('dd', { text: P.signature + (P.signedBy ? ' (' + P.signedBy + ')' : '') }),
       el('dt', { text: 'Formats' }), el('dd', { text: 'pack ' + m.format + ', needs app ≥ ' + m.minAppVersion }),
-      el('dt', { text: 'Built for app' }), el('dd', { text: (m.builder && m.builder.targetApp) || '—' })]);
+      el('dt', { text: 'Built for app' }), el('dd', { text: (m.builder && m.builder.targetApp) || '—' }),
+      m.branding ? el('dt', { text: 'Package style' }) : null, m.branding ? el('dd', { text: 'Publisher accent colours' }) : null]);
     var c = m.contact || {}, contact = null;
     if (c.name || c.email || c.url || c.instructions) {
       var actions = [];
@@ -657,6 +675,7 @@
         api.packs.remove(m.id).then(function () { mo.close(); toast('Removed: ' + m.title); location.hash = '#/library'; });
       } }),
       el('button.btn.primary', { type: 'button', text: 'Close', onclick: function () { mo.close(); } })]);
+    applyPackageBranding(mo.box, m.branding);
   }
 
   /* ---------------- item players ---------------- */
@@ -677,6 +696,7 @@
           idx > 0 ? el('a.btn.small', { href: link(items[idx - 1]), title: items[idx - 1].title, text: '‹ Previous' }) : null,
           idx < items.length - 1 ? el('a.btn.small', { href: link(items[idx + 1]), title: items[idx + 1].title, text: 'Next ›' }) : null]),
         el('div.item-body')]);
+      applyPackageBranding(view, m.branding);
       main.appendChild(view);
       var body = view.lastChild;
       function save(state, percent, completed) {
