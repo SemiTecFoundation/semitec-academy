@@ -14,6 +14,7 @@ const makePlanner = require('./planner');
 const makeCatalog = require('./catalog');
 const makeMine = require('./mine');
 const { loadTrustedKeys, keyId } = require('../shared/packfmt');
+const { copyPack, copyItem, isPreview } = require('./export');
 const versions = require('../shared/versions');
 
 const ROOT = path.join(__dirname, '..');                       // src/
@@ -112,7 +113,7 @@ function customTrainingResponse(file, headers, entry) {
   /* Keep the bridge at the training root even when an author chooses web/index.html. */
   const bridgePath = path.posix.relative(path.posix.dirname(entry), 'academy-bridge.js') || 'academy-bridge.js';
   const bridge = '<script src="' + bridgePath + '"></script>';
-  html = /<\/head\s*>/i.test(html) ? html.replace(/<\/head\s*>/i, bridge + '</head>') : bridge + html;
+  html = /<head(?:\s[^>]*)?>/i.test(html) ? html.replace(/<head(?:\s[^>]*)?>/i, head => head + bridge) : bridge + html;
   return new Response(html, { headers: Object.assign({ 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache', 'Content-Security-Policy': CUSTOM_TRAINING_CSP }, headers) });
 }
 
@@ -135,14 +136,24 @@ function handle(req) {
     const m = S.lib && S.lib.manifestOf(packId);
     if (!m) return new Response('Pack not installed', { status: 404 });
     const rest = restParts.join('/');
+    /* Previews require an explicit password unlock, including for otherwise open packages.
+       Whole-package gates keep the cover/logo visible in Library. */
+    if (isPreview(rest) && (!S.user || !S.lib.canPreview(S.user.id, packId))) {
+      return new Response('Author preview not unlocked', { status: 403 });
+    }
+    if (m.access && m.access.scope !== 'preview' && (!S.user || !S.lib.isUnlocked(S.user.id, packId)) && ![m.cover, m.publisherLogo].includes(rest)) {
+      return new Response('Package locked', { status: 403 });
+    }
     const cors = { 'Access-Control-Allow-Origin': 'stl://app' };
+    if (/\.html?$/i.test(rest)) cors['Content-Security-Policy'] = CUSTOM_TRAINING_CSP;
+    if (/(?:^|\/)certificate\//.test(rest)) return fileResponse(within(S.lib.packDir(packId), rest), Object.assign({}, cors, { 'Content-Security-Policy': CUSTOM_TRAINING_CSP }), req);
     const tr = (m.items || []).find(it => it.type === 'training' && (rest === it.path || rest.startsWith(it.path + '/')));
     if (tr) {
       const sub = rest.slice(tr.path.length + 1);
       if (tr.format === 2) {
         const entry = typeof tr.entry === 'string' ? tr.entry : 'index.html';
         const customHeaders = Object.assign({}, cors, { 'Content-Security-Policy': CUSTOM_TRAINING_CSP });
-        if (sub === 'academy-bridge.js') return fileResponse(path.join(ENGINE, 'js', 'academy-bridge.js'), customHeaders, req);
+        if (sub === 'academy-bridge.js') return fileResponse(path.join(__dirname, 'academy-bridge.js'), customHeaders, req);
         const inPack = within(S.lib.packDir(packId), rest);
         if (!inPack || !fs.existsSync(inPack)) return new Response('Not found', { status: 404 });
         if (sub === entry) return customTrainingResponse(inPack, cors, entry);
@@ -152,6 +163,9 @@ function handle(req) {
         const html = fs.readFileSync(path.join(ENGINE, 'index.html'), 'utf8').replace('<script src="js/md.js"></script>', TRAINING_CONFIG + '<script src="js/md.js"></script>');
         return new Response(html, { headers: { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache' } });
       }
+      /* Keep the app-owned F1 runtime stable even though the exportable training source
+         includes its original engine files. Package themes, topics and assets still come from the pack. */
+      if (/^js\//.test(sub) || /^(css\/app\.css|css\/certificate\.css)$/.test(sub)) return fileResponse(within(ENGINE, sub), cors);
       const inPack = within(S.lib.packDir(packId), rest);
       if (inPack && fs.existsSync(inPack)) return fileResponse(inPack, cors, req);
       if (/^(css|js)\//.test(sub)) return fileResponse(within(ENGINE, sub), cors);
@@ -270,6 +284,44 @@ function registerIpc() {
   api('plan:today', () => S.plan.today(S.user.id, NOW()), { needsUser: true });
   api('projects:list', () => S.plan.projects(S.user.id, NOW()), { needsUser: true });
   api('certs:list', () => S.plan.certificates(S.user.id, S.user.displayName), { needsUser: true });
+  api('certs:document', async (reference, action) => {
+    if (!['pdf', 'print'].includes(action)) throw new Error('Unknown certificate action');
+    const c = S.plan.certificates(S.user.id, S.user.displayName).find(x => x.kind === reference.kind && x.packId === reference.packId && x.itemId === reference.itemId);
+    if (!c) throw new Error('Certificate is not earned or not offered');
+    S.lib.requireUnlocked(S.user.id, c.packId);
+    let entry, training;
+    if (c.kind === 'package' && c.config && c.config.kind === 'web') entry = c.config.entry;
+    else if (c.kind === 'training') {
+      training = JSON.parse(fs.readFileSync(path.join(S.lib.packDir(c.packId), c.path, 'training.json'), 'utf8'));
+      if (typeof training.certificate === 'string' && /\.html?$/i.test(training.certificate)) entry = c.path + '/' + training.certificate;
+    }
+    if (!entry || !within(S.lib.packDir(c.packId), entry)) throw new Error('No HTML certificate design');
+    let destination;
+    if (action === 'pdf') {
+      const r = await dialog.showSaveDialog(S.win, { title: 'Save certificate as PDF', defaultPath: (c.title + ' — ' + c.name).replace(/[\\/:*?"<>|]+/g, '-') + '.pdf', filters: [{ name: 'PDF', extensions: ['pdf'] }] });
+      if (r.canceled) return null; destination = r.filePath;
+    }
+    // A dedicated, sandboxed print page avoids clipping or blank iframe output from the app modal.
+    const printWindow = new BrowserWindow({ show: false, width: 1123, height: 794, webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false, backgroundThrottling: false } });
+    printWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+    printWindow.webContents.on('will-navigate', e => e.preventDefault());
+    const data = { name: c.name, training: training ? training.title : c.title, issuer: (training && training.issuer) || (c.config && c.config.issuer) || c.publisher || '', date: c.date, score: c.score != null ? c.score : training ? 1 : null, hours: (training && training.hours) || c.hours || '' };
+    // Same deterministic local identifier as the on-screen design.
+    let hash = 2166136261; const key = c.name + '|' + (training ? training.id : c.packId) + '|' + c.date.slice(0, 10);
+    for (let i = 0; i < key.length; i++) { hash ^= key.charCodeAt(i); hash = Math.imul(hash, 16777619); }
+    data.id = 'CERT-' + (hash >>> 0).toString(36).toUpperCase();
+    try {
+      await printWindow.loadURL('stl://pack/' + encodeURIComponent(c.packId) + '/' + entry);
+      await printWindow.webContents.executeJavaScript(`window.postMessage(${JSON.stringify({type:'semitec-certificate',data})}, '*'); new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
+      await printWindow.webContents.executeJavaScript('Promise.all([document.fonts.ready, ...Array.from(document.images).map(i => i.decode().catch(() => {}))]).then(() => true)');
+      if (action === 'pdf') {
+        const bytes = await printWindow.webContents.printToPDF({ printBackground: true, preferCSSPageSize: true, landscape: true, pageSize: 'A4', margins: { top: 0, bottom: 0, left: 0, right: 0 } });
+        fs.writeFileSync(destination, bytes); return destination;
+      }
+      await new Promise((resolve, reject) => printWindow.webContents.print({ silent: false, printBackground: true }, (ok, reason) => ok || /cancel/i.test(reason) ? resolve() : reject(new Error(reason))));
+      return true;
+    } finally { if (!printWindow.isDestroyed()) printWindow.destroy(); }
+  }, { needsUser: true });
   api('app:savePdf', async (name) => {     /* the window, printed as PDF (used for certificates: the page shows only the certificate while printing) */
     const r = await dialog.showSaveDialog(S.win, { title: 'Save as PDF', defaultPath: path.join(app.getPath('documents'), String(name || 'certificate').replace(/[\\/:*?"<>|]+/g, '-') + '.pdf'), filters: [{ name: 'PDF', extensions: ['pdf'] }] });
     if (r.canceled) return null;
@@ -290,6 +342,7 @@ function registerIpc() {
   }, { needsUser: true });
   api('packs:install', (file) => { const r = S.lib.importFile(file, { userId: S.user.id, devMode: devMode() }); S.mine.add(S.user.id, r.id); return r; }, { needsUser: true });
   api('packs:remove', (id) => S.lib.remove(id), { needsUser: true });
+  api('packs:unlock', (id, password) => S.lib.unlock(S.user.id, id, String(password || '')), { needsUser: true });
   /* files of "material" items: save a copy / open with the system app (a temp copy, the pack stays untouched) */
   /* item file (material) or one of a lab's source files (rel = path inside the lab, listed in srcFiles) */
   const itemFile = (packId, itemId, rel) => {
@@ -298,30 +351,31 @@ function registerIpc() {
     let file = it.file;
     if (rel) { if (!(it.srcFiles || []).includes(rel)) throw new Error('Not a file of this lab'); file = it.path + '/' + rel; }
     if (!file) throw new Error('No file for this item');
+    if (isPreview(file) && !S.lib.canPreview(S.user.id, packId)) throw new Error('Author previews require a configured package password and a successful unlock.');
     const p = within(S.lib.packDir(packId), file); if (!p || !fs.existsSync(p)) throw new Error('File missing in the installed pack');
     return p;
   };
-  api('packs:saveFile', async (packId, itemId, rel) => {
-    const src = itemFile(packId, itemId, rel);
-    const r = await dialog.showSaveDialog(S.win, { title: 'Save a copy', defaultPath: path.join(app.getPath('downloads'), path.basename(src)) });
-    if (r.canceled) return null;
-    fs.copyFileSync(src, r.filePath); return r.filePath;
-  }, { needsUser: true });
-  api('packs:saveZip', async (packId, itemId) => {    /* all source files of a lab as one zip */
-    const m = S.lib.manifestOf(packId); const it = m && (m.items || []).find(i => i.id === itemId);
-    if (!it || !(it.srcFiles || []).length) throw new Error('This lab has no files');
-    const r = await dialog.showSaveDialog(S.win, { title: 'Save lab files', defaultPath: path.join(app.getPath('downloads'), it.id + '-files.zip'), filters: [{ name: 'Zip', extensions: ['zip'] }] });
-    if (r.canceled) return null;
-    const { zipSync } = require('fflate');
-    const entries = {};
-    for (const rel of it.srcFiles) entries[it.id + '/' + rel] = new Uint8Array(fs.readFileSync(itemFile(packId, itemId, rel)));
-    fs.writeFileSync(r.filePath, zipSync(entries)); return r.filePath;
-  }, { needsUser: true });
   api('packs:openFile', async (packId, itemId) => {
+    S.lib.requireUnlocked(S.user.id, packId);
     const src = itemFile(packId, itemId);
     const dir = path.join(os.tmpdir(), 'semitec-academy', packId); fs.mkdirSync(dir, { recursive: true });
     const dst = path.join(dir, path.basename(src)); fs.copyFileSync(src, dst);
     const err = await shell.openPath(dst); if (err) throw new Error(err); return dst;
+  }, { needsUser: true });
+  api('packs:exportPackage', async (packId) => {
+    S.lib.requireUnlocked(S.user.id, packId);
+    const m = S.lib.manifestOf(packId);
+    const r = await dialog.showOpenDialog(S.win, { title: 'Choose a folder for the course copy', properties: ['openDirectory', 'createDirectory'] });
+    if (r.canceled) return null;
+    return copyPack({ packDir: S.lib.packDir(packId), manifest: m, engineDir: ENGINE, targetDir: r.filePaths[0], allowPreview: S.lib.canPreview(S.user.id, packId) });
+  }, { needsUser: true });
+  api('packs:exportItem', async (packId, itemId) => {
+    S.lib.requireUnlocked(S.user.id, packId);
+    const manifest = S.lib.manifestOf(packId), item = manifest && manifest.items.find(x => x.id === itemId);
+    if (!item) throw new Error('Item not found');
+    const r = await dialog.showOpenDialog(S.win, { title: 'Choose a folder for the complete material', properties: ['openDirectory', 'createDirectory'] });
+    if (r.canceled) return null;
+    return copyItem({ packDir: S.lib.packDir(packId), manifest, item, engineDir: ENGINE, targetDir: r.filePaths[0], allowPreview: S.lib.canPreview(S.user.id, packId) });
   }, { needsUser: true });
   api('app:openExternal', (url) => { if (!/^(https?:\/\/|mailto:)/.test(url)) throw new Error('Only web and email links can be opened'); return shell.openExternal(url); }, { needsUser: true });
   api('packs:pending', () => { const p = S.pendingPack; S.pendingPack = null; return p; }, { needsUser: true });

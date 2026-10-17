@@ -130,25 +130,30 @@ module.exports = function planner({ db, lib }) {
     return out;
   }
 
-  /* certificates earned: JSON-training certificates (from the training state) and package certificates.
-     Custom web trainings can complete a package, but Academy cannot generate a certificate inside their own UI. */
+  /* Certificates earned: standard JSON trainings and opted-in custom web trainings, plus package certificates.
+     Both training formats may opt into an individual certificate. */
   function certificates(userId, displayName) {
     const out = [];
     for (const r of db.all('SELECT id FROM packs ORDER BY title')) {
       const m = lib.manifestOf(r.id), prog = progressMap(userId, r.id);
-      for (const it of (m.items || []).filter(i => i.type === 'training' && i.format !== 2)) {
+      for (const it of (m.items || []).filter(i => i.type === 'training')) {
         const p = prog[it.id]; if (!p || !p.completedAt) continue;
+        let tr; try { tr = JSON.parse(fs.readFileSync(path.join(lib.packDir(r.id), it.path, 'training.json'), 'utf8')); } catch (e) { continue; }
+        if (!tr.certificate) continue;
+        if (/\.json$/i.test(tr.certificate)) {
+          try { if (JSON.parse(fs.readFileSync(path.join(lib.packDir(r.id), it.path, tr.certificate), 'utf8')).enabled === false) continue; } catch (e) { continue; }
+        }
         let st = {}; try { st = JSON.parse(p.state); } catch (e) {}
         const c = st.certificate || {};
         const tops = Object.values(st.topics || {}).filter(x => x && x.bestScore != null);
         const avg = tops.length ? tops.reduce((a, x) => a + x.bestScore, 0) / tops.length : null;
-        out.push({ kind: 'training', packId: r.id, packTitle: m.title, itemId: it.id, path: it.path, title: it.title, name: c.name || displayName,
+        out.push({ kind: 'training', packId: r.id, packTitle: m.title, itemId: it.id, path: it.path, format: it.format, publisher: m.publisher || '', title: it.title, name: c.name || displayName,
           date: st.completedAt || p.completedAt, issuedAt: c.issuedAt || null, score: c.score != null ? c.score : avg, certId: c.id || null, created: !!c.id });
       }
       const items = S.countedItems(m);      // prerequisites and attached materials are not required for the certificate
       /* Course certificates are an author/publisher choice. A completed package without a certificate
          definition is still complete; it simply has no course credential to issue. */
-      if (m.certificate && items.length && items.every(it => (prog[it.id] || {}).completedAt)) {
+      if (m.certificate && m.certificate.enabled !== false && items.length && items.every(it => (prog[it.id] || {}).completedAt)) {
         const date = items.map(it => prog[it.id].completedAt).sort().pop();
         out.push({ kind: 'package', packId: r.id, packTitle: m.title, title: m.title, name: displayName, date, issuedAt: date, score: null, items: items.length,
           hours: Math.round(items.reduce((a, it) => a + S.minutes(it.estimatedTime), 0) / 6) / 10, publisher: m.publisher || '', language: m.language || 'en', config: m.certificate || null, created: true });

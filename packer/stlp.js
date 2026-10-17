@@ -24,7 +24,7 @@ const fs = require('fs');
 const path = require('path');
 /* shared code: ./lib (bundled copy, e.g. in the academy-templates:package skill) or ../app/src/shared (repository) */
 const shared = fs.existsSync(path.join(__dirname, 'lib', 'packfmt.js')) ? path.join(__dirname, 'lib') : path.join(__dirname, '..', 'app', 'src', 'shared');
-const { buildPack, readPack, generateKeyPair, keyId, loadTrustedKeys } = require(path.join(shared, 'packfmt'));
+const { buildPack, readPack, generateKeyPair, passwordAccess, keyId, loadTrustedKeys } = require(path.join(shared, 'packfmt'));
 const { validatePack, collectFiles } = require(path.join(shared, 'validate'));
 const { checkSpec, assemble } = require(path.join(shared, 'spec'));
 const V = require(path.join(shared, 'versions'));
@@ -61,14 +61,25 @@ function addItem(dir, pack, item) {
   writeJSON(path.join(dir, 'pack.json'), pack);
   ok(`added ${item.type} "${item.id}" to module "${mod.id}"`);
 }
+function certificateReport(pack, info = {}) {
+  console.log('Certificates (publisher choice): package — ' + (pack.certificate && pack.certificate.enabled !== false ? 'offered' : 'not offered'));
+  const packageRef = typeof pack.certificate === 'string' ? pack.certificate : pack.certificate && pack.certificate.entry;
+  if (packageRef && /\.html?$/.test(packageRef)) console.log('  package certificate preview: ' + path.posix.dirname(packageRef) + '/index_preview.html');
+  for (const it of pack.items || []) if (it.type === 'training') {
+    const ref = (info[it.id] || {}).certificate;
+    console.log('  ' + it.id + ' — ' + (ref ? 'offered: ' + JSON.stringify(ref) : 'not offered') + '; training preview: ' + it.path + '/index_preview.html');
+    if (typeof ref === 'string' && /\.html?$/.test(ref)) console.log('    certificate preview: ' + it.path + '/' + path.posix.dirname(ref) + '/index_preview.html');
+  }
+}
 function report(r) {
   r.warnings.forEach(w => console.log('  ⚠ ' + w));
   r.errors.forEach(e => console.log('  ✗ ' + e));
 }
 function checkTarget(formats) {
-  const min = V.minAppFor(formats);
+  const min = '2.1.0';
   if (!min) die('no app version supports this combination of formats: ' + JSON.stringify(formats));
   const target = opt['target-app'] === true ? V.APP_VERSION : (opt['target-app'] || V.APP_VERSION);
+  if (V.cmp(target, min) < 0) die('This builder requires target app 2.1.0 or newer.');
   const caps = V.capabilities(target);
   if (!caps) die('unknown target app version ' + target + ' (known: ' + V.HISTORY.map(h => h.app).join(', ') + ')');
   for (const [k, v] of Object.entries(formats)) if (!(caps[k] || []).includes(v)) die(`target app ${target} cannot open ${k} format ${v}`);
@@ -103,10 +114,13 @@ C['add-training'] = () => {
   const tr = readJSON(path.join(src, 'training.json'));
   const id = opt.id || slug(tr.id || path.basename(src));
   const rel = 'trainings/' + id;
-  /* copy CONTENT only — the app brings its own engine (js/, css/app.css, index.html) */
-  copyDir(src, path.join(dir, rel), (name, isDir) => (isDir && ['js', 'tools', 'examples', 'dist', 'reference', 'node_modules'].includes(name)) || ['index.html', 'README.md', 'SKILL.md', 'INTEGRATION.md'].includes(name));
-  for (const f of ['css/app.css', 'css/certificate.css']) fs.rmSync(path.join(dir, rel, f), { force: true });
-  addItem(dir, pack, { id, type: 'training', title: opt.title || tr.title, description: opt.description || tr.subtitle || '', estimatedTime: opt.time || (tr.hours ? tr.hours + ' h' : ''), path: rel });
+  const customWeb = tr.format === 2;
+  /* Every training keeps its runnable source. Academy serves its compatible built-in engine for
+     format 1, while formats 2/3 provide their own local web page. */
+  copyDir(src, path.join(dir, rel), (name, isDir) => customWeb
+    ? (isDir && ['tools', 'examples', 'dist', 'reference', 'node_modules'].includes(name)) || ['README.md', 'SKILL.md', 'INTEGRATION.md'].includes(name)
+    : (isDir && ['tools', 'examples', 'dist', 'reference', 'node_modules'].includes(name)) || ['README.md', 'SKILL.md', 'INTEGRATION.md'].includes(name));
+  addItem(dir, pack, Object.assign({ id, type: 'training', title: opt.title || tr.title, description: opt.description || tr.subtitle || '', estimatedTime: opt.time || (tr.hours ? tr.hours + ' h' : ''), path: rel }, customWeb ? { entry: tr.runtime && tr.runtime.entry, ...(tr.certificate ? { certificate: tr.certificate } : {}) } : {}));
 };
 C['add-reading'] = () => {
   const [dir, src] = pos; if (!dir || !src) die('usage: add-reading <packDir> <file.pdf>');
@@ -162,6 +176,7 @@ function buildDir(dir, defaultOut, quiet) {
     ...(pack.publisherLogo ? { publisherLogo: pack.publisherLogo } : {}), ...(pack.publisherUrl ? { publisherUrl: pack.publisherUrl } : {}),
     ...(pack.contact ? { contact: pack.contact } : {}),
     ...(pack.branding ? { branding: pack.branding } : {}),
+    ...(pack.access ? { access: pack.access } : {}),
     created: new Date().toISOString(),
     minAppVersion: t.min,
     builder: { tool: 'stlp', toolVersion: V.APP_VERSION, targetApp: t.target },
@@ -173,12 +188,15 @@ function buildDir(dir, defaultOut, quiet) {
       r.info[it.id] && r.info[it.id].schedule ? { schedule: r.info[it.id].schedule } : {},
       it.type === 'project' && r.info[it.id] ? { durationWeeks: r.info[it.id].durationWeeks, summary: r.info[it.id].summary } : {},
       it.type === 'training' && r.info[it.id] && r.info[it.id].entry ? { entry: r.info[it.id].entry } : {},
+      it.type === 'training' && r.info[it.id] && r.info[it.id].certificate ? { certificate: r.info[it.id].certificate } : {},
+      it.type === 'training' && r.info[it.id] && r.info[it.id].progress ? { progress: r.info[it.id].progress } : {},
       it.plannedWeeks != null ? { plannedWeeks: it.plannedWeeks } : {},
       it.for ? { for: it.for } : {},
       it.prerequisite ? { prerequisite: true } : {},
       it.type === 'project' && it.category ? { category: it.category } : {},
-      ...['path', 'file', 'url', 'poster', 'kind', 'assets'].filter(k => it[k] && (!Array.isArray(it[k]) || it[k].length)).map(k => ({ [k]: it[k] }))))
+      ...['path', 'entry', 'file', 'url', 'poster', 'kind', 'assets'].filter(k => it[k] && (!Array.isArray(it[k]) || it[k].length)).map(k => ({ [k]: it[k] }))))
   };
+  certificateReport(pack, r.info);
   const files = collectFiles(dir, pack);
   let key = null;
   if (!opt.unsigned) {
@@ -205,6 +223,7 @@ C.inspect = () => {
   console.log(`  publisher: ${m.publisher}   created: ${m.created}   needs app ≥ ${m.minAppVersion}   built for ${m.builder && m.builder.targetApp}`);
   console.log(`  signature: ${p.signature.status}${p.signature.keyName ? ' — ' + p.signature.keyName : ''}${p.signature.keyId ? ' [' + p.signature.keyId + ']' : ''}`);
   console.log(`  files: ${Object.keys(m.files).length} (all hashes OK)`);
+  if (m.access) console.log('  access: package password required');
   for (const mod of m.modules) {
     console.log(`  ▸ ${mod.title}`);
     for (const id of mod.items) { const it = m.items.find(i => i.id === id); console.log(`      ${it.type.padEnd(8)} ${it.id.padEnd(28)} ${it.title}`); }
@@ -230,7 +249,7 @@ function printCheck(r, specPath) {
     const S = require(path.join(shared, 'schedule'));
     const tpl = S.template({ schedule: r.spec.schedule, modules: r.spec.modules || [], items: r.items.map(i => ({ id: i.id, title: i.title, plannedWeeks: i.plannedWeeks, prerequisite: i.prerequisite, for: i.for, schedule: i._info && i._info.schedule })) });
     console.log('  study plan: ' + (tpl.source === 'package' ? `${tpl.weeks} week${tpl.weeks === 1 ? '' : 's'} from the pack schedule (${tpl.entries.length} entries)`
-      : tpl.source === 'items' ? `${tpl.weeks} week${tpl.weeks === 1 ? '' : 's'} from plannedWeeks of the items` : 'none — self-paced (students may set a finish date)'));
+      : tpl.source === 'items' ? `${tpl.weeks} week${tpl.weeks === 1 ? '' : 's'} from plannedWeeks of the items` : 'missing mandatory schedule — add weeks and entries before packaging'));
   }
 }
 C.check = () => {
@@ -238,6 +257,7 @@ C.check = () => {
   if (!fs.existsSync(spec)) die('spec not found: ' + spec);
   const r = checkSpec(spec);
   printCheck(r, spec);
+  if (r.spec) certificateReport({ ...r.spec.pack, certificate: r.certificateOffered ? r.spec.pack.certificate : null, items: r.items.map(i => ({ ...i, path: i.source })) }, Object.fromEntries(r.items.map(i => [i.id, i._info || {}])));
   if (!r.errors.length && opt['target-app']) checkTarget(r.formats);
   if (r.errors.length) die(`${r.errors.length} error(s), ${r.warnings.length} warning(s) — fix the errors before creating the pack`);
   ok(`ready to create — 0 errors, ${r.warnings.length} warning(s)`);
@@ -329,6 +349,11 @@ C.keygen = () => {
   fs.writeFileSync(path.join(dir, base + '.pub.pem'), kp.publicKey);
   writeJSON(path.join(dir, base + '.json'), { name: name + (opt.dev ? ' (development key)' : ''), development: !!opt.dev, keyId: keyId(kp.publicKey), created: new Date().toISOString() });
   ok(`key ${keyId(kp.publicKey)} written to ${dir}\n  PRIVATE: ${priv}  ← keep secret, never commit, never ship\n  public:  ${base}.pub.pem + ${base}.json → copy both to app/trusted-keys/ and release a new app version`);
+};
+C['password-hash'] = () => {
+  const password = process.env.STLP_PACKAGE_PASSWORD;
+  if (!password) die('set STLP_PACKAGE_PASSWORD for this command; do not put a plaintext password in pack.json');
+  console.log(JSON.stringify({ password: passwordAccess(password) }, null, 2));
 };
 
 if (!C[cmd]) {

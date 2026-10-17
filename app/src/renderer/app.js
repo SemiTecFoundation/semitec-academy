@@ -36,6 +36,24 @@
     back.addEventListener('click', function (e) { if (e.target === back) close(); });
     return { close: close, box: box };
   }
+  function unlockPackageDialog(packId, title, access, done) {
+    var password = el('input', { type: 'password', autocomplete: 'current-password', placeholder: 'Package password', 'aria-label': 'Package password' });
+    var error = el('div.ui-error');
+    var m = modal('Unlock ' + title, [
+      el('p', { text: 'Enter the password provided by this package’s publisher.' }),
+      access && access.hint ? el('p.muted', { text: 'Hint: ' + access.hint }) : null,
+      el('label.field', null, [el('span', { text: 'Password' }), password]), error
+    ], []);
+    var cancel = el('button.btn', { type: 'button', text: 'Cancel', onclick: function () { m.close(); } });
+    var submit = el('button.btn.primary', { type: 'button', text: 'Unlock', onclick: unlock });
+    m.box.querySelector('.ui-actions').append(cancel, submit);
+    function unlock() {
+      submit.disabled = true; error.textContent = '';
+      api.packs.unlock(packId, password.value).then(function () { m.close(); done(); }).catch(function (e) { error.textContent = e.message; password.focus(); }).finally(function () { submit.disabled = false; });
+    }
+    password.addEventListener('keydown', function (e) { if (e.key === 'Enter') unlock(); });
+    setTimeout(function () { password.focus(); }, 0);
+  }
   function statusChip(p) {
     if (p && p.completedAt) return el('span.status.done', { text: '✓ Done' });
     if (p && p.percent > 0) return el('span.status.going', { text: p.percent + '%' });
@@ -469,7 +487,7 @@
         el('dt', { text: 'Signature' }), el('dd', { text: info.signature.status === 'trusted' ? '✔ ' + info.signature.keyName : info.signature.status === 'unsigned' ? 'not signed' : 'unknown key ' + info.signature.keyId })]));
       var canInstall = info.compat.ok && (info.signature.status === 'trusted' || info.devMode);
       if (!info.compat.ok) body.push(el('div.errbox', { text: 'This app version cannot open this pack:\n• ' + info.compat.reasons.join('\n• ') + '\n\nInstall a newer version of SemiTec Academy.' }));
-      else if (info.signature.status !== 'trusted') body.push(el(info.devMode ? 'div.warnbox' : 'div.errbox', { text: info.devMode ? 'Not signed by a trusted key. Installing because developer mode is on.' : 'This pack is not signed by the SemiTec Foundation, so it cannot be installed. (Teachers testing their own packs can enable developer mode in Settings.)' }));
+      else if (info.signature.status !== 'trusted') body.push(el(info.devMode ? 'div.warnbox' : 'div.errbox', { text: info.devMode ? 'Not signed by a trusted key. Installing because developer mode is on.' : 'This package is unsigned or its publisher key is not trusted. Add the publisher’s public key in Settings, or use Developer mode for a local draft.' }));
       if (info.installedVersion) body.push(el('div.okbox', { text: 'Version ' + info.installedVersion + ' is installed. Installing ' + info.version + ' replaces the content; your progress is kept.' }));
       var err = el('div.ui-error'); body.push(err);
       var m = modal('Add course pack', body, [
@@ -558,6 +576,14 @@
     Promise.all([api.packs.get(id), api.plan.pack(id)]).then(function (res) {
       var P = res[0], PL = res[1];
       var m = P.manifest, prog = P.progress;
+      var locked = P.access && P.access.required && P.access.scope !== 'preview' && !P.access.unlocked;
+      /* A successful preview-password unlock is an explicit author-review choice:
+         trainings open their all-sections preview, while normal study remains available from the item page. */
+      var previewUnlocked = !!(P.access && P.access.scope === 'preview' && P.access.unlocked);
+      function itemHref(it, preview) {
+        return '#/pack/' + encodeURIComponent(id) + '/' + encodeURIComponent(it.id) + (preview ? '/preview' : '');
+      }
+      function usesAuthorPreview(it) { return previewUnlocked && it.type === 'training'; }
       applyPackageBranding(page, m.branding);
       var items = orderedItems(m);
       var byId0 = {}; (m.items || []).forEach(function (it) { byId0[it.id] = it; });
@@ -571,8 +597,11 @@
         el('div.progress-line', null, [bar(P.summary.percent), el('span', { text: P.summary.percent + '% · ' + P.summary.done + ' / ' + P.summary.total + ' completed' + (P.summary.prerequisites ? ' · prerequisites not counted' : '') })]),
         window.PlanUI.enrollBox(id, m, PL),
         el('div.ui-actions', null, [
-          next ? el('a.btn.primary', { href: '#/pack/' + encodeURIComponent(id) + '/' + encodeURIComponent(next.id), text: (started ? 'Continue: ' : 'Start: ') + next.title + ' →' }) : el('span.status.done', { text: '🎉 Everything completed' }),
+          locked ? el('button.btn.primary', { type: 'button', text: '🔒 Enter password to unlock', onclick: function () { unlockPackageDialog(id, m.title, P.access, route); } })
+            : next ? el('a.btn.primary', { href: itemHref(next, usesAuthorPreview(next)), text: (usesAuthorPreview(next) ? 'Open all sections: ' : (started ? 'Continue: ' : 'Start: ')) + next.title + ' →' }) : el('span.status.done', { text: '🎉 Everything completed' }),
           el('span.grow'),
+          P.access && P.access.scope === 'preview' && !P.access.unlocked ? el('button.btn.small', { text: 'Unlock author previews', onclick: function () { unlockPackageDialog(id, m.title, P.access, route); } }) : null,
+          !locked ? el('button.btn.small', { type: 'button', text: '⇩ Download course files', title: 'Copy every local package file, source folder and training export to a folder', onclick: function () { api.packs.exportPackage(id).then(function (p) { if (p) toast('Saved course files to ' + p); }).catch(function (e) { toast(e.message, true); }); } }) : null,
           (Object.keys(prog).length || (PL && PL.enrollment)) ? el('button.btn.small.ghost', { type: 'button', text: '↺ Reset progress', title: 'Start this package again from 0', onclick: function () {
             resetProgressDialog({ id: id, title: m.title, summary: P.summary, plan: { enrolled: !!(PL && PL.enrollment) } }, { done: function () { toast('Progress reset — ' + m.title + ' starts from 0'); route(); } });
           } }) : null,
@@ -598,16 +627,20 @@
       page.appendChild(holder);
       function row(it, nested) {
         var p = prog[it.id];
-        var href = '#/pack/' + encodeURIComponent(id) + '/' + encodeURIComponent(it.id);
+        var authorPreview = usesAuthorPreview(it);
+        var href = itemHref(it, authorPreview);
         var parent = it.for && byId[it.for];
         var sub = (mode === 'modules' || nested ? TYPE[it.type] + ' · ' : '') + [it.estimatedTime, it.description, it.size && it.type === 'material' ? fmtSize(it.size) : ''].filter(Boolean).join(' · ');
-        return el('div.item-row.t-' + it.type + (nested ? '.sub' : ''), { role: 'link', tabindex: 0, onclick: function () { location.hash = href; }, onkeydown: function (e) { if (e.key === 'Enter') location.hash = href; } }, [
+        var open = function () { if (locked) unlockPackageDialog(id, m.title, P.access, route); else location.hash = href; };
+        return el('div.item-row.t-' + it.type + (nested ? '.sub' : ''), { role: 'link', tabindex: 0, onclick: open, onkeydown: function (e) { if (e.key === 'Enter') open(); } }, [
           el('div.item-ico', { text: ICON[it.type] }),
-          el('div', null, [el('div.item-title', null, [it.title, parent && !nested ? el('span.for-tag', { text: '↳ ' + parent.title }) : null,
+          el('div.item-summary', null, [el('div.item-title', null, [it.title, parent && !nested ? el('span.for-tag', { text: '↳ ' + parent.title }) : null,
             it.prerequisite ? el('span.nc-tag', { text: 'prerequisite · not counted', title: 'Optional refresher — not counted in your progress or certificate' })
               : parent ? el('span.nc-tag', { text: 'not counted', title: 'Material of “' + parent.title + '” — not counted in your progress' }) : null]), el('div.item-sub', { text: sub })]),
-          statusChip(p),
-          el('a.btn.small', { href: href, text: p && p.completedAt ? 'Review' : p ? 'Continue' : 'Open', onclick: function (e) { e.stopPropagation(); } })]);
+          el('div.item-actions', { onkeydown: function (e) { e.stopPropagation(); } }, [
+            locked ? el('span.status', { text: '🔒 Locked' }) : statusChip(p),
+            !locked ? downloadButton(id, it) : null,
+            locked ? el('button.btn.small', { type: 'button', text: 'Unlock', onclick: function (e) { e.stopPropagation(); open(); } }) : el('a.btn.small', { href: href, text: authorPreview ? 'Open all sections' : (p && p.completedAt ? 'Review' : p ? 'Continue' : 'Open'), onclick: function (e) { e.stopPropagation(); } })])]);
       }
       var nestKids = false;
       function group(cls, num, title, sub, its, noCount) {
@@ -683,9 +716,19 @@
     var main = shell('library');
     api.packs.get(packId).then(function (P) {
       var m = P.manifest, items = orderedItems(m);
+      if (P.access && P.access.required && P.access.scope !== 'preview' && !P.access.unlocked) {
+        main.appendChild(el('div.ui-page', null, [el('div.empty', null, [el('div.big', { text: '🔒' }), el('h2', { text: 'This package is locked' }),
+          el('p', { text: 'Enter the publisher’s package password before opening its learning materials or downloads.' }),
+          el('button.btn.primary', { type: 'button', text: 'Enter password', onclick: function () { unlockPackageDialog(packId, m.title, P.access, route); } }),
+          el('a.btn', { href: '#/pack/' + encodeURIComponent(packId), text: '← Package overview' })]) ]));
+        return;
+      }
       var idx = items.findIndex(function (it) { return it.id === itemId; });
       if (idx < 0) { location.hash = '#/pack/' + encodeURIComponent(packId); return; }
       var it = items[idx];
+      var preview = sub === 'preview';
+      var mayPreview = !!(P.access && P.access.scope === 'preview' && P.access.unlocked);
+      if (preview && (!mayPreview || it.type !== 'training')) { location.hash = '#/pack/' + encodeURIComponent(packId) + '/' + encodeURIComponent(itemId); return; }
       var saved = el('span.saved-dot');
       var link = function (x) { return '#/pack/' + encodeURIComponent(packId) + '/' + encodeURIComponent(x.id); };
       var view = el('div.item-view', null, [
@@ -694,7 +737,10 @@
             it.prerequisite ? el('span.nc-tag', { text: 'prerequisite · not counted' }) : (it.for && m.items.some(function (x) { return x.id === it.for; })) ? el('span.nc-tag', { text: 'not counted' }) : null]),
           saved,
           idx > 0 ? el('a.btn.small', { href: link(items[idx - 1]), title: items[idx - 1].title, text: '‹ Previous' }) : null,
-          idx < items.length - 1 ? el('a.btn.small', { href: link(items[idx + 1]), title: items[idx + 1].title, text: 'Next ›' }) : null]),
+          idx < items.length - 1 ? el('a.btn.small', { href: link(items[idx + 1]), title: items[idx + 1].title, text: 'Next ›' }) : null,
+          preview ? el('span.status', { text: 'Author preview · all sections open' }) : null,
+          preview ? el('a.btn.small', { href: '#/pack/' + encodeURIComponent(packId) + '/' + encodeURIComponent(itemId), text: 'Study normally' }) : null,
+          downloadButton(packId, it)]),
         el('div.item-body')]);
       applyPackageBranding(view, m.branding);
       main.appendChild(view);
@@ -706,10 +752,10 @@
       }
       api.progress.get(packId, it.id).then(function (prev) {
         var base = 'stl://pack/' + encodeURIComponent(packId) + '/';
-        if (it.type === 'training') openTraining(body, base + it.path + '/' + (it.entry || 'index.html') + (sub === 'certificate' ? '#certificate' : ''), prev, save, it.format === 2);
-        else if (it.type === 'project') S.cleanup = window.ProjectsUI.open({ host: body, packId: packId, item: it, base: base + it.path + '/', state: prev ? prev.state : null, save: save, tab: sub });
+        if (it.type === 'training') openTraining(body, base + it.path + '/' + (preview ? 'index_preview.html' : (it.entry || 'index.html')) + (sub === 'certificate' ? '#certificate' : ''), prev, save, it.format === 2, it.progress, preview);
+        else if (it.type === 'project') S.cleanup = window.ProjectsUI.open({ host: body, packId: packId, item: it, base: base + it.path + '/', state: prev ? prev.state : null, save: save, tab: sub, toast: toast });
         else if (it.type === 'reading' && /\.(md|markdown)$/i.test(it.file)) S.cleanup = window.MarkdownView.open({ host: body, url: base + it.file, title: it.title, state: prev ? prev.state : null, save: save, toast: toast });
-        else if (it.type === 'reading') openReading(body, base + it.file, prev, save);
+        else if (it.type === 'reading') openReading(body, base + it.file, prev, save, packId, it);
         else if (it.type === 'lab') openLab(body, base + it.path, Object.assign({}, it, { attached: (attached(m)[it.id] || []).map(function (k) { return Object.assign({}, k, { progress: P.progress[k.id] || null }); }) }), prev, save, packId);
         else if (it.type === 'video') S.cleanup = window.MediaView.video({ host: body, item: it, url: it.file ? base + it.file : null, poster: it.poster ? base + it.poster : null, state: prev ? prev.state : null, save: save });
         else if (it.type === 'material') S.cleanup = window.MediaView.material({ host: body, item: it, url: it.file ? base + it.file : null, packId: packId, state: prev ? prev.state : null, save: save, toast: toast });
@@ -717,16 +763,37 @@
     });
   }
 
+  function downloadButton(packId, item) {
+    return el('button.btn.small', { type: 'button', text: '⇩ Download folder', title: 'Download the complete ' + TYPE[item.type] + ' with its source and supporting files', onclick: function (e) {
+      e.stopPropagation(); var button = e.currentTarget; button.disabled = true;
+      api.packs.exportItem(packId, item.id).then(function (p) { if (p) toast('Saved complete folder to ' + p); }).catch(function (e) { toast(e.message, true); }).finally(function () { button.disabled = false; });
+    }, onkeydown: function (e) { e.stopPropagation(); } });
+  }
+
   /* training: the training engine runs in an iframe (stl://pack origin) and talks to us with postMessage */
-  function openTraining(body, url, prev, save, customWeb) {
+  function openTraining(body, url, prev, save, customWeb, progress, preview) {
+    /* Preview is read-only author review. It must not create manual completion or replace learner state. */
+    var manual = !preview && progress && progress.mode === 'manual';
+    if (manual) {
+      var st = Object.assign({ checkedSteps: [] }, prev ? prev.state : {});
+      var checklist = el('div.manual-progress', null, [el('strong', { text: 'Learning steps' }), el('p', { text: 'Mark each step after you finish it. These steps count toward package completion.' })]);
+      progress.steps.forEach(function (step) {
+        var cb = el('input', { type: 'checkbox', checked: st.checkedSteps.indexOf(step.id) >= 0, onchange: function () {
+          var ids = new Set(st.checkedSteps); if (cb.checked) ids.add(step.id); else ids.delete(step.id); st.checkedSteps = Array.from(ids);
+          save(st, Math.round(100 * ids.size / progress.steps.length), ids.size === progress.steps.length);
+        } });
+        checklist.appendChild(el('label', null, [cb, ' ' + step.title]));
+      });
+      body.appendChild(checklist);
+    }
     var frame = el('iframe', customWeb ? { src: url, title: 'Training', sandbox: 'allow-scripts allow-same-origin' } : { src: url, title: 'Training' });
     function onMsg(e) {
       if (e.source !== frame.contentWindow) return;
       var d = e.data || {}; if (d.source !== 'semitec-training') return;
       if (d.type === 'requestState') {
-        frame.contentWindow.postMessage({ target: 'semitec-training', type: 'init', state: prev ? prev.state : null,
+        frame.contentWindow.postMessage({ target: 'semitec-training', type: 'init', state: preview ? null : (prev ? prev.state : null),
           user: { id: String(S.user.id), name: S.user.displayName }, lockName: true }, 'stl://pack');
-      } else if ((d.type === 'progress' || d.type === 'state') && d.detail && d.detail.state) {
+      } else if (!preview && !manual && (d.type === 'progress' || d.type === 'state') && d.detail && d.detail.state) {
         var st = d.detail.state; prev = { state: st };
         /* Format-1 engine keeps percent/completedAt inside its state. The format-2 bridge deliberately
            keeps those delivery fields beside author state so a lesson need not copy Academy fields. */
@@ -742,7 +809,7 @@
   }
 
   /* reading: PDF with page tracking. Completed when 90 % of the pages were seen (or marked). */
-  function openReading(body, url, prev, save) {
+  function openReading(body, url, prev, save, packId, item) {
     var st = Object.assign({ pages: 0, seen: [], last: 1, completed: false }, prev ? prev.state : {});
     var ctl = null, t = null;
     function pct() { return st.completed ? 100 : st.pages ? Math.round(100 * st.seen.length / st.pages) : 0; }

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interactive logic gate</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Custom web training</p>
+    <h1>Interactive logic gate</h1>
+    <p id="academy-state" aria-live="polite">Connecting to Academy…</p>
+    <p>Change either input and observe the AND-gate output.</p>
+    <div class="controls">
+      <button id="input-a" type="button" onclick="toggleInput('a')">A = 0</button>
+      <button id="input-b" type="button" onclick="toggleInput('b')">B = 0</button>
+    </div>
+    <p class="result">A AND B = <strong id="output">0</strong></p>
+    <button id="complete" type="button" onclick="finishTraining()">Mark the activity complete</button>
+  </main>
+  <script src="js/logic.js"></script>
+</body>
+</html>

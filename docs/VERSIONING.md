@@ -1,99 +1,33 @@
-# Versioning — app, formats and packs
+# Version and compatibility policy
 
-Three independent version numbers keep old packs working in new apps and stop new packs from
-breaking in old apps.
+The application version is in `app/package.json`; supported content versions are in
+`app/src/shared/versions.js`. Package authors declare their own package version. The skills product has
+its own release version and bundles a tested copy of the app's packer.
 
-| Number | Where | Meaning | Who changes it |
-|---|---|---|---|
-| **App version** | `app/package.json → version` | the installed program (e.g. 1.0.0, 1.1.0, 2.0.0) | app developers, at each release |
-| **Format versions** | `app/src/shared/versions.js → HISTORY` | how a pack container / training / reading / lab is written (integers: 1, 2, …) | app developers, when the content structure changes |
-| **Pack version** | `<pack folder>/pack-spec.json → pack.version` | the content of one course pack (1.0.0 → 1.0.1 → 1.1.0) | authors, when they update a pack |
+Current release candidate: **Academy 2.1.1**, **Academy Templates 2.0.1**. Academy 2.1.1 is a compatible
+author-preview routing fix; package format compatibility remains 2.1.0.
 
-## The compatibility table
+Training formats are **1 (JSON)** and **2 (custom HTML/CSS/JavaScript)**. The unpublished third training
+format was merged into format 2 before release. Both can declare an optional certificate. Container formats
+remain separate: **package 1** base, **package 2** branding, **package 3** password metadata.
 
-`versions.js` holds one row per app release with the formats it can open:
+The current builder sets `minAppVersion: "2.1.0"`, including builds with older item format numbers, because
+it relies on the current certificate, progress, preview and validation contract. A lower `--target-app`
+is rejected. Older app versions reject that minimum-version requirement instead of silently ignoring
+features. Do not infer compatibility from a format number alone.
 
-```js
-const HISTORY = [
-  { app: '1.0.0', pack: [1], training: [1], reading: [1], lab: [1] },
-  { app: '1.1.0', pack: [1], training: [1], reading: [1], lab: [1], video: [1], material: [1] },
-  { app: '1.2.0', pack: [1], training: [1], reading: [1], lab: [1, 2], video: [1], material: [1] },
-  { app: '1.3.0', pack: [1], training: [1], reading: [1, 2], lab: [1, 2], video: [1], material: [1] },
-  { app: '1.4.0', pack: [1], training: [1], reading: [1, 2], lab: [1, 2], video: [1], material: [1], project: [1] },
-  …
-  { app: '1.8.0', pack: [1, 2], training: [1], reading: [1, 2], lab: [1, 2], video: [1], material: [1], project: [1] }
-  { app: '1.9.0', pack: [1, 2], training: [1, 2], reading: [1, 2], lab: [1, 2], video: [1], material: [1], project: [1] }
-  // example of the future:
-  // { app: '1.4.0', …, lab: [1, 2, 3] },   // lab format 3: adds report upload
-  // { app: '2.0.0', pack: [1, 2], training: [1, 2], reading: [1], lab: [1, 2] }
-];
-```
+The app still reads legacy JSON certificates and older supported material formats. Existing installed
+learning records remain accessible. New imports, including re-imports of old archives, must pass the
+current checker: mandatory order/plan, content references and training previews/progress metadata. Ask
+the publisher to update and repackage an old archive that fails; do not bypass the checker.
 
-The same file is used by the **app** (to accept or refuse a pack) and by the **packer** (to build for a
-target app). Current table:
+Use patch versions for fixes, minor versions for compatible features, and major versions for deliberate
+breaking changes. Feature additions to an existing format need an appropriate minimum app version;
+changes to its fundamental representation need a new format. Keep stable item/topic/step IDs to preserve
+learner progress. Never repurpose a released format's meaning.
 
-| App | pack | training | reading | lab | video | material | Notes |
-|---|---|---|---|---|---|---|---|
-| 1.0.0 | 1 | 1 | 1 | 1 | — | — | first release |
-| 1.1.0 | 1 | 1 | 1 | 1 | 1 | 1 | sections by type, videos, other materials, pack specs |
-| 1.2.0 | 1 | 1 | 1 | 1, 2 | 1 | 1 | lab source files (lab format 2), compact lab header |
-| 1.3.0 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | name SemiTec Academy, `.stlp` packages, Markdown readings (reading format 2) |
-| 1.4.0 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | + **project 1**; study plans (`schedule`, `plannedWeeks`), calendar, Today, certificates, library search / filters, installers |
-| 1.5.0 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | (project 1) dashboard, catalog, publisher logos, attached materials (`for`), project categories, groups — optional fields only, no new formats |
-| 1.6.0 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | prerequisites (`"prerequisite": true`) shown before the course and not counted; attached materials (`for`) no longer count; reset the progress of a package |
-| 1.6.1 – 1.6.2 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | no content-format change — signing keys and installer metadata only |
-| 1.7.0 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | no content-format change — local publisher keys, contact metadata and optional package certificates |
-| 1.7.1 | 1 | 1 | 1, 2 | 1, 2 | 1 | 1 | no content-format change — projects follow My packages; removal stops active plans after confirmation and clears stale plan references |
-| 1.8.0 | 1, 2 | 1 | 1, 2 | 1, 2 | 1 | 1 | package format 2: optional publisher accent style for package details and non-training materials |
-| 1.9.0 | 1, 2 | 1, 2 | 1, 2 | 1, 2 | 1 | 1 | training format 2: self-contained local HTML/CSS/JavaScript lesson with Academy progress bridge |
-
-A pack **without** videos and other materials still opens in 1.0.0 (the packer writes
-`minAppVersion: 1.0.0`); a pack with a video needs 1.1.0; a lab with source files needs 1.2.0; a Markdown reading needs 1.3.0 (reading format 1 = PDF, 2 = Markdown); a project needs 1.4.0.
-The study-plan fields (`schedule`, `plannedWeeks`, a training's `schedule`, `certificate`) and optional
-publisher contact are additions to format 1: older apps ignore them, so they do not raise the minimum app version.
-A package with `branding` uses format 2 and needs Academy 1.8.0; a package without it stays format 1.
-A training with `"format": 2` and `runtime: { kind: "web", entry: "…" }` needs Academy 1.9.0; the
-standard JSON training remains format 1.
-A Markdown file under *Other materials* keeps material format 1: apps before 1.3 offer *Save a copy* / *Open with default app* instead of the reader.
-The packer picks the item format from the content (a lab without `files` stays format 1).
-
-## Rules
-
-**App releases**
-- PATCH (1.0.1): fixes only, no format changes — no new row needed.
-- MINOR (1.1.0): may add a new format version for an item type, **keeping the old ones** → new row.
-- MAJOR (2.0.0): may drop old formats (avoid; packs in the wild would stop opening).
-- Never change what an existing format number means. A change that old apps would misread
-  needs a new format number.
-
-**Packs**
-- The packer computes `minAppVersion` = the first app row that supports every format used.
-- `--target-app 1.0.0` makes the build fail if the pack uses a format that app cannot open —
-  use it while most students still have an older app.
-- An installed pack is replaced only by a **higher** pack version (developer mode allows downgrades).
-- Students' progress survives updates as long as item / subsection / step **ids stay the same**.
-
-**Training runtimes**
-- The app carries a copy of the training engine (`app/src/engine/training`, refreshed with
-  `npm run sync-engine` from the web template). Changes to the engine that keep reading the same JSON
-  are just a new app release. A change to the training JSON that old engines cannot read = new
-  `training` format number.
-- Training format 2 is publisher-provided local web content. It is still confined to a sandboxed frame,
-  has no Electron or Node API, and saves only through `window.SemiTecAcademy`.
-
-## What the student sees
-
-| Situation | Message in the app |
-|---|---|
-| Pack needs a newer app | "needs app version 1.1.0 or newer (this is 1.0.0)" — install the update |
-| Pack uses an unknown item format | "item "lab-3" uses lab format 2, not supported by this app" |
-| Newer pack version | "Version 1.0.0 is installed. Installing 1.1.0 replaces the content; your progress is kept." |
-| Older pack version | refused ("A newer version (1.1.0) of this pack is already installed") |
-
-## Release checklist (app)
-
-1. `npm run sync-engine` if the training template changed; run `npm test`.
-2. Bump `app/package.json → version`; add a `HISTORY` row if formats changed; update this table.
-3. Update built-in Foundation public keys in `app/trusted-keys/` if needed (see KEYS.md). Partners'
-   keys are a local recipient choice in **Trusted publishers** and are never committed here.
-4. Build installers (RELEASING.md: `npm run dist:win|mac|linux`), sign them, publish with release notes listing supported formats.
+Before a release: run app unit/integration tests, training/lab/project tools and skills packaging/parity
+tests; test the extracted skill ZIP and a locally built app. Check all download folders, optional certificate
+choices, passwords, custom progress, offline HTML, and PDF text/links. Publishing source, a skills ZIP,
+an app installer and educational packages are separate explicit decisions; never publish a private course
+merely because app or skills releases are authorized.

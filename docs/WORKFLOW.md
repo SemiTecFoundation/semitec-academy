@@ -31,3 +31,13 @@ the app does not manage supervisor links, application or approval.
 The app format is the compatibility authority. The package skill may bundle an offline copy of the packer,
 but its release tests compare that copy with the current app packer and inspect a generated fictional
 package with the app.
+
+## Current delivery contract
+
+Package and individual training certificates are optional author/publisher choices in both training formats
+(1: JSON; 2: custom HTML/CSS/JavaScript). New designs use HTML/CSS/JavaScript with a sample author preview.
+Every author handoff states certificate offered/not offered and links any certificate preview. Every training
+has `index_preview.html` with all sections open. Package order and study plan are mandatory. The builder and
+Academy import both check the files and metadata. Downloads always preserve complete folders and supporting
+sources; author preview HTML is omitted by default, including from open packages, and is included only after an explicit package-password unlock. Custom presentations use explicit
+bridge progress or Academy's manual steps. See [LEARNING.md](LEARNING.md) for learner behavior and [PACK-SPEC.md](PACK-SPEC.md) for metadata.

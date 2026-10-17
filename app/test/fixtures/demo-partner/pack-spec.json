@@ -8,7 +8,9 @@
     "language": "en",
     "publisher": "Demo Partner Company",
     "publisherLogo": "publisher-logo.svg",
-    "authors": ["Demo Partner Company"],
+    "authors": [
+      "Demo Partner Company"
+    ],
     "cover": "cover.svg",
     "branding": {
       "accent": "#006B54",
@@ -17,12 +19,53 @@
     }
   },
   "readings": [
-    { "id": "mbist-primer", "title": "Memory BIST in one page", "source": "readings/mbist-primer.md", "estimatedTime": "10 min", "plannedWeeks": 1 }
+    {
+      "id": "mbist-primer",
+      "title": "Memory BIST in one page",
+      "source": "readings/mbist-primer.md",
+      "estimatedTime": "10 min",
+      "plannedWeeks": 1
+    }
   ],
   "trainings": [
-    { "id": "logic-playground", "title": "Interactive logic gate", "source": "trainings/logic-playground", "description": "A small custom JavaScript training used to verify the packaged web runtime.", "estimatedTime": "10 min" }
+    {
+      "id": "logic-playground",
+      "title": "Interactive logic gate",
+      "source": "trainings/logic-playground",
+      "description": "A small custom JavaScript training used to verify the packaged web runtime.",
+      "estimatedTime": "10 min"
+    }
   ],
   "projects": [
-    { "id": "mbist-jtag", "source": "projects/mbist-jtag", "category": "diploma", "description": "Diploma project, 30 weeks: March tests, JTAG access, verification" }
-  ]
+    {
+      "id": "mbist-jtag",
+      "source": "projects/mbist-jtag",
+      "category": "diploma",
+      "description": "Diploma project, 30 weeks: March tests, JTAG access, verification"
+    }
+  ],
+  "modules": [
+    {
+      "id": "course",
+      "title": "Course",
+      "items": [
+        "logic-playground",
+        "mbist-jtag",
+        "mbist-primer"
+      ]
+    }
+  ],
+  "schedule": {
+    "weeks": 1,
+    "entries": [
+      {
+        "week": 1,
+        "items": [
+          "logic-playground",
+          "mbist-jtag",
+          "mbist-primer"
+        ]
+      }
+    ]
+  }
 }

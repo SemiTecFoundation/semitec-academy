@@ -62,26 +62,58 @@ async function open(host, url, opts = {}) {
   }
   function setZoom(s) { fitWidth = false; scale = Math.max(0.3, Math.min(4, s)); relayout(); }
 
+  async function followLink(annotation) {
+    if (annotation.url && /^(https?:\/\/|mailto:)/i.test(annotation.url)) {
+      await window.UI.api.app.openExternal(annotation.url); return;
+    }
+    const dest = typeof annotation.dest === 'string' ? await doc.getDestination(annotation.dest) : annotation.dest;
+    if (dest && dest.length) go((Number.isInteger(dest[0]) ? dest[0] : await doc.getPageIndex(dest[0])) + 1);
+    else if (annotation.action === 'NextPage') go(current + 1);
+    else if (annotation.action === 'PrevPage') go(current - 1);
+    else if (annotation.action === 'FirstPage') go(1);
+    else if (annotation.action === 'LastPage') go(total);
+  }
   async function render(p) {
     if (destroyed || p.rendered === scale || p.busy) return;
-    p.busy = true;
+    p.busy = true; const renderedScale = scale;
     try {
       const page = await doc.getPage(p.n);
-      const vp1 = page.getViewport({ scale: 1 });
-      if (vp1.width !== p.w || vp1.height !== p.h) { p.w = vp1.width; p.h = vp1.height; p.box.style.width = Math.floor(p.w * scale) + 'px'; p.box.style.height = Math.floor(p.h * scale) + 'px'; }
-      const dpr = window.devicePixelRatio || 1;
-      const vp = page.getViewport({ scale: scale * dpr });
-      const canvas = el('canvas'); canvas.width = Math.floor(vp.width); canvas.height = Math.floor(vp.height);
-      await page.render({ canvas, canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
-      const old = p.box.querySelector('canvas'); if (old) old.remove();
-      p.box.prepend(canvas);
-      p.rendered = scale;
-    } catch (e) { /* page render cancelled or failed: leave placeholder */ }
-    p.busy = false;
+      if (destroyed) return;
+      const viewport = page.getViewport({ scale: renderedScale });
+      const vp1 = page.getViewport({ scale: 1 }); p.w = vp1.width; p.h = vp1.height;
+      p.box.style.width = Math.floor(p.w * scale) + 'px'; p.box.style.height = Math.floor(p.h * scale) + 'px';
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const canvas = el('canvas'); canvas.width = Math.floor(viewport.width * dpr); canvas.height = Math.floor(viewport.height * dpr);
+      p.task = page.render({ canvas, canvasContext: canvas.getContext('2d'), viewport, transform: dpr === 1 ? null : [dpr, 0, 0, dpr, 0, 0] });
+      await p.task.promise;
+      if (destroyed || renderedScale !== scale) return;
+      const text = el('div', 'textLayer'); text.style.setProperty('--total-scale-factor', viewport.scale);
+      p.textTask = new pdfjs.TextLayer({ textContentSource: page.streamTextContent(), container: text, viewport });
+      await p.textTask.render();
+      const links = el('div', 'pdfv-links');
+      for (const annotation of await page.getAnnotations({ intent: 'display' })) {
+        if (annotation.subtype !== 'Link' || !(annotation.url || annotation.dest || annotation.action)) continue;
+        const rect = viewport.convertToViewportRectangle(annotation.rect);
+        const a = el('a'); a.href = '#'; a.setAttribute('aria-label', annotation.url || 'Go to linked page');
+        a.style.cssText = `left:${Math.min(rect[0], rect[2])}px;top:${Math.min(rect[1], rect[3])}px;width:${Math.abs(rect[2] - rect[0])}px;height:${Math.abs(rect[3] - rect[1])}px;`;
+        a.addEventListener('click', e => { e.preventDefault(); followLink(annotation).catch(e => window.UI.toast(e.message, true)); });
+        links.append(a);
+      }
+      if (destroyed || renderedScale !== scale) return;
+      p.box.querySelectorAll('canvas,.textLayer,.pdfv-links,.pdfv-error').forEach(node => node.remove());
+      p.box.prepend(canvas); p.box.append(text, links); p.rendered = renderedScale;
+    } catch (e) {
+      if (!destroyed && e.name !== 'RenderingCancelledException' && e.name !== 'AbortException') {
+        p.box.querySelector('.pdfv-error')?.remove(); p.box.append(el('span', 'pdfv-error', 'Page could not be rendered: ' + e.message));
+      }
+    } finally {
+      p.busy = false; p.task = null; p.textTask = null;
+      if (!destroyed && renderedScale !== scale && p.visible) render(p);
+    }
   }
   /* render pages near the viewport; track the most visible page */
   const io = new IntersectionObserver((entries) => {
-    entries.forEach(en => { const p = pages[en.target.dataset.n - 1]; p.visible = en.isIntersecting ? en.intersectionRatio : 0; if (en.isIntersecting) render(p); });
+    entries.forEach(en => { const p = pages[en.target.dataset.n - 1]; p.visible = en.isIntersecting ? en.intersectionRatio : 0; if (en.isIntersecting) render(p); else if (!p.busy) { p.box.querySelectorAll('canvas,.textLayer,.pdfv-links').forEach(node => node.remove()); p.rendered = 0; } });
     const best = pages.reduce((a, p) => (p.visible || 0) > (a.visible || 0) ? p : a, pages[0]);
     if (best && best.visible) setCurrent(best.n);
   }, { root: scroll, rootMargin: '600px 0px', threshold: [0, 0.25, 0.5, 0.75, 1] });
@@ -123,8 +155,7 @@ async function open(host, url, opts = {}) {
         a.addEventListener('click', async (e) => {
           e.preventDefault();
           try {
-            const dest = typeof it.dest === 'string' ? await doc.getDestination(it.dest) : it.dest;
-            if (dest) go((await doc.getPageIndex(dest[0])) + 1);
+            await followLink(it);
           } catch (x) {}
         });
         outline.append(a);
@@ -140,7 +171,7 @@ async function open(host, url, opts = {}) {
   if (opts.onReady) opts.onReady(total);
   return {
     total, go, get page() { return current; },
-    destroy() { destroyed = true; io.disconnect(); ro.disconnect(); clearTimeout(seenTimers.t); doc.destroy(); }
+    destroy() { destroyed = true; io.disconnect(); ro.disconnect(); clearTimeout(seenTimers.t); pages.forEach(p => { p.task?.cancel(); p.textTask?.cancel(); }); doc.destroy(); }
   };
 }
 

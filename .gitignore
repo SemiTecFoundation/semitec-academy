@@ -8,6 +8,9 @@ installers/
 *.stlp
 /dist/
 
+# Local-only review packages. Keep any manual test .stlp files under testing/packages.
+/testing/
+
 # Signing keys and certificates: never commit private keys
 *.key.pem
 *.key

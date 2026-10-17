@@ -9,13 +9,18 @@
   function render(c) {
     if (c.kind === 'package') {
       if (!c.config) return Promise.reject(new Error('This package does not offer a course certificate'));
+      if (c.config.kind === 'web') return Promise.resolve(T.renderCertificate(Object.assign({}, c.config, { issuer: c.publisher || '', entry: 'stl://pack/' + encodeURIComponent(c.packId) + '/' + c.config.entry }), { id: c.packId, title: c.title, hours: c.hours }, { name: c.name, score: c.score, date: c.date }));
       var cfg = Object.assign({}, c.config, { issuer: c.config.issuer || c.publisher || 'Course publisher' });
       return Promise.resolve(T.renderCertificate(cfg, { id: c.packId, title: c.title, language: c.language, hours: c.hours, topicTitles: [] }, { name: c.name, score: c.score != null ? c.score : 1, date: c.date }));
     }
     var base = 'stl://pack/' + encodeURIComponent(c.packId) + '/' + c.path + '/';
     return fetchJSON(base + 'training.json').then(function (tr) {
-      var cfgP = tr.certificate ? fetchJSON(base + tr.certificate).catch(function () { return {}; }) : Promise.resolve({});
+      if (!tr.certificate) throw new Error('This training does not offer a certificate');
+      var cfgP = /\.html?$/i.test(tr.certificate) ? Promise.resolve({ kind: 'web', entry: base + tr.certificate, issuer: tr.issuer || c.publisher || '' }) : fetchJSON(base + tr.certificate);
       return cfgP.then(function (cfg) {
+        /* The certificate page lives at stl://app, unlike the training. Resolve a local publisher
+           logo against the packaged training so format-1 and format-2 certificates render alike. */
+        if (cfg.logo && !/^(data:|https?:)/i.test(cfg.logo)) cfg.logo = base + cfg.logo.replace(/^\.\//, '');
         var need = cfg.topicsList ? Promise.all((tr.topics || []).map(function (f) { return fetchJSON(base + 'topics/' + f).then(function (t) { return t.title; }).catch(function () { return ''; }); })) : Promise.resolve([]);
         return need.then(function (titles) {
           tr.topicTitles = titles;
@@ -29,9 +34,10 @@
     var el = U().el;
     var holder = el('div.cert-view', null, [el('p.muted', { text: 'Loading…' })]);
     var m = U().modal(c.kind === 'package' ? 'Course certificate' : 'Training certificate', [holder], [
-      c.kind === 'training' ? el('a.btn', { href: '#/pack/' + encodeURIComponent(c.packId) + '/' + encodeURIComponent(c.itemId) + '/certificate', text: 'Open in the training', onclick: function () { m.close(); } }) : null,
-      el('button.btn', { type: 'button', text: '⎙ Print', onclick: function () { printing(holder, function () { window.print(); }); } }),
+      c.kind === 'training' && c.format === 1 ? el('a.btn', { href: '#/pack/' + encodeURIComponent(c.packId) + '/' + encodeURIComponent(c.itemId) + '/certificate', text: 'Open in the training', onclick: function () { m.close(); } }) : null,
+      el('button.btn', { type: 'button', text: '⎙ Print', onclick: function () { if (holder.querySelector('iframe')) U().api.certs.document(c, 'print').catch(function (e) { U().toast(e.message, true); }); else printing(holder, function () { window.print(); }); } }),
       el('button.btn.primary', { type: 'button', text: '⇩ Save as PDF', onclick: function () {
+        if (holder.querySelector('iframe')) { U().api.certs.document(c, 'pdf').then(function (f) { if (f) U().toast('Saved: ' + f); }).catch(function (e) { U().toast(e.message, true); }); return; }
         printing(holder, function () { return U().api.app.savePdf(c.title + ' — ' + c.name).then(function (f) { if (f) U().toast('Saved: ' + f); }); });
       } }),
       el('button.btn', { type: 'button', text: 'Close', onclick: function () { m.close(); } })]);
@@ -55,7 +61,7 @@
     U().api.certs.list().then(function (list) {
       if (!list.length) {
         pg.appendChild(el('div.empty', null, [el('div', { style: { fontSize: '3rem' }, text: '🏅' }), el('h2', { text: 'No certificates yet' }),
-          el('p', { text: 'Finish all topics and quizzes of a training to get its certificate. A course certificate is available only when its publisher has included one.' }), el('a.btn', { href: '#/library', text: '← Library' })]));
+          el('p', { text: 'Training and course certificates are optional. Complete the required items to earn a certificate when its author offers one. A course certificate is available only when its publisher has included one.' }), el('a.btn', { href: '#/library', text: '← Library' })]));
         return;
       }
       var grid = el('div.grid.cert-grid');

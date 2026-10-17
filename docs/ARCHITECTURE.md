@@ -29,7 +29,7 @@ layers, a private URL scheme and a single SQLite file.
 │ pdfview.mjs PDF reader (pdf.js): pages, zoom, outline, read tracking    │
 │ markdown.js Markdown reader (marked + DOMPurify): outline, code, images │
 │   └─ <iframe stl://pack/<id>/trainings/<t>/<entry>.html>                │
-│        format 1: Academy training engine in platform mode; format 2:    │
+│        format 1: Academy training engine in platform mode; format 2:│
 │        local publisher web page + limited progress bridge               │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -42,10 +42,10 @@ layers, a private URL scheme and a single SQLite file.
 | `stl://app/engine/…` | `src/engine/training/` (engine JS/CSS reused by the UI for quizzes and styles) |
 | `stl://app/vendor/pdfjs/…` | `node_modules/pdfjs-dist/` (build, fonts, cmaps, wasm) |
 | `stl://app/vendor/marked/…`, `…/vendor/dompurify/…` | `node_modules/marked/lib/`, `node_modules/dompurify/dist/` (Markdown → sanitised HTML) |
-| `stl://pack/<packId>/<path>` | `<data>/packs/<packId>/<path>` (with HTTP Range support so videos can seek). Training format 1 receives the Academy engine and injected `window.TRAINING_CONFIG`; training format 2 receives its own local entry page with an injected `window.SemiTecAcademy` progress bridge and a network-blocking CSP. |
+| `stl://pack/<packId>/<path>` | `<data>/packs/<packId>/<path>` (with HTTP Range support so videos can seek). Training format 1 receives the Academy engine and injected `window.TRAINING_CONFIG`; formats 2 and 3 receive their own local entry page with an injected `window.SemiTecAcademy` progress bridge and a network-blocking CSP. |
 
 `stl://app` and `stl://pack` are different origins: training content runs isolated from the app UI
-and cannot reach `window.api`. Format 2 training pages additionally run in an iframe sandbox; their only
+and cannot reach `window.api`. Format 2 and 3 training pages additionally run in an iframe sandbox; their only
 Academy interface is the progress bridge. All paths are resolved inside their root folder (no `..` escapes).
 
 ## Data folder
@@ -59,7 +59,7 @@ SemiTec Academy/
 └── packs/<pack id>/            extracted, verified pack content (+ .manifest.json)
 ```
 
-### Database (schema version 3, `PRAGMA user_version`)
+### Database (schema version 5, `PRAGMA user_version`)
 
 | Table | Columns |
 |---|---|
@@ -71,13 +71,18 @@ SemiTec Academy/
 | `pack_groups` (v3) | id, user_id, name (unique per user), description, created_at, updated_at |
 | `pack_group_items` (v3) | group_id, pack_id, position — a package can be in several groups |
 | `enrollments` (v2, app 1.4.0) | user_id, pack_id, item_id (`''` = the package, or a project id), start_date (YYYY-MM-DD), plan (JSON: `mode` package / finishBy / self, `finishBy`), enrolled_at |
+| `package_access` (v5, app 2.0.0) | user_id, pack_id, pack_version, unlocked_at — no password or verifier is stored; all rows for a package are cleared when it is installed again |
 
 Study plans are not stored: `planner.js` computes them on request from the manifest (or `project.json`),
 the enrollment and the progress (`shared/schedule.js`), so a package update with a changed schedule
 moves the dates automatically. Certificates are derived from progress too (standard JSON-training state
 `certificate` / `completedAt`; a course certificate only when the package manifest includes the optional
-`certificate` object and every required item is completed). A custom-web training can complete that course
-certificate but has no individual certificate entry.
+`certificate` object and every required item is completed). Both training formats may declare an optional individual certificate. New designs use local HTML/CSS/JS
+in an isolated script-only iframe; legacy JSON designs remain supported. Custom training progress is either
+bridge-reported or calculated by Academy from a manual checklist. Optional preview access stores only a
+successful unlock for the current user until that package is installed again. Complete-folder export filters preview files when
+not unlocked. The shared content checker runs against staging files before installation replaces content.
+
 
 Migrations are numbered SQL blocks in `db.js`; the file is written atomically (temp + rename) 0.4 s
 after each change and on exit. Progress `state` JSON per item type: see PACKAGE-FORMAT.md. The
@@ -90,6 +95,9 @@ it can later be synchronised with the web platform's `training_progress` table u
   constant-time comparison. No password recovery: a teacher can create a new account; progress
   can be exported per user (JSON).
 - Packs install only with a valid signature from a key in `trusted-keys/` (developer mode excepted).
+- A package may include an optional scrypt password verifier. The main process checks it and stores only
+  an unlock record per learner; a successful package install clears its previous unlock records, while locked content, progress and download IPC calls are
+  refused. This is access control inside Academy, not encryption of the `.stlp` archive.
 - Renderer: `contextIsolation`, `sandbox`, no Node integration, CSP, navigation to external URLs
   opens the system browser, IPC handlers accept calls only from `stl://app` and check the logged-in user.
 - Limits: local accounts protect against other *students* on a shared PC, not against an administrator
@@ -104,5 +112,15 @@ it can later be synchronised with the web platform's `training_progress` table u
 | sql.js instead of native SQLite | no native modules to rebuild per Electron/OS version; DB is small (KB–MB) |
 | pdf.js instead of the built-in viewer | page tracking, outline, resume, consistent UI |
 | engine copied for training format 1 | packs stay small; one engine update improves all standard JSON trainings; formats are versioned explicitly |
-| isolated custom runtime for training format 2 | existing local interactive lessons can work without Electron/Node/network access, while the app keeps control of user progress |
+| isolated custom runtime for training format 2 | existing local interactive lessons can work without Electron/Node/network access, while the app keeps control of user progress; both formats can opt into HTML certificates |
 | fflate | pure-JS zip, same code in app and packer |
+
+## Loading and PDF rendering
+
+Keep SQLite/sql.js for this local desktop workload. Library cards fetch the user's progress in one query,
+then group it by package. PDF pages render lazily, release offscreen canvases/text/link layers, and cancel
+outstanding work on close. TextLayer enables selection/copy; link annotations and bookmarks route internal
+destinations within the viewer and permitted external URLs through the system browser. Image-only PDFs
+still require OCR from their publisher. Database replacement is not needed for these rendering issues.
+
+The custom-web progress bridge lives in `app/src/main/academy-bridge.js`, outside the template-synced JSON engine. It is injected before publisher head scripts. HTML certificates print through a separate sandboxed document, with completion data re-derived by the main process; this avoids blank or clipped iframe PDF output.

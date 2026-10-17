@@ -132,7 +132,7 @@
       else if (tab === 'overview') overviewTab(body, p, plan);
       else if (tab === 'learning') learningTab(body, p);
       else if (tab === 'assessment') assessmentTab(body, p);
-      else if (tab === 'brief') window.PDFView.open(body, o.base + p.brief, {}).then(function (c) { pdf = c; });
+      else if (tab === 'brief') window.PDFView.open(body, o.base + p.brief).then(function (c) { pdf = c; });
     }
     function planTab(body, p, en, plan) {
       var wrap = el('div.proj-inner');

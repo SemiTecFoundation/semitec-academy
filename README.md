@@ -57,6 +57,8 @@ Windows, macOS and Linux machines and attaches them to the release. Locally:
    the SemiTec Foundation or partner companies, set in *Settings → Application* — or adds a `.stlp` file
    (button, drag and drop, double-click). Every package shows its **publisher with logo** and cover; a
    publisher may also define accessible accent colours for its own package, labs, projects and materials.
+   A publisher may also choose an optional package password. A learner must enter it after every successful
+   installation or re-installation of that package before opening protected material or author previews.
 5. Uses the **Library**: *My packages* (the student's own list, sorted into **groups** they create — a
    package can be in several groups) and *Explore* (every package installed on the computer, marked when it is
    already in My packages, enrolled or in progress). Both have search (also by group name / description),
@@ -64,19 +66,26 @@ Windows, macOS and Linux machines and attaches them to the release. Locally:
 6. **Enrolls** in a course (start date; the author's week plan, a finish date, or self-paced) — the plan
    appears in the course's *Study plan* view and in the **Calendar**; a reminder shows when the app opens.
 7. Opens the package. It is shown in **sections** — Trainings, Labs, Readings, Videos, Other materials
-   (only those the package has) — or, if the author defined modules, in **course order**:
-   - **trainings** — an interactive Academy JSON training (quizzes unlock topics and can issue a training certificate), or a self-contained local web training with its own JavaScript interactions;
-   - **labs** — manual PDF (steps link to their page), steps checklist, **source files** (viewer,
-     *Download all* as zip) and a check quiz; the lab header shrinks to one line while scrolling;
-   - **readings** — PDF reader (outline, zoom, resume, pages read) or **Markdown reader** (outline,
+   (only those the package has) — in **course order**, or by its mandatory **study plan**:
+   - **trainings** — an interactive Academy JSON training (quizzes unlock topics and can issue a training certificate), or a self-contained local web training with its own JavaScript interactions; each can be downloaded for browser-only study;
+   - **labs** — manual PDF (steps link to their page), steps checklist, **source files** (viewer and complete-folder download) and a check quiz; the lab header shrinks to one line while scrolling;
+   - **readings** — PDF reader (outline, zoom, resume, pages read, selectable text and clickable links) or **Markdown reader** (outline,
      tables, code with *Copy*, images, text size, read tracking);
    - **videos** — player that resumes and tracks how much was watched, or a link to an online video;
-   - **other materials** — PDF / image / code / Markdown viewers, *Save a copy*, *Open with default app*, links;
+   - **other materials** — PDF / image / code / Markdown viewers, *Download folder*, *Open with default app*, links;
    - **projects** — advanced lab-style work: start a separate weekly plan, tick weeks, keep notes,
      follow milestones, deliverables, rubric, learning path and a brief PDF.
-8. Collects **certificates**: one per completed standard JSON training, plus a course certificate only when the package
-   publisher offers one; custom web trainings count toward that course certificate but make no individual one. View, print and save as PDF. **Projects** lists work from the student's *My
-   packages* and separately tracks the plans they have started.
+   The package page can also download one learner-owned folder with the available PDFs, source files,
+   materials and standalone training copies.
+8. Shows **certificates** only when the author/publisher offers them. Package and individual training
+   certificates are independently optional in both training formats. New certificates use sandboxed
+   HTML/CSS/JavaScript designs; view, print and save as PDF. Projects remain part of their package and have
+   separate progress trackers.
+
+**Download folder** appears next to every item in By type and Course order and in the item viewer. It
+copies the complete lab/project/training with sources and supporting material. Author `index_preview.html` files are
+excluded by default, including for packages with no password. A successful package-password unlock allows
+previews to be included; normal training downloads remain available with preview scope. Read the [learner guide](docs/LEARNING.md) for downloads, passwords, progress, certificates and PDFs.
 
 ## Folder
 
@@ -181,6 +190,9 @@ every package; a package has its own **content version** for updates. See [`docs
 | 1.7.1 | projects follow each student's *My packages*; package removal stops active course and project plans after confirmation; stale plan references are cleaned on sign-in |
 | 1.8.0 | optional publisher package branding: accessible accent colours for package details, labs, projects, readings and materials; trainings and certificates retain their own designs |
 | 1.9.0 | self-contained local HTML/CSS/JavaScript trainings in a sandboxed frame, with a small progress bridge to Academy |
+| 2.0.0 | optional password-gated packages; direct PDF downloads; export of complete course files and browser-ready trainings |
+| 2.1.0 | two training formats with optional HTML certificates; full-folder downloads; preview access; manual presentation progress; mandatory order/plan; selectable PDF text and links |
+| 2.1.1 | preview-password unlock opens each training's all-sections author preview; normal tracked study remains available separately |
 
 ## License, package ownership and partner publishing
 
@@ -192,6 +204,6 @@ certificate. A student or university chooses which publisher signing keys to tru
 
 ## Status
 
-Current release: **v1.8.0**. The next local build is **v1.9.0** with custom web-training support. All features are covered by `npm test`; installers for Windows, macOS and Linux
+Current release: **v2.1.1**. It includes password-gated author previews, learner file exports and optional certificates for custom web trainings. All features are covered by `npm test`; installers for Windows, macOS and Linux
 are built on real runners for each system and attached to every release.
 Next: code signing (RELEASING.md), and the proposals in [`docs/PROPOSALS.md`](docs/PROPOSALS.md) — self-study features first; multi-user features belong to the Foundation platform.

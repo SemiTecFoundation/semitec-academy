@@ -2,9 +2,10 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const { readPack, extractTo, assertPackId } = require('../shared/packfmt');
+const { readPack, extractTo, assertPackId, verifyPasswordAccess } = require('../shared/packfmt');
 const { supports, cmp } = require('../shared/versions');
 const S = require('../shared/schedule');
+const { validatePack } = require('../shared/validate');
 
 module.exports = function library({ db, dataDir, trustedKeys }) {
   const packsDir = path.resolve(dataDir, 'packs');
@@ -21,6 +22,35 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
     const dir = path.resolve(packsDir, id);
     if (path.dirname(dir) !== packsDir) throw new Error('Package directory must be inside the packages folder');
     return dir;
+  }
+  function accessState(userId, id, m) {
+    const access = m && m.access;
+    if (!access) return { required: false, unlocked: true };
+    const p = access.password || {};
+    const row = db.get('SELECT unlocked_at FROM package_access WHERE user_id=? AND pack_id=? AND pack_version=?', [userId, id, m.version]);
+    return { required: true, scope: access.scope || 'package', unlocked: !!row, hint: typeof p.hint === 'string' ? p.hint : '', unlockedAt: row && row.unlocked_at };
+  }
+  function isUnlocked(userId, id) {
+    const m = manifestOf(id); if (!m) throw new Error('Pack not installed: ' + id);
+    return accessState(userId, id, m).unlocked;
+  }
+  function canPreview(userId, id) {
+    const m = manifestOf(id); if (!m) throw new Error('Pack not installed: ' + id);
+    // Free access to learning material does not authorize author previews.
+    return !!m.access && accessState(userId, id, m).unlocked;
+  }
+  function requireUnlocked(userId, id) {
+    const m = manifestOf(id);
+    if (m && m.access && m.access.scope === 'preview') return;
+    if (!isUnlocked(userId, id)) throw new Error('This package is locked. Enter its password to open or download content.');
+  }
+  function unlock(userId, id, password) {
+    const m = manifestOf(id); if (!m) throw new Error('Pack not installed: ' + id);
+    const current = accessState(userId, id, m);
+    if (!current.required || current.unlocked) return current;
+    if (!verifyPasswordAccess(m.access && m.access.password, password)) throw new Error('Incorrect package password.');
+    db.run('INSERT OR REPLACE INTO package_access(user_id,pack_id,pack_version,unlocked_at) VALUES(?,?,?,?)', [userId, id, m.version, new Date().toISOString()]);
+    return accessState(userId, id, m);
   }
 
   /* Inspect without installing: used for the confirmation dialog. */
@@ -49,6 +79,18 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
     const tmp = fs.mkdtempSync(path.join(packsDir, '.tmp-'));
     try {
       extractTo(tmp, pack.files);
+      let checked;
+      try { checked = validatePack(tmp, m); }
+      catch (e) { throw new Error('Invalid package metadata: ' + e.message); }
+      if (checked.errors.length) throw new Error('Package check failed:\n• ' + checked.errors.join('\n• '));
+      for (const it of m.items || []) {
+        const info = checked.info[it.id];
+        if (it.type === 'training' && info) {
+          for (const key of ['format', 'entry', 'certificate', 'progress']) {
+            if (JSON.stringify(it[key] || null) !== JSON.stringify(info[key] || null)) throw new Error('manifest.items.' + it.id + '.' + key + ': does not match training.json');
+          }
+        }
+      }
       fs.writeFileSync(path.join(tmp, '.manifest.json'), pack.manifestBytes);
       if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
       fs.renameSync(tmp, dir);
@@ -59,6 +101,11 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
             ON CONFLICT(id) DO UPDATE SET version=excluded.version,title=excluded.title,publisher=excluded.publisher,signature=excluded.signature,
             signed_by=excluded.signed_by,signed_dev=excluded.signed_dev,manifest=excluded.manifest,installed_at=excluded.installed_at,installed_by=excluded.installed_by`,
       [m.id, m.version, m.title, m.publisher || '', sig.status, sig.keyName || sig.keyId || null, sig.development ? 1 : 0, pack.manifestBytes.toString('utf8'), new Date().toISOString(), userId || null]);
+    /* An import is a new delivery of this package.  A publisher may replace an
+       archive without increasing its semantic version, so a version alone
+       cannot prove that a previous password approval still applies.  Progress
+       remains intact, but each learner must unlock this delivered copy again. */
+    db.run('DELETE FROM package_access WHERE pack_id=?', [m.id]);
     delete cache[m.id];
     return { id: m.id, version: m.version, title: m.title, updatedFrom: installedVersion, signature: sig };
   }
@@ -86,6 +133,10 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
   return {
     packsDir, packDir, manifestOf, inspect, importFile,
     list(userId) {
+      const allProgress = {};
+      db.all('SELECT pack_id, item_id, percent, completed_at, updated_at FROM progress WHERE user_id=?', [userId]).forEach(r => {
+        (allProgress[r.pack_id] ||= {})[r.item_id] = { percent: r.percent, completedAt: r.completed_at, updatedAt: r.updated_at };
+      });
       return db.all('SELECT id, version, title, publisher, signature, signed_by, signed_dev, installed_at FROM packs ORDER BY title').map(r => {
         const m = manifestOf(r.id);
         return { id: r.id, version: r.version, title: r.title, publisher: r.publisher, signature: r.signature, signedBy: r.signed_by, signedDev: !!r.signed_dev,
@@ -96,7 +147,7 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
           publisherLogo: m.publisherLogo ? 'stl://pack/' + encodeURIComponent(r.id) + '/' + m.publisherLogo : null, publisherUrl: m.publisherUrl || '',
           projectCategories: [...new Set((m.items || []).filter(i => i.type === 'project').map(i => i.category || 'other'))],
           text: [m.title, m.description, m.publisher, (m.authors || []).join(' ')].concat((m.items || []).map(it => it.title + ' ' + (it.description || ''))).join(' \n '),
-          progress: summary(m, progressRows(userId, r.id)) };
+          progress: summary(m, allProgress[r.id] || {}), access: accessState(userId, r.id, m) };
       });
     },
     get(id, userId) {
@@ -110,7 +161,9 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
         if (it.srcFiles) o.srcFiles = it.srcFiles.map(f => ({ path: f, size: size(it.path + '/' + f) }));
         return o;
       });
-      return { manifest: Object.assign({}, m, { files: undefined, items }), signature: r.signature, signedBy: r.signed_by, signedDev: !!r.signed_dev, installedAt: r.installed_at, progress: prog, summary: summary(m, prog) };
+      const publicManifest = Object.assign({}, m, { files: undefined, items });
+      delete publicManifest.access; // never send the password verifier to renderer content
+      return { manifest: publicManifest, access: accessState(userId, id, m), signature: r.signature, signedBy: r.signed_by, signedDev: !!r.signed_dev, installedAt: r.installed_at, progress: prog, summary: summary(m, prog) };
     },
     remove(id) {
       const dir = packDir(id); // reject unsafe ids before changing the database or filesystem
@@ -128,15 +181,24 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
       return { items, plans };
     },
     getProgress(userId, packId, itemId) {
+      requireUnlocked(userId, packId);
       const r = db.get('SELECT state, percent, completed_at FROM progress WHERE user_id=? AND pack_id=? AND item_id=?', [userId, packId, itemId]);
       return r ? { state: JSON.parse(r.state), percent: r.percent, completedAt: r.completed_at } : null;
     },
     setProgress(userId, packId, itemId, itemType, state, percent, completed) {
-      if (!manifestOf(packId)) throw new Error('unknown pack');
+      requireUnlocked(userId, packId);
+      const m = manifestOf(packId), item = m && m.items.find(i => i.id === itemId && i.type === itemType);
+      if (!item) throw new Error('Progress item is not part of this package');
+      if (item.progress && item.progress.mode === 'manual') {
+        const checked = new Set(Array.isArray(state && state.checkedSteps) ? state.checkedSteps : []);
+        const steps = item.progress.steps;
+        const n = steps.filter(s => checked.has(s.id)).length;
+        percent = Math.round(100 * n / steps.length); completed = n === steps.length;
+      }
       const json = JSON.stringify(state);
       if (json.length > 2_000_000) throw new Error('progress too large');
       const prev = db.get('SELECT completed_at FROM progress WHERE user_id=? AND pack_id=? AND item_id=?', [userId, packId, itemId]);
-      const completedAt = (prev && prev.completed_at) || (completed ? new Date().toISOString() : null);
+      const completedAt = completed ? ((prev && prev.completed_at) || new Date().toISOString()) : null;
       db.run(`INSERT INTO progress(user_id,pack_id,item_id,item_type,state,percent,completed_at,updated_at) VALUES(?,?,?,?,?,?,?,?)
               ON CONFLICT(user_id,pack_id,item_id) DO UPDATE SET state=excluded.state, percent=excluded.percent,
               completed_at=excluded.completed_at, updated_at=excluded.updated_at`,
@@ -146,6 +208,7 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
     exportUser(userId) {
       return db.all('SELECT pack_id, item_id, item_type, state, percent, completed_at, updated_at FROM progress WHERE user_id=?', [userId])
         .map(r => Object.assign(r, { state: JSON.parse(r.state) }));
-    }
+    },
+    accessState, isUnlocked, canPreview, requireUnlocked, unlock
   };
 };

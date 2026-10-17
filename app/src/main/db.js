@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const initSqlJs = require('sql.js');
 
-const SCHEMA_VERSION = 4;
+const SCHEMA_VERSION = 5;
 const MIGRATIONS = {
   1: `
     CREATE TABLE users (
@@ -88,6 +88,17 @@ const MIGRATIONS = {
        this column existed keep the old guess, once. */
     ALTER TABLE packs ADD COLUMN signed_dev INTEGER NOT NULL DEFAULT 0;
     UPDATE packs SET signed_dev = 1 WHERE signature = 'trusted' AND signed_by LIKE '%dev%';
+  `,
+  /* 2.0.0: per-user grants for optional package password gates. The password verifier stays
+     inside the signed package manifest; this table holds no password or password-derived value. */
+  5: `
+    CREATE TABLE package_access (
+      user_id INTEGER NOT NULL,
+      pack_id TEXT NOT NULL,
+      pack_version TEXT NOT NULL,
+      unlocked_at TEXT NOT NULL,
+      PRIMARY KEY (user_id, pack_id, pack_version)
+    );
   `
 };
 

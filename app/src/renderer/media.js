@@ -57,8 +57,8 @@
     function mark(k) { st[k] = true; st.completed = true; o.save(st, 100, true); }
     var kind = it.kind || 'file';
     if (!o.url && it.url) { var w = el('div.media-page'); host.appendChild(w); return linkCard(w, it, st, o, '🔗', 'Web link', 'Open in the browser'); }
-    var saveBtn = el('button.btn.small', { type: 'button', text: '⇩ Save a copy…', onclick: function () {
-      api.packs.saveFile(o.packId, it.id).then(function (f) { if (f) { mark('saved'); o.toast('Saved to ' + f); } }).catch(function (e) { o.toast(e.message, true); });
+    var saveBtn = el('button.btn.small', { type: 'button', text: '⇩ Download folder', onclick: function () {
+      api.packs.exportItem(o.packId, it.id).then(function (f) { if (f) { mark('saved'); o.toast('Saved to ' + f); } }).catch(function (e) { o.toast(e.message, true); });
     } });
     var openBtn = el('button.btn.small', { type: 'button', text: '↗ Open with default app', onclick: function () {
       api.packs.openFile(o.packId, it.id).then(function () { mark('opened'); }).catch(function (e) { o.toast(e.message, true); });

@@ -16,9 +16,9 @@ the Academy application and `.stlp` contract rather than duplicating those autho
 2. Review it as its author: correctness, citations, rights to included files, accessibility and the
    intended learner outcome. This is publisher self-review, not a request for Foundation approval.
 3. When Academy delivery is useful, choose the materials in `pack-spec.json` and provide the responsible
-   `publisher`, `authors`, and optional `contact` details. `stlp check` must report zero errors.
-4. Decide whether the package offers a course certificate. Add a publisher-authored `certificate.json`
-   only when it does. Omit `certificate` for a package without one. A package certificate is a local
+   `publisher`, `authors`, mandatory course order (`modules`) and study plan (`schedule`), and optional `contact` details. `stlp check` must report zero errors.
+4. Decide independently whether the package and each training offer a certificate. For each offered
+   certificate include a publisher-authored HTML/CSS/JavaScript design and author preview. Omit `certificate` for a package without one. A package certificate is a local
    completion record created by the publisher's design; it is not a Foundation-issued or externally
    verified credential.
 5. Sign the release with the publisher's own Ed25519 key. Keep its private half secret; distribute only

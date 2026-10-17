@@ -45,7 +45,7 @@
       T.store.key = 'training:' + (tr.id || 'training');
       T.config = A.cfg = resolveConfig(tr);
       var jobs = (tr.topics || []).map(function (f) { return T.loadJSON('topics/' + f); });
-      jobs.push(tr.certificate ? T.loadJSON(tr.certificate).catch(function () { return null; }) : Promise.resolve(null));
+      jobs.push(typeof tr.certificate === 'string' && /\.html?$/i.test(tr.certificate) ? Promise.resolve({ kind: 'web', entry: tr.certificate }) : tr.certificate ? T.loadJSON(tr.certificate).catch(function () { return null; }) : Promise.resolve(null));
       return Promise.all(jobs);
     }).then(function (res) {
       A.cert = res.pop();
@@ -356,7 +356,8 @@
   /* ---------------- certificate page ---------------- */
   function showCertificate() {
     var main = T.clear(A.main); A.current = '#certificate'; A.page = null; renderToc();
-    var cfg = A.cert || {};
+    if (!A.cert || A.cert.enabled === false) { main.appendChild(el('p', { text: 'The author does not offer a certificate for this training.' })); return; }
+    var cfg = A.cert;
     main.appendChild(el('header.topic-head', null, [el('h1', { text: T.L('certificate') })]));
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     if (preview()) return certificatePreview(main, cfg);
@@ -393,6 +394,7 @@
 
   /* Preview: sample certificate + live style controls (not saved — copy the JSON into certificate.json). */
   function certificatePreview(main, cfg) {
+    if (cfg.kind === 'web') { main.appendChild(T.renderCertificate(cfg, A.training, { name: 'Sample Learner', date: new Date().toISOString(), score: 1 })); return; }
     var style = Object.assign({ design: 'classic', font: 'serif', orientation: 'landscape', accent: '#1f4e79', accent2: '#c9a227', paper: '#fffdf7', ink: '#1d2433' }, cfg.style || {});
     var name = el('input.name-input', { type: 'text', value: (A.cfg.user && A.cfg.user.name) || T.L('sampleName'), 'aria-label': T.L('certName') });
     function sel(key, values) {

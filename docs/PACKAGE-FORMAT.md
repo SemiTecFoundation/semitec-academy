@@ -1,227 +1,88 @@
-# The SemiTec Learning Package (`.stlp`) — formats 1 and 2
+# `.stlp` archive layout
 
-One file that carries a complete course pack: trainings, labs, readings, videos, other materials and a cover image.
-It is a **ZIP** archive (deflate) with a fixed layout, a **manifest** that lists every file with its
-SHA-256 hash, and an **Ed25519 signature** of the manifest.
+This is a fictional layout for authors. The archive is a ZIP; the builder writes `manifest.json` and
+file hashes and optionally signs them. Do not create a manifest by hand or publish test packages.
 
-```
-org.semitec.fpga-starter-1.0.0.stlp
-├── manifest.json        metadata + structure + hash of every content file
-├── signature.json       Ed25519 signature over the exact bytes of manifest.json
+```text
+course.stlp
+├── manifest.json                  identity, authors/publisher, items, mandatory modules and schedule,
+│                                 optional certificate/access/branding, minimum app version, file hashes
+├── signature.json                 present when signed; Ed25519 key ID and signature
 └── content/
-    ├── cover.svg
-    ├── trainings/feature-tour/   training.json, certificate.json, topics/*.json, assets/*, css/themes/* (optional)
-    ├── readings/ecc-brief.pdf
-    ├── labs/lab-01-shift-register/   lab.json, manual.pdf, src/… (source files), images
-    ├── videos/design-flow.mp4       (+ poster image)
-    └── materials/<id>/<file>        zip, xdc, images, PDFs …
+    ├── certificate/               optional package HTML/CSS/JS certificate
+    │   ├── index.html
+    │   ├── index_preview.html     visibly marked sample certificate
+    │   ├── certificate.css
+    │   └── certificate.js
+    ├── trainings/
+    │   ├── json-lesson/            training format 1
+    │   │   ├── training.json
+    │   │   ├── index.html
+    │   │   ├── index_offline.html
+    │   │   ├── index_preview.html
+    │   │   ├── topics/01-intro.json
+    │   │   ├── js/                maintained runtime, also kept for standalone use
+    │   │   ├── css/
+    │   │   ├── assets/
+    │   │   └── certificate/       optional HTML/CSS/JS design and preview
+    │   └── web-lesson/             training format 2 (custom page, simulator or slide framework)
+    │       ├── training.json      runtime entry, progress mode/steps, optional certificate reference
+    │       ├── index.html
+    │       ├── index_preview.html all sections open; publisher implements this behavior
+    │       ├── js/
+    │       ├── css/
+    │       ├── assets/
+    │       ├── vendor/            local framework dependencies, if used
+    │       └── certificate/       optional HTML/CSS/JS design and preview
+    ├── labs/practice/
+    │   ├── lab.json
+    │   ├── manual.pdf
+    │   ├── src/
+    │   └── materials/
+    ├── projects/capstone/
+    │   ├── project.json
+    │   ├── brief.pdf
+    │   ├── src/
+    │   ├── requirements/
+    │   └── materials/
+    ├── readings/primer/primer.pdf
+    ├── videos/introduction/introduction.mp4
+    └── materials/data/data.csv
 ```
 
-File name convention: `<pack id>-<pack version>.stlp`. Media type: `application/x-semitec-learning-package` — the one the installers register for `.stlp`
-(`build.fileAssociations` and `build.linux.mimeTypes` in `app/package.json`).
+Not every category is required; include the categories you need. Certificates are optional independently
+at package and training levels. Source folders are kept complete for trainings, labs and projects; put
+all supporting files beneath the material's folder. Root authoring tools, node_modules, generated dist
+and skill documentation are excluded from training bundles. Bundle browser dependencies under `vendor/`.
 
-## manifest.json
+The editable input is [PACK-SPEC.md](PACK-SPEC.md), including a valid order/plan example. The compiler
+maps each source into its own category/item directory and calculates file hashes. `manifest.modules`
+gives the course order; `manifest.schedule` gives the study plan. Every counted item must appear in both.
+`manifest.certificate` for a web design is `{"kind":"web","entry":"certificate/index.html"}`.
+A training certificate is a local HTML reference in that training's `training.json`, also recorded on
+its manifest item. The source folder can be used independently of a package.
 
-```json
-{
-  "format": 2,
-  "id": "org.semitec.fpga-starter",
-  "version": "1.0.0",
-  "title": "FPGA Starter Track",
-  "description": "…",
-  "language": "en",
-  "publisher": "SemiTec Foundation",
-  "publisherLogo": "publisher-logo.svg",          // app ≥ 1.5.0 (optional)
-  "publisherUrl": "https://…",
-  "authors": ["Arman Manukyan, PhD"],
-  "contact": { "name": "Course team", "email": "courses@example.org", "url": "https://example.org" },
-  "branding": { "accent": "#006B54", "accentInk": "#FFFFFF", "accentSoft": "#E2F4EE" },
-  "cover": "cover.svg",
-  "created": "2026-10-13T14:46:03.689Z",
-  "minAppVersion": "1.8.0",
-  "builder": { "tool": "stlp", "toolVersion": "1.8.0", "targetApp": "1.8.0" },
-  "modules": [
-    { "id": "getting-started", "title": "Getting started", "description": "…", "items": ["feature-tour"] }
-  ],
-  "schedule": { "weeks": 7, "entries": [ { "weeks": [1, 2], "title": "Start here", "note": "…", "items": ["feature-tour"] } ] },
-  "certificate": { "title": "Course Certificate", "body": "for completing **{training}** on {date}.", "signatures": [ … ], "style": { … } },
-  "items": [
-    { "id": "feature-tour", "type": "training", "format": 1, "title": "…", "description": "…", "estimatedTime": "1 h", "path": "trainings/feature-tour" },
-    { "id": "ecc-brief", "type": "reading", "format": 1, "title": "…", "estimatedTime": "30 min", "file": "readings/ecc-brief.pdf" },
-    { "id": "lab-01-shift-register", "type": "lab", "format": 1, "title": "…", "path": "labs/lab-01-shift-register" },
-    { "id": "design-flow", "type": "video", "format": 1, "title": "…", "file": "videos/design-flow.mp4", "poster": "videos/design-flow-poster.png" },
-    { "id": "lab1-starter", "type": "material", "format": 1, "title": "…", "file": "materials/lab1-starter/lab1-starter.zip", "kind": "file" },
-    { "id": "user-guide", "type": "material", "format": 1, "title": "…", "url": "https://…", "kind": "link" },
-    { "id": "ecc-sensor-memory", "type": "project", "format": 1, "title": "…", "path": "projects/ecc-sensor-memory", "durationWeeks": 30, "summary": "…" }
-  ],
-  "files": {
-    "content/cover.svg": { "sha256": "…", "size": 1745 }
-  }
-}
-```
+Academy downloads a **complete folder** per item, from either By type or Course order. Lab/project copies
+include metadata, manual/brief, sources, requirements and materials. Attachments declared as separate
+items with `for` are copied into `academy-attachments/<id>/`. JSON training copies include a portable
+`index.html`; custom training copies keep their declared entry and assets. PDF-only items still download
+in a folder. External links download a link description, not remotely hosted content.
 
-| Field | Rule |
-|---|---|
-| `format` | container format; 1 is the original format, 2 adds optional package branding |
-| `id` | reverse-domain, lowercase (`org.semitec.<name>`); never changes for the life of the pack |
-| `version` | `MAJOR.MINOR.PATCH` of the **content**; a higher version replaces the installed one |
-| `minAppVersion` | lowest app version that understands every format used (computed by the packer) |
-| `items[].format` | format of that item type (see below) |
-| `items[].path` / `file` | relative to `content/` |
-| `items[].url` | video / material: online link instead of a file |
-| `publisherLogo`, `publisherUrl` | publisher's logo (file under `content/`) and website, shown with the publisher name |
-| `contact` | optional publisher feedback contact: `name`, `email`, `url`, `instructions`; shown in Pack details |
-| `branding` | optional publisher accent style for this package's details, labs, projects, readings and materials: required `accent` and `accentInk`, optional `accentSoft`, all `#RRGGBB`; requires package format 2 / Academy ≥ 1.8.0 |
-| `items[].for` | id of the item it belongs to (materials of a lab): shown under that item, not in the plan |
-| `items[].prerequisite` | `true`: optional refresher shown before the course; not counted in progress or the certificate, not planned (app ≥ 1.6.0) |
-| `items[].category` | project: research · diploma · thesis · course-project · capstone · internship · other |
-| `items[].kind` | material: `pdf` · `markdown` · `image` · `text` · `video` · `file` · `link` (chooses the viewer) |
-| `modules` | display order; items not in a module are shown under "Other" |
-| `schedule` | optional study plan (app ≥ 1.4.0): `entries` of `week` / `weeks: [from, to]`, `title`, `note`, `items`; see PACK-SPEC.md → Study plans |
-| `items[].plannedWeeks` | optional weeks for the item (plan when there is no `schedule`) |
-| `items[].schedule` | training only: topic plan copied from `training.json` → `{ weeks, topics: [{ weeks: [a, b], titles }] }` |
-| `certificate` | optional publisher-defined course certificate (same fields as a training's `certificate.json`); omit it for no course certificate |
-| `files` | every file under `content/` with SHA-256 and size — no file may be missing or extra |
+If a package's preview password has not been entered, exported folders exclude author preview HTML,
+including certificate previews. Normal learner HTML/assets remain. Only after a configured package password is successfully entered are previews included. A package with no password also excludes previews from learner downloads. Author sources and the archive retain the preview files.
+All downloaded editable sources are learner-owned local copies; the password is not encryption.
 
-**What counts for progress** (app ≥ 1.6.0): every item except prerequisites (`prerequisite: true`) and items
-attached to another item (`for`). Package percent, *in progress* status, "Continue" and the package certificate use
-only the counted items; prerequisites and attached materials still save their own progress.
+## Container and validation
 
-Item, module and step **ids are stable**: progress is stored per `pack id + item id` (and per
-subsection / step id inside an item). Renaming an id resets that progress.
+Container formats are independent of the two training formats: package 1 is the base, package 2 adds
+branding, and package 3 adds optional password access. New builds require Academy 2.1.0. `manifest.json`
+contains `id`, `version`, `title`, `publisher`, `authors`, `items`, `modules`, `schedule`, `minAppVersion`,
+`builder`, and `files`. `files` maps each `content/...` path to its byte size and SHA-256 hash. The signature
+covers the exact manifest bytes. The app refuses extra/missing/changed files and unsafe paths before
+installing, and then validates material content and plan/order metadata. See [KEYS.md](KEYS.md) for trust.
 
-## Publisher style (package format 2)
-
-`branding` gives a company or university an identifiable accent while a learner is inside that one
-package. Academy applies it only to the package page and its **labs, projects, readings and other
-material views**. The application navigation, security state and other packages keep the learner's
-Academy theme. Catalog and Library cards continue to use each package's cover and publisher logo.
-
-Only three six-digit hexadecimal colours are accepted; this is intentional. A package cannot supply
-arbitrary CSS, fonts, scripts or a replacement app layout. `accent` and `accentInk` must meet 4.5:1
-contrast so button and link text stays readable. `accentSoft` is a quiet background for selected rows
-and module marks.
-
-Interactive trainings are separate web views. Give a training its matching theme by adding a
-`css/themes/<company>.css` file and selecting it in that training's `training.json`; see the Academy
-Templates training skill. Package and training certificates use their own `certificate.json → style`
-colours. The package brand does not override either of those author-controlled designs.
-
-## signature.json
-
-```json
-{ "format": 1, "alg": "ed25519", "keyId": "4c71eba82f86fcca", "signedAt": "…", "signature": "<base64>" }
-```
-
-- The signature covers the **exact bytes** of `manifest.json`; the manifest covers every file by hash,
-  so the whole pack is protected.
-- `keyId` = first 16 hex characters of SHA-256 of the public key (SPKI DER).
-- The app accepts a pack when `keyId` is in its built-in Foundation keys **or** a public publisher key the
-  computer owner added in *Settings → Application → Trusted publishers*, and the signature verifies.
-  Developer mode can allow unsigned / unknown-key packs for local testing.
-
-## How the app opens a pack
-
-1. Unzip in memory; reject paths that are absolute, contain `..`, or are outside `content/`.
-2. Parse `manifest.json`; require a lowercase reverse-domain package id (for example,
-   `org.example.test-pack`), never a filesystem path. Check every file's SHA-256; reject missing or extra files.
-3. Verify the signature against the trusted keys.
-4. Check compatibility (`format`, `minAppVersion`, each item's `format`) — see VERSIONING.md.
-5. Extract to `<data>/packs/<id>/` (temp folder, then swap) and record the manifest in the database.
-
-Package-id and directory checks also apply to trusted signatures and Developer mode. Removal validates
-the id before changing the database or deleting files.
-
-The content is **readable** by anyone who unzips the file (it is compressed and signed, not encrypted).
-Signing guarantees *who made it* and *that it was not changed*.
-
-## Item formats
-
-### training — format 1
-Content of the web training template (`skills/training`):
-`training.json`, `certificate.json`, `topics/*.json`, `assets/*`, optional `css/themes/*.css`.
-No engine files: the app supplies the engine (`index.html`, `js/`, `css/app.css`) and runs the training
-in *platform* mode, saving the training's progress state per user. Field reference:
-`skills/training/reference/content-format.md`.
-
-### training — format 2 (custom local web, app ≥ 1.9.0)
-
-Use this only when an interactive lesson needs its own JavaScript runtime. Its `training.json` declares a
-local entry page; the whole folder is included in the package.
-
-```json
-{
-  "format": 2,
-  "id": "logic-playground",
-  "title": "Logic playground",
-  "runtime": { "kind": "web", "entry": "index.html" }
-}
-```
-
-`runtime.kind` is always `"web"`; `runtime.entry` is a relative local `.html` file, such as
-`index.html`. The folder may contain local `js/`, CSS, images, fonts and media. It must not depend on a
-CDN, network service, Electron, Node.js, a preload API, nested frames or forms: Academy serves it in a
-sandboxed frame under a policy that blocks network connections and external embedding.
-
-Academy injects one small browser API, `window.SemiTecAcademy`, so the lesson can restore and save its
-own state. It has `requestState()`, `onState(fn)`, `getState()`, `getUser()`, `save(state, { percent,
-completed })` and `complete(state)`. `state` must be an object and `percent` is 0–100. For example:
-
-```js
-SemiTecAcademy.onState(({ state }) => restore(state || {}));
-SemiTecAcademy.save({ selectedGate: "AND" }, { percent: 50 });
-SemiTecAcademy.complete({ selectedGate: "AND", solved: true });
-```
-
-Completion counts toward the optional **package** certificate. Format 2 does not produce an individual
-training certificate because its page and certificate design are publisher-controlled.
-
-### reading — format 1 (PDF) and 2 (Markdown, app ≥ 1.3.0)
-**Format 1:** a PDF file (`items[].file`). The app's reader saves `{ pages, seen: [page numbers], last, completed }`.
-Completed when 90 % of pages were viewed, or the student marks it finished.
-
-**Format 2:** a Markdown file `readings/<id>/<name>.md` plus the images / files it links, listed in the
-manifest item as `assets: ["img/fsm.svg", …]` (paths relative to the `.md`). GitHub-flavoured Markdown
-(tables, fenced code, task lists); HTML is sanitised (no scripts). The reader saves
-`{ scroll, maxRead, completed }`; completed at 90 % read or when marked finished.
-
-### lab — format 1 and 2
-A folder with `lab.json` (+ `manual.pdf`, images). The maintained field reference is the
-[Academy Templates lab-manual guide](https://github.com/SemiTecFoundation/semitec-academy-skills/blob/main/skills/lab-manual/reference/lab-json.md).
-**Format 2** (app ≥ 1.2.0) adds source files: `"files": "src"` in lab.json; the packer expands it and
-writes the list into the manifest item as `srcFiles: ["src/rtl/shift4.sv", …]` (paths inside the lab).
-The app shows them in the *Files* tab (text viewer, *Save file*, *Download all* as zip).
-The app saves `{ steps: {stepId: date}, quiz: {passed, bestScore, attempts}, manualPage, tab, file }`.
-Progress = 70 % steps + 30 % quiz (100 % steps when there is no quiz).
-
-### video — format 1 (app ≥ 1.1.0)
-An `.mp4` (H.264 + AAC) or `.webm` file, optional `poster` image — or a `url` to an online video.
-The app saves `{ duration, position, watched: [20 buckets], completed }`: completed at 90 % watched or
-at the end; resumes at the last position. A `url` video opens in the browser and counts as done.
-
-### project — format 1 (app ≥ 1.4.0)
-A folder `projects/<id>/` with `project.json` (+ `brief.pdf`, other files), made from a project brief with
-the project-brief template (`tools/brief2project.py`). Main fields:
-
-| Field | Meaning |
-|---|---|
-| `format` | 1 |
-| `title`, `subtitle`, `summary`, `language` | shown on the project card and page |
-| `workType`, `level`, `slots`, `duration`, `durationWeeks` | e.g. "Bachelor diploma project", 1 student, 30 weeks |
-| `supervisors`, `mentor`, `partner`, `areas`, `keywords`, `tools`, `prerequisites` | facts |
-| `goals[]`, `outcomes[]` | Markdown lines |
-| `weeks[]` | `{ week, phase, tasks, doneWhen }` — the weekly plan (the brief's progress tracker) |
-| `milestones[]` | `{ weeks: [from, to], work, milestone }` |
-| `deliverables[]` | `{ title, form, when, dueWeek, who }` |
-| `assessment[]` | `{ criterion, weight, pass, good, excellent }` (rubric) |
-| `learning[]` | `{ group, topic, level: apply / understand / aware, usedFor, sources }` |
-| `brief` | the brief PDF, relative to the folder |
-
-The student starts a project plan with a start date; week *n* is mapped to the calendar from it. The
-app saves `{ weeks: { "<n>": doneAt }, notes: { "<n>": text } }`; progress = weeks ticked / weeks.
-Projects are advanced lab-style work items; the app does not handle applications, supervisor links or approval.
-
-### material — format 1 (app ≥ 1.1.0)
-Any other file (`file` + `kind`) or a link (`url`). Shown with a viewer for its kind (PDF, image,
-text/code, Markdown, video) or offered as *Save a copy* / *Open with default app*. Counts as done once opened. A Markdown material (`kind: "markdown"`, with `assets`) opens in the
-Markdown reader in app ≥ 1.3.0; older apps offer it for saving.
+Training format 1 uses the maintained JSON engine. Training format 2 uses its own sandboxed local
+HTML/CSS/JavaScript. Both allow optional certificates. Custom progress is either explicit bridge events
+or an Academy-owned manual checklist. Package progress is the average of counted item percentages;
+prerequisites and attached support materials are excluded. A package certificate requires every counted
+item to be completed. Projects are included, with their own completion tracker.

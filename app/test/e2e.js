@@ -24,6 +24,7 @@ const tempDirs = [HOME, FIXTURES.dir];
 let runningApp, catalogServer;
 fs.mkdirSync(SHOTS, { recursive: true });
 let failures = 0, checkCount = 0;
+const suiteDeadline = setTimeout(() => { console.error('E2E suite exceeded six minutes'); process.exit(1); }, 360000);
 const check = (cond, msg) => { checkCount++; console.log((cond ? '  ✓ ' : '  ✗ ') + msg); if (!cond) failures++; };
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
@@ -174,12 +175,12 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   await shot(win, '09d-lab-materials');
   await win.click('.lab-tabs-in button:has-text("Files")');
   await win.waitForSelector('.files-actions button');
-  const zipOut = path.join(HOME, 'lab-files.zip');
-  await app.evaluate(({ dialog }, f) => { dialog.showSaveDialog = async () => ({ canceled: false, filePath: f }); }, zipOut);
+  const exportDir = path.join(HOME, 'lab-export'); fs.mkdirSync(exportDir);
+  await app.evaluate(({ dialog }, f) => { dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [f] }); }, exportDir);
   await win.click('.files-actions button');
   await sleep(800);
-  const zipped = fs.existsSync(zipOut) ? Object.keys(unzipSync(new Uint8Array(fs.readFileSync(zipOut)))) : [];
-  check(zipped.length === 6 && zipped.some(n => n.endsWith('src/rtl/shift4.sv')), 'Download all: zip with ' + zipped.length + ' files');
+  const exported = fs.readdirSync(exportDir).map(n => path.join(exportDir, n));
+  check(exported.length === 1 && fs.existsSync(path.join(exported[0], 'src/rtl/shift4.sv')) && fs.existsSync(path.join(exported[0], 'lab.json')) && fs.existsSync(path.join(exported[0], 'manual.pdf')), 'complete lab folder includes metadata, manual and source');
   await win.click('.lab-tabs-in button:has-text("Check quiz")');
   /* answer: q1 option 0, q2 options 0+1, q3 order already correct after sorting, q4 option 0 */
   /* the answer key comes from the pack under test, so the test needs no second repository checked out */
@@ -554,5 +555,6 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
 }).finally(async () => {
   if (catalogServer) { catalogServer.closeAllConnections(); catalogServer.close(); }
   if (runningApp) await runningApp.close().catch(() => {});
+  clearTimeout(suiteDeadline);
   for (const dir of tempDirs) fs.rmSync(dir, { recursive: true, force: true });
 });

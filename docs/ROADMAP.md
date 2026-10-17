@@ -19,7 +19,7 @@
 - [x] Course-pack skill for AI assistants (now the `package` skill of the Skills repository)
 
 ## v1.2.0 — labs with files (done)
-- [x] Lab source files (`"files"` in lab.json, lab format 2): Files tab with viewer, save, *Download all* (zip)
+- [x] Lab source files (`"files"` in lab.json, lab format 2): Files tab with viewer and copy; *Download folder* includes the complete lab
 - [x] Compact lab header (auto while scrolling, or pinned)
 - [x] PDF reader keeps pages centred when the outline is hidden
 - [x] Lab-manual template + skill (`skills/lab-manual`): PDF manual and app lab in sync
@@ -97,3 +97,12 @@
       a Foundation server is what remains
 - [ ] Optional sign-in with a platform account; sync progress and certificates
       (same state JSON as `training_progress`; design: academy-to-platform.md, an internal note published in neither repository, PL5)
+
+## 2.1.1 — release
+
+- [x] Two training formats with independent optional HTML certificates and author previews.
+- [x] Complete-folder downloads from package rows and viewers, including project sources/attachments.
+- [x] Preview-only password scope alongside full-package access.
+- [x] Manual progress for custom web presentations; required course order and study plan checks at build/import.
+- [x] PDF text selection/copy, internal links/bookmarks and external website links.
+- [x] Preview-password unlock opens all training sections in Academy without changing learner progress.

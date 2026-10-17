@@ -4,7 +4,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const { checkers, checkBranding, checkSchedule, checkAttachments, checkPrerequisites, PROJECT_CATEGORIES, PACK_ID, SEMVER, ID, materialKind, MD_EXT } = require('./validate');
+const { checkPackageText, checkCertificate, checkModules, checkers, checkBranding, checkAccess, checkSchedule, checkAttachments, checkPrerequisites, PROJECT_CATEGORIES, PACK_ID, SEMVER, ID, materialKind, MD_EXT } = require('./validate');
 const { CURRENT, minAppFor } = require('./versions');
 
 const GROUPS = { trainings: 'training', labs: 'lab', readings: 'reading', videos: 'video', materials: 'material', projects: 'project' };
@@ -32,9 +32,11 @@ function checkSpec(specPath) {
   cur = { type: 'pack', id: p.id || '?', title: p.title || '', source: path.basename(specPath), errors: [], warnings: [] }; rows.push(cur);
   if (!spec.pack) rep.error('spec', 'missing "pack" section');
   if (!PACK_ID.test(p.id || '')) rep.error('pack.id', 'must be reverse-domain style, lowercase, e.g. "org.semitec.fpga-starter"');
-  if (!SEMVER.test(p.version || '')) rep.error('pack.version', 'must be MAJOR.MINOR.PATCH, e.g. "1.0.0"');
-  if (!p.title) rep.error('pack.title', 'missing');
+  if (typeof p.version !== 'string' || !SEMVER.test(p.version)) rep.error('pack.version', 'must be MAJOR.MINOR.PATCH text, e.g. "1.0.0"');
+  if (typeof p.title !== 'string' || !p.title.trim()) rep.error('pack.title', 'missing text title');
+  checkPackageText(p, rep);
   const branded = checkBranding(p.branding, rep);
+  const gated = checkAccess(p.access, rep);
   if (!p.description) rep.warn('pack.description', 'missing (shown in the library)');
   if (p.cover) C.image(abs(p.cover), 'pack.cover'); else rep.warn('pack.cover', 'no cover image (a default is used)');
   if (p.publisherLogo) C.image(abs(p.publisherLogo), 'pack.publisherLogo');
@@ -48,9 +50,11 @@ function checkSpec(specPath) {
       if (!p.contact.name && !p.contact.email && !p.contact.url && !p.contact.instructions) rep.warn('pack.contact', 'has no contact information');
     }
   }
-  if (p.certificate) { try { JSON.parse(fs.readFileSync(abs(p.certificate), 'utf8')); } catch (e) { rep.error('pack.certificate', 'not a readable JSON file: ' + p.certificate); } }
+  const certificateOffered = !!checkCertificate(p.certificate, base, rep, 'pack.certificate');
+  if (p.certificate && typeof p.certificate !== 'string') rep.error('pack.certificate', 'use a local HTML or legacy JSON filename in a source spec');
+  if (typeof p.certificate === 'string' && /\.html?$/i.test(p.certificate) && path.dirname(p.certificate) === '.') rep.error('pack.certificate', 'put the HTML design in a dedicated certificate folder');
 
-  const items = [], ids = new Set(), formats = { pack: branded ? CURRENT.pack : 1 };
+  const items = [], ids = new Set(), formats = { pack: gated ? 3 : branded ? 2 : 1 };
   let totalSize = 0;
   const known = new Set(Object.keys(GROUPS).concat(['pack', 'modules', 'schedule', 'specVersion', '$schema', 'notes']));
   Object.keys(spec).forEach(k => { if (!known.has(k)) rep.warn('spec', `unknown section "${k}" (ignored)`); });
@@ -89,21 +93,18 @@ function checkSpec(specPath) {
   }
   cur = { type: 'modules', id: '', title: '', source: '', errors: [], warnings: [] };
   if (!items.length) rep.error('spec', 'no materials — add trainings, labs, readings, videos, materials or projects');
-  (spec.modules || []).forEach((m, i) => {
-    if (!m.id || !m.title) rep.error(`modules[${i}]`, 'needs id and title');
-    (m.items || []).forEach(r => { if (!ids.has(r)) rep.error(`modules[${i}] "${m.id}"`, `unknown item "${r}"`); });
-  });
+  checkModules(spec.modules, items, rep);
   if (cur.errors.length || cur.warnings.length) rows.push(cur);
   cur = { type: 'links', id: '', title: '', source: '', errors: [], warnings: [] };
   checkAttachments(items, rep);
   checkPrerequisites(items, spec.schedule, rep);
   if (cur.errors.length || cur.warnings.length) rows.push(cur);
   cur = { type: 'schedule', id: '', title: '', source: '', errors: [], warnings: [] };
-  checkSchedule(spec.schedule, ids, rep, new Set(items.filter(i => i.type !== 'project' && !i.for && !i.prerequisite).map(i => i.id)));
+  checkSchedule(spec.schedule, ids, rep, new Set(items.filter(i => !i.for && !i.prerequisite).map(i => i.id)));
   if (cur.errors.length || cur.warnings.length) rows.push(cur);
-  const minApp = minAppFor(formats);
+  const minApp = '2.1.0';
   if (!minApp) errors.push('no app version supports this combination of formats ' + JSON.stringify(formats));
-  return { errors, warnings, rows, items, formats, minApp, totalSize, spec };
+  return { errors, warnings, rows, items, formats, minApp, totalSize, spec, certificateOffered };
 }
 
 /* Copy everything into a pack source folder (pack.json + trainings/ labs/ readings/ videos/ materials/). */
@@ -112,8 +113,15 @@ function assemble(specPath, outDir, result) {
   if (r.errors.length) throw new Error('the spec has errors — run check first');
   const base = path.dirname(path.resolve(specPath));
   const spec = r.spec, P = spec.pack;
+  outDir = path.resolve(outDir);
+  const sources = [path.resolve(specPath), ...r.items.map(i => i._src).filter(Boolean)];
+  if (typeof P.certificate === 'string') sources.push(/\.html?$/i.test(P.certificate) ? path.dirname(path.resolve(base, P.certificate)) : path.resolve(base, P.certificate));
+  const contains = (a, b) => a === b || b.startsWith(a + path.sep);
+  if (sources.some(src => contains(outDir, src) || contains(src, outDir))) throw new Error('Build folder overlaps a source path; choose a separate build directory.');
+  if (fs.existsSync(outDir) && fs.readdirSync(outDir).length && !fs.existsSync(path.join(outDir, '.stlp-build'))) throw new Error('Build folder is not an empty or recognized stlp build directory; refusing to replace it.');
   fs.rmSync(outDir, { recursive: true, force: true });
   fs.mkdirSync(outDir, { recursive: true });
+  fs.writeFileSync(path.join(outDir, '.stlp-build'), 'Generated by stlp; safe to rebuild.\n');
   const copyDir = (src, dst, skip) => {
     fs.mkdirSync(dst, { recursive: true });
     for (const e of fs.readdirSync(src, { withFileTypes: true })) {
@@ -132,8 +140,14 @@ function assemble(specPath, outDir, result) {
   };
   if (P.contact) pack.contact = P.contact;
   if (P.branding) pack.branding = P.branding;
+  if (P.access) pack.access = P.access;
   if (spec.schedule) pack.schedule = spec.schedule;
-  if (P.certificate) pack.certificate = JSON.parse(fs.readFileSync(path.resolve(base, P.certificate), 'utf8'));   // package certificate design (certificate.json of the training template)
+  if (typeof P.certificate === 'string' && /\.html?$/i.test(P.certificate)) {
+    const source = path.resolve(base, P.certificate);
+    copyDir(path.dirname(source), path.join(outDir, 'certificate'));
+    pack.certificate = { kind: 'web', entry: 'certificate/' + path.basename(source) };
+  } else if (typeof P.certificate === 'string') pack.certificate = JSON.parse(fs.readFileSync(path.resolve(base, P.certificate), 'utf8'));
+  else if (P.certificate) pack.certificate = P.certificate;
   for (const it of r.items) {
     const o = { id: it.id, type: it.type, title: it.title, description: it.description || '', estimatedTime: it.estimatedTime || it.duration || '' };
     if (it.plannedWeeks != null) o.plannedWeeks = +it.plannedWeeks;
@@ -142,12 +156,14 @@ function assemble(specPath, outDir, result) {
     if (it.type === 'project' && (it.category || (it._info && it._info.category))) o.category = it.category || it._info.category;
     if (it.type === 'training') {
       o.path = 'trainings/' + it.id;
-      const customWeb = it._info && it._info.format === 2;
+      const customWeb = it._info && it._info.format >= 2;
       copyDir(it._src, path.join(outDir, o.path), (n, d) => customWeb
         ? (d && ['tools', 'examples', 'dist', 'reference', 'node_modules'].includes(n)) || ['README.md', 'SKILL.md', 'INTEGRATION.md'].includes(n)
-        : (d && ['js', 'tools', 'examples', 'dist', 'reference', 'node_modules'].includes(n)) || ['index.html', 'README.md', 'SKILL.md', 'INTEGRATION.md'].includes(n));
-      if (customWeb) o.entry = it._info.entry;
-      else for (const f of ['css/app.css', 'css/certificate.css']) fs.rmSync(path.join(outDir, o.path, f), { force: true });
+        : (d && ['tools', 'examples', 'dist', 'reference', 'node_modules'].includes(n)) || ['README.md', 'SKILL.md', 'INTEGRATION.md'].includes(n));
+      if (customWeb) {
+        o.entry = it._info.entry;
+        if (it._info.certificate) o.certificate = it._info.certificate;
+      }
     } else if (it.type === 'lab') {
       o.path = 'labs/' + it.id; copyDir(it._src, path.join(outDir, o.path));
     } else if (it.type === 'project') {
@@ -157,10 +173,10 @@ function assemble(specPath, outDir, result) {
       o.assets = (it._info && it._info.assets) || [];
       o.assets.forEach(a => copy(path.join(path.dirname(it._src), a), 'readings/' + it.id + '/' + a));
     } else if (it.type === 'reading') {
-      o.file = copy(it._src, 'readings/' + it.id + '.pdf');
+      o.file = copy(it._src, 'readings/' + it.id + '/' + path.basename(it._src));
     } else if (it.type === 'video') {
-      if (it._src) o.file = copy(it._src, 'videos/' + it.id + ext(it._src)); else o.url = it.url;
-      if (it.poster) o.poster = copy(path.resolve(base, it.poster), 'videos/' + it.id + '-poster' + ext(it.poster));
+      if (it._src) o.file = copy(it._src, 'videos/' + it.id + '/' + path.basename(it._src)); else o.url = it.url;
+      if (it.poster) o.poster = copy(path.resolve(base, it.poster), 'videos/' + it.id + '/poster' + ext(it.poster));
     } else if (it.type === 'material') {
       if (it._src) {
         o.file = copy(it._src, 'materials/' + it.id + '/' + path.basename(it._src)); o.kind = materialKind(it._src);

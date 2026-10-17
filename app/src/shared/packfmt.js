@@ -40,6 +40,22 @@ function generateKeyPair() {
     privateKey: privateKey.export({ type: 'pkcs8', format: 'pem' })
   };
 }
+/* A package access gate deliberately stores only a slow password verifier. It is an Academy
+   access control, not file encryption: a recipient who has the .stlp can still inspect it. */
+function passwordAccess(password) {
+  if (typeof password !== 'string' || password.length < 8) throw new Error('access password must be at least 8 characters');
+  const salt = crypto.randomBytes(16).toString('base64url');
+  const hash = crypto.scryptSync(Buffer.from(password, 'utf8'), salt, 32, { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 }).toString('base64url');
+  return { algorithm: 'scrypt-v1', salt, hash };
+}
+function verifyPasswordAccess(access, password) {
+  if (!access || access.algorithm !== 'scrypt-v1' || typeof access.salt !== 'string' || typeof access.hash !== 'string' || typeof password !== 'string') return false;
+  try {
+    const got = crypto.scryptSync(Buffer.from(password, 'utf8'), access.salt, 32, { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 });
+    const expected = Buffer.from(access.hash, 'base64url');
+    return expected.length === got.length && crypto.timingSafeEqual(expected, got);
+  } catch (e) { return false; }
+}
 /* trusted keys directory: <name>.pub.pem files (+ optional <name>.json {name, development}) */
 function loadTrustedKeys(dir) {
   const keys = {};
@@ -158,4 +174,4 @@ function extractTo(dir, files) {
   }
 }
 
-module.exports = { sha256, safeRel, assertPackId, keyId, generateKeyPair, loadTrustedKeys, buildPack, readPack, peekPack, extractTo };
+module.exports = { sha256, safeRel, assertPackId, keyId, generateKeyPair, passwordAccess, verifyPasswordAccess, loadTrustedKeys, buildPack, readPack, peekPack, extractTo };

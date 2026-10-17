@@ -166,8 +166,8 @@
       var list = el('nav.files-list', { 'aria-label': 'Files' });
       var view = el('div.files-view');
       list.appendChild(el('div.files-actions', null, [
-        el('button.btn.primary.small', { type: 'button', text: '⇩ Download all (.zip)', onclick: function () {
-          api.packs.saveZip(o.packId, o.item.id).then(function (f) { if (f) o.toast('Saved ' + f); }).catch(function (e) { o.toast(e.message, true); });
+        el('button.btn.primary.small', { type: 'button', text: '⇩ Download full lab folder', onclick: function () {
+          api.packs.exportItem(o.packId, o.item.id).then(function (f) { if (f) o.toast('Saved ' + f); }).catch(function (e) { o.toast(e.message, true); });
         } })]));
       var lastDir = null, links = {};
       files.forEach(function (f) {
@@ -182,12 +182,12 @@
         st.file = f.path;
         Object.keys(links).forEach(function (k) { links[k].classList.toggle('active', k === f.path); });
         T.clear(view);
-        var save = el('button.btn.small', { type: 'button', text: '⇩ Save file', onclick: function () {
-          api.packs.saveFile(o.packId, o.item.id, f.path).then(function (p) { if (p) o.toast('Saved ' + p); }).catch(function (e) { o.toast(e.message, true); });
+        var save = el('button.btn.small', { type: 'button', text: '⇩ Download full lab folder', onclick: function () {
+          api.packs.exportItem(o.packId, o.item.id).then(function (p) { if (p) o.toast('Saved ' + p); }).catch(function (e) { o.toast(e.message, true); });
         } });
         var headRow = el('div.code-head', null, [el('span.lang', { text: f.path }), el('span.grow'), save]);
         if (!TEXT.test(f.path)) {
-          view.appendChild(el('div.text-box', null, [headRow, el('div.file-card.inline', null, [el('div.big', { text: '📦' }), el('p', { text: 'This file cannot be shown here. Save it, or download all files as a zip.' })])]));
+          view.appendChild(el('div.text-box', null, [headRow, el('div.file-card.inline', null, [el('div.big', { text: '📦' }), el('p', { text: 'This file cannot be shown here. Download the full lab folder to open it locally.' })])]));
           return;
         }
         var pre = el('pre.text-view');

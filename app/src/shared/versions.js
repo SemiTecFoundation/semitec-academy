@@ -71,6 +71,21 @@ const HISTORY = [
     app: '1.9.0',
     pack: [1, 2], training: [1, 2], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
     notes: 'Training format 2 is a self-contained custom web training: local HTML, CSS and JavaScript run in a sandboxed iframe and use the Academy bridge to save progress.'
+  },
+  {
+    app: '2.0.0',
+    pack: [1, 2, 3], training: [1, 2], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
+    notes: 'Package format 3 adds an optional per-package password gate. Learners can export local package files; JSON trainings export as a standalone HTML file and custom web trainings export as their local folder.'
+  },
+  {
+    app: '2.1.0',
+    pack: [1, 2, 3], training: [1, 2], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
+    notes: 'Two training formats: JSON and custom web, optional HTML certificates, manual progress, full-folder exports and mandatory course order and study plan.'
+  },
+  {
+    app: '2.1.1',
+    pack: [1, 2, 3], training: [1, 2], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
+    notes: 'After preview-password approval, Academy opens an all-sections author preview for trainings; normal tracked study remains separately available.'
   }
 ];
 
@@ -98,12 +113,14 @@ function supports(manifest, appVersion = APP_VERSION) {
   if (!caps) return { ok: false, reasons: ['unknown app version ' + appVersion] };
   if (!caps.pack.includes(manifest.format)) reasons.push(`package format ${manifest.format} is not supported (this app reads ${caps.pack.join(', ')})`);
   if (manifest.minAppVersion && cmp(manifest.minAppVersion, appVersion) > 0) reasons.push(`needs app version ${manifest.minAppVersion} or newer (this is ${appVersion})`);
-  for (const it of manifest.items || []) {
+  if (!Array.isArray(manifest.items)) return { ok: false, reasons: reasons.concat('manifest.items must be an array of material descriptions') };
+  for (const [index, it] of manifest.items.entries()) {
+    if (!it || typeof it !== 'object' || Array.isArray(it)) { reasons.push(`manifest.items[${index}] must be an object`); continue; }
     const ok = (caps[it.type] || []).includes(it.format);
     if (!ok) reasons.push(`item "${it.id}" uses ${it.type} format ${it.format}, not supported by this app`);
   }
   return { ok: reasons.length === 0, reasons };
 }
-const CURRENT = { pack: 2, training: 2, reading: 1, lab: 1, video: 1, material: 1, project: 1 };
+const CURRENT = { pack: 3, training: 2, reading: 1, lab: 1, video: 1, material: 1, project: 1 };
 
 module.exports = { APP_VERSION, HISTORY, CURRENT, cmp, capabilities, minAppFor, supports };

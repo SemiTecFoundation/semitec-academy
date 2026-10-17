@@ -4,7 +4,7 @@
     "id": "org.semitec.fpga-starter",
     "version": "1.6.0",
     "title": "FPGA Starter Track",
-    "description": "A first track for students of the SemiTec Foundation: learn how the interactive trainings work, understand shift registers, build two designs on the board, read real diploma project briefs — and take on a diploma project.",
+    "description": "A first track for students of the SemiTec Foundation: learn how the interactive trainings work, understand shift registers, build two designs on the board, read real diploma project briefs \u2014 and take on a diploma project.",
     "language": "en",
     "publisher": "SemiTec Foundation",
     "publisherLogo": "publisher-logo.svg",
@@ -32,7 +32,7 @@
       },
       {
         "week": 3,
-        "title": "Shift registers — theory",
+        "title": "Shift registers \u2014 theory",
         "items": [
           "shift-registers",
           "shift-register-animation"
@@ -61,7 +61,8 @@
         "title": "Diploma project briefs",
         "items": [
           "ecc-brief",
-          "mbist-brief"
+          "mbist-brief",
+          "ecc-sensor-memory"
         ],
         "note": "Choose a project you would like to do next."
       }
@@ -87,7 +88,7 @@
     {
       "id": "lab-01-shift-register",
       "source": "labs/lab-01-shift-register/lab",
-      "description": "SystemVerilog, simulation, LEDs and buttons — manual and files from the lab-manual template"
+      "description": "SystemVerilog, simulation, LEDs and buttons \u2014 manual and files from the lab-manual template"
     },
     {
       "id": "lab-02-counter",

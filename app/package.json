@@ -1,7 +1,7 @@
 {
   "name": "semitec-academy",
   "productName": "SemiTec Academy",
-  "version": "1.9.0",
+  "version": "2.1.1",
   "description": "Desktop learning app of the SemiTec Foundation: install course packs (.stlp) with trainings, readings and labs; local accounts and progress.",
   "author": {
     "name": "SemiTec Foundation",
@@ -12,13 +12,14 @@
   "scripts": {
     "start": "electron .",
     "sync-engine": "node tools/sync-engine.js",
-    "test": "npm run test:unit && npm run test:e2e",
+    "test": "npm run test:unit && npm run test:content && npm run test:e2e",
     "test:unit": "node --test test/packages.test.js",
     "test:e2e": "node test/e2e.js",
     "dist": "electron-builder --publish never",
     "dist:win": "electron-builder --win nsis --x64 --publish never",
     "dist:mac": "electron-builder --mac dmg --arm64 --x64 --publish never",
-    "dist:linux": "electron-builder --linux AppImage deb --x64 --publish never"
+    "dist:linux": "electron-builder --linux AppImage deb --x64 --publish never",
+    "test:content": "node test/content-e2e.js"
   },
   "dependencies": {
     "dompurify": "^3.4.17",
@@ -35,7 +36,7 @@
   "build": {
     "appId": "org.semitec.academy",
     "productName": "SemiTec Academy",
-    "copyright": "© SemiTec Foundation",
+    "copyright": "\u00a9 SemiTec Foundation",
     "directories": {
       "buildResources": "build",
       "output": "../installers/${version}"

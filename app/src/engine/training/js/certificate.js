@@ -7,6 +7,13 @@
   function fill(s, v) { return String(s || '').replace(/\{(\w+)\}/g, function (_, k) { return v[k] != null ? v[k] : '{' + k + '}'; }); }
 
   T.renderCertificate = function (cfg, training, info) {
+    if (cfg.kind === 'web') {
+      var frame = el('iframe.certificate.web-certificate', { title: 'Certificate', src: cfg.entry, sandbox: 'allow-scripts' });
+      var data = { name: info.name, training: training.title, issuer: cfg.issuer || '', date: info.date, score: info.score, hours: training.hours || '', id: 'CERT-' + hash(info.name + '|' + training.id + '|' + info.date.slice(0, 10)) };
+      frame.setAttribute('data-cert-id', data.id);
+      frame.addEventListener('load', function () { frame.contentWindow.postMessage({ type: 'semitec-certificate', data: data }, '*'); });
+      return frame;
+    }
     var st = cfg.style || {};
     var v = {
       name: info.name, training: training.title, issuer: cfg.issuer || '',
