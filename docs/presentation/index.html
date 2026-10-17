@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An introduction to SemiTec Academy for learners, educators and publishers.">
+    <title>Introducing SemiTec Academy</title>
+    <link rel="stylesheet" href="presentation.css?v=20261017-03">
+  </head>
+  <body>
+    <main class="deck" aria-label="Introducing SemiTec Academy presentation">
+      <div class="topbar">
+        <a class="brand" href="#welcome" aria-label="SemiTec Academy — first slide">
+          <span>SA</span> SemiTec Academy
+        </a>
+        <p class="section-name" aria-live="polite">Introduction</p>
+        <button class="help" type="button" aria-label="Show keyboard controls">?</button>
+      </div>
+
+      <section class="slide hero active" id="welcome" data-title="Introduction" data-theme="hero" aria-labelledby="welcome-title">
+        <div class="hero-copy">
+          <p class="eyebrow">SemiTec Foundation</p>
+          <h1 id="welcome-title">Learning materials that stay useful from authoring to achievement.</h1>
+          <p class="lead">SemiTec Academy is a desktop learning app for distributing trusted course packages, studying them offline, and recognising completed learning.</p>
+          <div class="audiences">
+            <span>For learners</span><span>For educators</span><span>For publishers</span>
+          </div>
+          <button class="start primary" type="button">Explore the flow <span aria-hidden="true">→</span></button>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-orbit orbit-a"></div><div class="hero-orbit orbit-b"></div>
+          <div class="app-card card-catalog"><span class="mini-label">CATALOG</span><strong>Discover</strong><small>Trusted packages</small></div>
+          <div class="app-card card-learning"><span class="mini-label">LEARNING</span><strong>Study</strong><small>Progress saved locally</small></div>
+          <div class="app-card card-certificate"><span class="mini-label">CERTIFICATE</span><strong>Achieve</strong><small>Optional recognition</small></div>
+          <div class="package-cube"><span>STLP</span></div>
+        </div>
+        <p class="slide-footnote">A guided introduction · Use the arrow keys or controls below</p>
+      </section>
+
+      <section class="slide flow-slide" id="flow" data-title="The learning flow" aria-labelledby="flow-title" hidden>
+        <div class="slide-heading">
+          <p class="eyebrow">One clear path</p>
+          <h2 id="flow-title">From a publisher’s package to a learner’s achievement.</h2>
+          <p>Packages can contain trainings, readings, labs, videos, materials and projects. A learner can use every item independently, or follow the author’s course order and study plan.</p>
+        </div>
+        <ol class="flow" aria-label="SemiTec Academy learning flow">
+          <li><span class="flow-number">01</span><strong>Publish</strong><small>Create and sign an <code>.stlp</code> package.</small></li>
+          <li><span class="flow-number">02</span><strong>Discover</strong><small>Browse a catalog or receive a package file.</small></li>
+          <li><span class="flow-number">03</span><strong>Add</strong><small>Academy verifies and installs it locally.</small></li>
+          <li><span class="flow-number">04</span><strong>Learn</strong><small>Complete trainings, labs and projects.</small></li>
+          <li><span class="flow-number">05</span><strong>Recognise</strong><small>Receive optional certificates when defined.</small></li>
+        </ol>
+        <div class="note"><span aria-hidden="true">⌁</span><p><strong>Local by design.</strong> Academy keeps accounts, packages and progress on the learner’s computer. A future platform can add organisation-wide sign-in and synchronization.</p></div>
+      </section>
+
+      <section class="slide image-split catalog-slide" id="catalog" data-title="Catalog" aria-labelledby="catalog-title" hidden>
+        <div class="content-panel">
+          <p class="eyebrow">01 · Find materials</p>
+          <h2 id="catalog-title">A catalog makes packages easy to discover.</h2>
+          <p>Universities, companies and the Foundation can publish catalog links. Learners choose a source, then search and filter packages by publisher, subject and content type.</p>
+          <ul class="check-list">
+            <li>Compare package descriptions before adding them.</li>
+            <li>See the publisher, version and included content.</li>
+            <li>Install from a catalog, a local folder, or a shared <code>.stlp</code> file.</li>
+          </ul>
+          <p class="callout">A catalog is an index. The package itself remains a portable file that can be shared directly.</p>
+        </div>
+        <figure class="screenshot frame"><img src="assets/catalog.png" alt="SemiTec Academy Catalog showing course packages from two publishers"><figcaption>Catalog: discover package sources and filter available courses.</figcaption></figure>
+      </section>
+
+      <section class="slide package-slide" id="package" data-title="Add a package" aria-labelledby="package-title" hidden>
+        <div class="slide-heading centered">
+          <p class="eyebrow">02 · Add with confidence</p>
+          <h2 id="package-title">A package carries its content and its identity together.</h2>
+          <p>Academy checks the archive before it is added. It tells the learner what the package contains, which app version it needs, and whether the publisher signature is trusted.</p>
+        </div>
+        <div class="package-diagram" aria-label="Package installation and validation diagram">
+          <div class="file-block package-file">
+            <span class="file-icon">▧</span><strong>Digital Design<br>Fundamentals.stlp</strong><small>Portable learning package</small>
+            <div class="package-contents">
+              <span><b>Content</b> trainings, labs, projects and files</span>
+              <span><b>Course metadata</b> required order and study plan</span>
+              <span><b>Publisher details</b> optional signature and certificates</span>
+            </div>
+          </div>
+          <div class="verify-arrow"><span>Add</span><i></i></div>
+          <div class="verify-block">
+            <p>Academy checks before installing</p>
+            <div><b>✓</b><span><strong>Archive and files</strong><small>Every declared file is present, safe and supported.</small></span></div>
+            <div><b>✓</b><span><strong>Learning structure</strong><small>The required course order and study plan cover each item.</small></span></div>
+            <div><b>✓</b><span><strong>Publisher status</strong><small>Identity is shown; any signature is checked against trusted keys.</small></span></div>
+          </div>
+          <div class="verify-arrow"><span>Install</span><i></i></div>
+          <div class="library-block"><span>▦</span><strong>My library</strong><small>Ready to learn on this computer</small></div>
+        </div>
+        <p class="quiet">Signing is optional. A learner or institution decides which publisher keys to trust; an unsigned package is clearly identified.</p>
+      </section>
+
+      <section class="slide image-split reverse" id="library" data-title="Library and plan" aria-labelledby="library-title" hidden>
+        <figure class="screenshot frame"><img src="assets/dashboard.png" alt="SemiTec Academy dashboard showing a course in progress, calendar and Catalog entry"><figcaption>Dashboard: continue a course, review progress and see scheduled work.</figcaption></figure>
+        <div class="content-panel">
+          <p class="eyebrow">03 · Organise learning</p>
+          <h2 id="library-title">The library keeps installed packages close at hand.</h2>
+          <p>Each learner has a local library of packages. The dashboard brings the next activity and the study plan together without hiding standalone materials.</p>
+          <div class="two-column-points">
+            <div><span>▦</span><strong>My packages</strong><p>Open materials by type, course order or week.</p></div>
+            <div><span>◷</span><strong>Study plan</strong><p>Follow dates chosen by the author, when a package includes them.</p></div>
+            <div><span>↺</span><strong>Continue</strong><p>Resume exactly where you left off.</p></div>
+            <div><span>⇩</span><strong>Download</strong><p>Export an item’s complete folder for offline use.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide image-split" id="trainings" data-title="Trainings and quizzes" aria-labelledby="training-title" hidden>
+        <div class="content-panel">
+          <p class="eyebrow">04 · Learn actively</p>
+          <h2 id="training-title">Trainings combine explanation, interaction and progress.</h2>
+          <p>Authors can create standard Academy trainings or flexible HTML, CSS and JavaScript experiences. Both forms can record progress and include quizzes when the author chooses.</p>
+          <ul class="check-list">
+            <li>Topics open in a structured course sequence.</li>
+            <li>Quizzes can unlock a next topic after a chosen passing score.</li>
+            <li>Progress is saved for the learner’s normal study view.</li>
+          </ul>
+          <p class="callout">A password-protected author preview can open all sections for review without changing learner progress.</p>
+        </div>
+        <figure class="screenshot frame"><img src="assets/training.png" alt="SemiTec Academy training view with a contents panel, lesson text and quiz navigation"><figcaption>Training: interactive lessons can guide learners through content and quizzes.</figcaption></figure>
+      </section>
+
+      <section class="slide image-split reverse" id="labs" data-title="Labs and projects" aria-labelledby="lab-title" hidden>
+        <figure class="screenshot frame"><img src="assets/lab.png" alt="SemiTec Academy lab view showing completed lab steps, manuals, files and a check quiz"><figcaption>Lab: learners work through manual steps, source files and a check quiz.</figcaption></figure>
+        <div class="content-panel">
+          <p class="eyebrow">05 · Apply knowledge</p>
+          <h2 id="lab-title">Labs and projects turn learning into practical work.</h2>
+          <p>A lab can bring together its manual, source code, links and materials. A project works in the same way for a larger brief, while remaining a separately tracked activity.</p>
+          <ul class="check-list">
+            <li>Manual steps let learners mark real work complete.</li>
+            <li>Code, assets and attachments stay with the item.</li>
+            <li>One download gives the learner the full item folder.</li>
+          </ul>
+          <p class="callout">The author may include feedback contact details, but Academy does not require supervision or an external approval process.</p>
+        </div>
+      </section>
+
+      <section class="slide certificate-slide" id="certificates" data-title="Certificates" aria-labelledby="certificate-title" hidden>
+        <div class="content-panel">
+          <p class="eyebrow">06 · Recognise achievement</p>
+          <h2 id="certificate-title">Certificates are optional, publisher-defined and personal.</h2>
+          <p>A publisher can include a certificate for an individual training and/or for the whole package. If they do not define one, learners can still complete and use every item.</p>
+          <div class="certificate-rules">
+            <p><span>1</span><strong>Author chooses</strong> whether a training or package offers a certificate.</p>
+            <p><span>2</span><strong>Academy checks completion</strong> using real learning progress, including manual steps where required.</p>
+            <p><span>3</span><strong>Learner saves or prints</strong> the optional certificate created from the publisher’s HTML design.</p>
+          </div>
+        </div>
+        <figure class="screenshot certificate-shot"><img src="assets/certificate.png" alt="SemiTec Academy course certificate issued to a learner"><figcaption>Certificate: publishers can create their own HTML layout and decide when it is issued.</figcaption></figure>
+      </section>
+
+      <section class="slide publisher-slide" id="publishers" data-title="For publishers" aria-labelledby="publisher-title" hidden>
+        <div class="slide-heading centered narrow">
+          <p class="eyebrow">For institutions and authors</p>
+          <h2 id="publisher-title">Create once. Share in the way that fits your community.</h2>
+          <p>Academy Templates help AI agents and authors create standalone labs, trainings and projects. Combine them into an <code>.stlp</code> package only when you want a complete course experience.</p>
+        </div>
+        <div class="publisher-grid">
+          <article><span class="publisher-icon">▱</span><h3>Standalone material</h3><p>Keep a training, lab or project as its own editable folder. Learners can use it outside Academy.</p></article>
+          <article><span class="publisher-icon">▦</span><h3>Course package</h3><p>Gather related materials into a validated package with a mandatory order and study plan.</p></article>
+          <article><span class="publisher-icon">⌁</span><h3>Catalog entry</h3><p>Publish an index so learners can discover packages by your organisation and subject.</p></article>
+          <article><span class="publisher-icon">✦</span><h3>Optional signing</h3><p>Sign a package with your own key. Partners can add trusted publisher keys to Academy.</p></article>
+        </div>
+      </section>
+
+      <section class="slide closing" id="closing" data-title="Get started" aria-labelledby="closing-title" hidden>
+        <div>
+          <p class="eyebrow">SemiTec Foundation</p>
+          <h2 id="closing-title">Make learning materials practical, portable and recognisable.</h2>
+          <p class="lead">Explore the Academy app, use the Templates product to create material, or publish a catalog that serves your learners.</p>
+          <div class="link-cards">
+            <a href="https://github.com/SemiTecFoundation/semitec-academy" target="_blank" rel="noreferrer"><span>⌂</span><strong>Academy app</strong><small>Install and study packages</small></a>
+            <a href="https://github.com/SemiTecFoundation/semitec-academy-skills" target="_blank" rel="noreferrer"><span>✦</span><strong>Academy Templates</strong><small>Create learning material</small></a>
+            <a href="https://semitec.org" target="_blank" rel="noreferrer"><span>↗</span><strong>semitec.org</strong><small>Foundation goals and projects</small></a>
+          </div>
+        </div>
+        <p class="closing-mark">SemiTec Academy · tools and documentation © SemiTec Foundation</p>
+      </section>
+    </main>
+
+    <nav class="controls" aria-label="Presentation controls">
+      <button class="previous" type="button" aria-label="Previous slide">← Previous</button>
+      <div class="slide-counter" aria-live="polite"><b>01</b> <span>/</span> 10</div>
+      <button class="next primary" type="button" aria-label="Next slide">Next →</button>
+    </nav>
+    <div class="progress" aria-hidden="true"><span></span></div>
+    <dialog class="help-dialog">
+      <button class="close-dialog" type="button" aria-label="Close help">×</button>
+      <h2>Presentation controls</h2>
+      <p><kbd>←</kbd> <kbd>→</kbd> or <kbd>Space</kbd> move through slides.</p>
+      <p><kbd>Home</kbd> and <kbd>End</kbd> jump to the beginning or end.</p>
+      <p><kbd>F</kbd> toggles fullscreen.</p>
+    </dialog>
+    <script src="presentation.js?v=20261017-03"></script>
+  </body>
+</html>

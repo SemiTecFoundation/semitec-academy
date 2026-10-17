@@ -96,7 +96,8 @@ semitec-academy/
 ├── NOTICE.md                 copyright and course-content boundary
 ├── TRADEMARKS.md             SemiTec name and logo use
 ├── docs/                     architecture, authoring, package format, install, release and workflow guides
-│   └── diagrams/             PNG/SVG lifecycle diagrams used by the documentation
+│   ├── diagrams/             PNG/SVG lifecycle diagrams used by the documentation
+│   └── presentation/         standalone HTML/CSS/JavaScript product introduction with screenshots
 ├── app/                      Electron application; version and dependencies in app/package.json
 │   ├── src/
 │   │   ├── main/             window, stl:// protocol, database, accounts and library
