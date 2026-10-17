@@ -142,7 +142,7 @@ async function checkOffline(file, text, mode) {
   console.log('✓ HTML/JavaScript training certificate receives learner data and exports PDF');
   await win.click('.cert-modal button:has-text("Close")');
   await win.evaluate(id=>{location.hash='#/pack/'+id+'/guide';},id);await win.waitForSelector('.textLayer span');
-  await app.evaluate(async({clipboard,ClipboardItem,BrowserWindow})=>{global.__testClipboard=await Promise.all((await clipboard.read()).map(async item=>new ClipboardItem(Object.fromEntries(await Promise.all(item.types.map(async type=>[type,await item.getType(type)]))))));clipboard.clear();BrowserWindow.getAllWindows()[0].focus();});
+  await app.evaluate(async({clipboard,ClipboardItem,BrowserWindow})=>{const saved=[];for(const item of await clipboard.read()){const entries=Object.fromEntries(await Promise.all(item.types.map(async type=>[type,await item.getType(type)])));if(Object.keys(entries).length)saved.push(new ClipboardItem(entries));}global.__testClipboard=saved;clipboard.clear();BrowserWindow.getAllWindows()[0].focus();});
   const selected=await win.evaluate(()=>{const span=document.querySelector('.textLayer span'),range=document.createRange();range.selectNodeContents(span);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);return selection.toString();});assert.match(selected,/Academy PDF test/);
   await win.keyboard.press(process.platform==='darwin'?'Meta+C':'Control+C');
   assert.match(await app.evaluate(({clipboard})=>clipboard.readText()),/Academy PDF test/);

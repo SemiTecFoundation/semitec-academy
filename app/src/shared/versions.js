@@ -91,6 +91,11 @@ const HISTORY = [
     app: '2.1.2',
     pack: [1, 2, 3], training: [1, 2], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
     notes: 'Keeps the 2.1.1 author-preview route and uses an isolated Electron test profile on every release platform.'
+  },
+  {
+    app: '2.1.3',
+    pack: [1, 2, 3], training: [1, 2], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
+    notes: 'Keeps 2.1.2 compatibility and makes the PDF clipboard test work when the operating system has an empty clipboard entry.'
   }
 ];
 

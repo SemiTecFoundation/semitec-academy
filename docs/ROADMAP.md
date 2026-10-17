@@ -98,7 +98,7 @@
 - [ ] Optional sign-in with a platform account; sync progress and certificates
       (same state JSON as `training_progress`; design: academy-to-platform.md, an internal note published in neither repository, PL5)
 
-## 2.1.2 — release
+## 2.1.3 — release
 
 - [x] Two training formats with independent optional HTML certificates and author previews.
 - [x] Complete-folder downloads from package rows and viewers, including project sources/attachments.
@@ -106,4 +106,4 @@
 - [x] Manual progress for custom web presentations; required course order and study plan checks at build/import.
 - [x] PDF text selection/copy, internal links/bookmarks and external website links.
 - [x] Preview-password unlock opens all training sections in Academy without changing learner progress.
-- [x] Release tests use an isolated Electron profile on every supported platform.
+- [x] Release tests use an isolated Electron profile and safely preserve an empty system clipboard on every supported platform.
