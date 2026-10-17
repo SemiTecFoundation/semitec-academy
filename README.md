@@ -193,6 +193,7 @@ every package; a package has its own **content version** for updates. See [`docs
 | 2.0.0 | optional password-gated packages; direct PDF downloads; export of complete course files and browser-ready trainings |
 | 2.1.0 | two training formats with optional HTML certificates; full-folder downloads; preview access; manual presentation progress; mandatory order/plan; selectable PDF text and links |
 | 2.1.1 | preview-password unlock opens each training's all-sections author preview; normal tracked study remains available separately |
+| 2.1.2 | release verification repair; same package and training compatibility as 2.1.1 |
 
 ## License, package ownership and partner publishing
 
@@ -204,6 +205,6 @@ certificate. A student or university chooses which publisher signing keys to tru
 
 ## Status
 
-Current release: **v2.1.1**. It includes password-gated author previews, learner file exports and optional certificates for custom web trainings. All features are covered by `npm test`; installers for Windows, macOS and Linux
+Current release: **v2.1.2**. It includes password-gated author previews, learner file exports and optional certificates for custom web trainings. All features are covered by `npm test`; installers for Windows, macOS and Linux
 are built on real runners for each system and attached to every release.
 Next: code signing (RELEASING.md), and the proposals in [`docs/PROPOSALS.md`](docs/PROPOSALS.md) — self-study features first; multi-user features belong to the Foundation platform.

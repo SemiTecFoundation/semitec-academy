@@ -4,8 +4,9 @@ The application version is in `app/package.json`; supported content versions are
 `app/src/shared/versions.js`. Package authors declare their own package version. The skills product has
 its own release version and bundles a tested copy of the app's packer.
 
-Current release candidate: **Academy 2.1.1**, **Academy Templates 2.0.1**. Academy 2.1.1 is a compatible
-author-preview routing fix; package format compatibility remains 2.1.0.
+Current release candidate: **Academy 2.1.2**, **Academy Templates 2.0.1**. Academy 2.1.2 retains the
+compatible author-preview routing fix from 2.1.1 and repairs release-test isolation; package format
+compatibility remains 2.1.0.
 
 Training formats are **1 (JSON)** and **2 (custom HTML/CSS/JavaScript)**. The unpublished third training
 format was merged into format 2 before release. Both can declare an optional certificate. Container formats

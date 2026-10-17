@@ -3,7 +3,7 @@
 const { _electron: electron }=require('playwright');
 const fs=require('fs'),path=require('path'),assert=require('node:assert/strict');
 const {build}=require('./fixtures/contract');
-const fixture=build(), APP=path.join(__dirname,'..'), profile=path.join(fixture.root,'profile'), data=path.join(fixture.root,'data');fs.mkdirSync(data);
+const fixture=build(), APP=path.join(__dirname,'..'), home=path.join(fixture.root,'home'), profile=path.join(fixture.root,'profile'), data=path.join(fixture.root,'data');fs.mkdirSync(data);fs.mkdirSync(home);
 const shots=path.join(__dirname,'screenshots');fs.mkdirSync(shots,{recursive:true});
 const timeout=setTimeout(()=>{console.error('Content integration test exceeded 150 seconds');process.exit(1);},150000);
 let app,win;
@@ -59,7 +59,7 @@ async function checkOffline(file, text, mode) {
 }
 
 (async()=>{
-  app=await electron.launch({executablePath:process.env.E2E_EXECUTABLE || require('electron'),args:[...(process.env.E2E_EXECUTABLE ? [] : [APP]),'--no-sandbox','--user-data-dir='+profile],cwd:APP});
+  app=await electron.launch({executablePath:process.env.E2E_EXECUTABLE || require('electron'),args:[...(process.env.E2E_EXECUTABLE ? [] : [APP]),'--no-sandbox','--user-data-dir='+profile],cwd:APP,env:Object.assign({},process.env,{HOME:home,XDG_CONFIG_HOME:path.join(home,'.config'),XDG_DOCUMENTS_DIR:path.join(home,'Documents')})});
   win=await app.firstWindow(); win.setDefaultTimeout(20000); await win.setViewportSize({width:1320,height:900});
   const errors=[];win.on('pageerror',e=>errors.push(e.message));
   await win.waitForSelector('text=Welcome to SemiTec Academy');

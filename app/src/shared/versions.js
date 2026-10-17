@@ -86,6 +86,11 @@ const HISTORY = [
     app: '2.1.1',
     pack: [1, 2, 3], training: [1, 2], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
     notes: 'After preview-password approval, Academy opens an all-sections author preview for trainings; normal tracked study remains separately available.'
+  },
+  {
+    app: '2.1.2',
+    pack: [1, 2, 3], training: [1, 2], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
+    notes: 'Keeps the 2.1.1 author-preview route and uses an isolated Electron test profile on every release platform.'
   }
 ];
 
