@@ -6,7 +6,7 @@
 
    RECOMMENDED — one JSON file lists all materials (docs/PACK-SPEC.md):
    node packer/stlp.js check        <pack-spec.json> [--target-app 1.1.0]
-   node packer/stlp.js create       <pack-spec.json> [--key key.pem | --unsigned] [--out dist/] [--keep build/]
+   node packer/stlp.js create       <pack-spec.json> [--out dist/] [--keep build/]
 
    Step by step, in a pack folder:
    node packer/stlp.js init         <packDir> --id org.semitec.my-course --title "My course"
@@ -14,17 +14,16 @@
    node packer/stlp.js add-reading  <packDir> <file.pdf>       [--id x] [--module m] [--title t]
    node packer/stlp.js add-lab      <packDir> [--from labFolder] [--id x] [--module m] [--title t]
    node packer/stlp.js validate     <packDir> [--target-app 1.0.0]
-   node packer/stlp.js build        <packDir> [--key key.pem] [--out dist/] [--target-app 1.0.0] [--unsigned]
-   node packer/stlp.js inspect      <file.stlp> [--trusted <dir with *.pub.pem>]
+   node packer/stlp.js build        <packDir> [--out dist/] [--target-app 1.0.0]
+   node packer/stlp.js inspect      <file.stlp>
    node packer/stlp.js catalog      <folder with .stlp> [--name "…"] [--base-url https://…/] [--out catalog.json]
-   node packer/stlp.js keygen       <outDir> --name "SemiTec Foundation" [--dev]
    node packer/stlp.js bundle-skill <outDir>      (self-contained copy for the academy-templates:package skill)  */
 'use strict';
 const fs = require('fs');
 const path = require('path');
 /* shared code: ./lib (bundled copy, e.g. in the academy-templates:package skill) or ../app/src/shared (repository) */
 const shared = fs.existsSync(path.join(__dirname, 'lib', 'packfmt.js')) ? path.join(__dirname, 'lib') : path.join(__dirname, '..', 'app', 'src', 'shared');
-const { buildPack, readPack, generateKeyPair, passwordAccess, keyId, loadTrustedKeys } = require(path.join(shared, 'packfmt'));
+const { buildPack, readPack, passwordAccess } = require(path.join(shared, 'packfmt'));
 const { validatePack, collectFiles } = require(path.join(shared, 'validate'));
 const { checkSpec, assemble } = require(path.join(shared, 'spec'));
 const V = require(path.join(shared, 'versions'));
@@ -38,6 +37,7 @@ for (let i = 1; i < argv.length; i++) {
   else pos.push(argv[i]);
 }
 const die = (m) => { console.error('✗ ' + m); process.exit(1); };
+if (opt.key || opt.trusted) die('Package signing and publisher keys are no longer supported. Remove --key or --trusted.');
 const ok = (m) => console.log('✓ ' + m);
 const slug = (s) => String(s).toLowerCase().replace(/\.[a-z0-9]+$/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'item';
 const readJSON = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
@@ -76,10 +76,10 @@ function report(r) {
   r.errors.forEach(e => console.log('  ✗ ' + e));
 }
 function checkTarget(formats) {
-  const min = '2.1.0';
+  const min = '2.2.0';
   if (!min) die('no app version supports this combination of formats: ' + JSON.stringify(formats));
   const target = opt['target-app'] === true ? V.APP_VERSION : (opt['target-app'] || V.APP_VERSION);
-  if (V.cmp(target, min) < 0) die('This builder requires target app 2.1.0 or newer.');
+  if (V.cmp(target, min) < 0) die('This builder requires target app 2.2.0 or newer.');
   const caps = V.capabilities(target);
   if (!caps) die('unknown target app version ' + target + ' (known: ' + V.HISTORY.map(h => h.app).join(', ') + ')');
   for (const [k, v] of Object.entries(formats)) if (!(caps[k] || []).includes(v)) die(`target app ${target} cannot open ${k} format ${v}`);
@@ -161,7 +161,7 @@ C.validate = () => {
   const t = checkTarget(r.formats);
   ok(`valid — ${r.pack.items.length} items · formats ${JSON.stringify(r.formats)} · opens in app ≥ ${t.min}`);
 };
-C.build = () => buildDir(pos[0] || die('usage: build <packDir> [--key key.pem] [--out dist]'));
+C.build = () => buildDir(pos[0] || die('usage: build <packDir> [--out dist]'));
 function buildDir(dir, defaultOut, quiet) {
   const r = validatePack(dir);
   if (quiet) r.errors.forEach(e => console.log('  ✗ ' + e)); else report(r);
@@ -198,30 +198,22 @@ function buildDir(dir, defaultOut, quiet) {
   };
   certificateReport(pack, r.info);
   const files = collectFiles(dir, pack);
-  let key = null;
-  if (!opt.unsigned) {
-    const kp = opt.key || process.env.STLP_KEY;
-    if (!kp) die('no signing key: pass --key <private.pem> (or set STLP_KEY), or --unsigned for a test pack');
-    key = fs.readFileSync(kp, 'utf8');
-  }
-  const { bytes } = buildPack({ manifest, files, privateKeyPem: key });
+  const { bytes } = buildPack({ manifest, files });
   const outDir = opt.out || defaultOut || path.join(dir, '..', '..', 'dist');
   fs.mkdirSync(outDir, { recursive: true });
   const out = path.join(outDir, `${pack.id}-${pack.version}.stlp`);
   fs.writeFileSync(out, bytes);
   const raw = Object.values(files).reduce((a, b) => a + b.length, 0);
-  ok(`built ${out}\n  ${pack.items.length} items, ${Object.keys(files).length} files, ${(raw / 1048576).toFixed(2)} MB → ${(bytes.length / 1048576).toFixed(2)} MB · ${key ? 'signed (key ' + keyId(require('crypto').createPublicKey(key).export({ type: 'spki', format: 'pem' })) + ')' : 'UNSIGNED'} · app ≥ ${t.min}`);
+  ok(`built ${out}\n  ${pack.items.length} items, ${Object.keys(files).length} files, ${(raw / 1048576).toFixed(2)} MB → ${(bytes.length / 1048576).toFixed(2)} MB · app ≥ ${t.min}`);
   return out;
 }
 
 C.inspect = () => {
   const f = pos[0] || die('usage: inspect <file.stlp>');
-  const trusted = loadTrustedKeys(opt.trusted || defaultTrustedDir());
-  const p = readPack(fs.readFileSync(f), trusted);
+  const p = readPack(fs.readFileSync(f));
   const m = p.manifest;
   console.log(`${m.title}  (${m.id} v${m.version})`);
   console.log(`  publisher: ${m.publisher}   created: ${m.created}   needs app ≥ ${m.minAppVersion}   built for ${m.builder && m.builder.targetApp}`);
-  console.log(`  signature: ${p.signature.status}${p.signature.keyName ? ' — ' + p.signature.keyName : ''}${p.signature.keyId ? ' [' + p.signature.keyId + ']' : ''}`);
   console.log(`  files: ${Object.keys(m.files).length} (all hashes OK)`);
   if (m.access) console.log('  access: package password required');
   for (const mod of m.modules) {
@@ -264,7 +256,7 @@ C.check = () => {
   return r;
 };
 C.create = () => {
-  const spec = pos[0] || die('usage: create <pack-spec.json> [--key key.pem | --unsigned]');
+  const spec = pos[0] || die('usage: create <pack-spec.json> [--out dist/]');
   const r = C.check();
   const work = opt.keep ? path.resolve(opt.keep === true ? path.join(path.dirname(spec), '.build') : opt.keep) : fs.mkdtempSync(path.join(require('os').tmpdir(), 'stlp-'));
   console.log('\nAssembling pack folder in ' + work);
@@ -279,7 +271,6 @@ C.create = () => {
 C.catalog = () => {
   const dir = path.resolve(pos[0] || die('usage: catalog <folder with .stlp files> [--name …] [--base-url …] [--out catalog.json]'));
   const { peekPack } = require(path.join(shared, 'packfmt'));
-  const trusted = loadTrustedKeys(opt.trusted || defaultTrustedDir());
   const files = fs.readdirSync(dir).filter(f => /\.stlp$/i.test(f)).sort();
   if (!files.length) die('no .stlp files in ' + dir);
   const assets = path.join(dir, 'catalog-assets'); fs.mkdirSync(assets, { recursive: true });
@@ -287,12 +278,12 @@ C.catalog = () => {
   const best = {};
   for (const f of files) {
     const bytes = fs.readFileSync(path.join(dir, f));
-    const pk = peekPack(bytes, trusted), m = pk.manifest;
+    const pk = peekPack(bytes), m = pk.manifest;
     const e = { id: m.id, version: m.version, title: m.title, description: m.description || '', language: m.language || '', publisher: m.publisher || '',
       authors: m.authors || [], minAppVersion: m.minAppVersion, format: m.format, items: (m.items || []).map(i => ({ type: i.type, format: i.format })),
       counts: (m.items || []).reduce((a, i) => (a[i.type] = (a[i.type] || 0) + 1, a), {}), itemTitles: (m.items || []).map(i => i.title),
       projectCategories: [...new Set((m.items || []).filter(i => i.type === 'project').map(i => i.category || 'other'))],
-      hasSchedule: !!(m.schedule && (m.schedule.entries || []).length), created: m.created, signed: pk.signature.status !== 'unsigned', signedBy: pk.signature.keyName || pk.signature.keyId || '',
+      hasSchedule: !!(m.schedule && (m.schedule.entries || []).length), created: m.created,
       url: base + encodeURIComponent(f), size: bytes.length, sha256: require('crypto').createHash('sha256').update(bytes).digest('hex') };
     for (const [k, img] of Object.entries(pk.images)) {
       const name = `${m.id}-${k}${path.extname(img.name)}`; fs.writeFileSync(path.join(assets, name), img.data);
@@ -324,31 +315,8 @@ C['bundle-skill'] = () => {
   const ffOut = path.join(outDir, 'node_modules', 'fflate');            // only what Node's require() needs
   fs.mkdirSync(path.join(ffOut, 'lib'), { recursive: true });
   for (const f of ['package.json', 'LICENSE', 'lib/node.cjs', 'lib/node-worker.cjs', 'lib/index.cjs', 'lib/worker.cjs']) if (fs.existsSync(path.join(ff, f))) fs.copyFileSync(path.join(ff, f), path.join(ffOut, f));
-  const tkSrc = path.join(__dirname, '..', 'app', 'trusted-keys');   // public halves only
-  const tkOut = path.join(outDir, 'trusted-keys');
-  fs.mkdirSync(tkOut, { recursive: true });
-  for (const f of fs.readdirSync(tkSrc)) if (/\.(pub\.pem|json)$/.test(f)) fs.copyFileSync(path.join(tkSrc, f), path.join(tkOut, f));
-  fs.writeFileSync(path.join(outDir, 'README.md'), `# stlp (bundled)\n\nSelf-contained copy of the SemiTec Academy package builder, generated by\n\`node packer/stlp.js bundle-skill\` from SemiTec Academy ${V.APP_VERSION} (see VERSION.json). Needs Node.js 18+, nothing to install.\n\n    node stlp.js check  pack-spec.json\n    node stlp.js create pack-spec.json --key <private.pem>   (or --unsigned)\n\nDo not edit — regenerate from the Academy repository (https://github.com/SemiTecFoundation/semitec-academy) when the app changes.\n`);
+  fs.writeFileSync(path.join(outDir, 'README.md'), `# stlp (bundled)\n\nSelf-contained copy of the SemiTec Academy package builder, generated by\n\`node packer/stlp.js bundle-skill\` from SemiTec Academy ${V.APP_VERSION} (see VERSION.json). Needs Node.js 18+, nothing to install.\n\n    node stlp.js check  pack-spec.json\n    node stlp.js create pack-spec.json\n\nDo not edit — regenerate from the Academy repository (https://github.com/SemiTecFoundation/semitec-academy) when the app changes.\n`);
   ok('bundled packer for app ' + V.APP_VERSION + ' → ' + outDir);
-};
-/* trusted keys: the bundled skill copy ships them next to itself; in this repo they live with the app */
-function defaultTrustedDir() {
-  const here = path.join(__dirname, 'trusted-keys');
-  return fs.existsSync(here) ? here : path.join(__dirname, '..', 'app', 'trusted-keys');
-}
-
-C.keygen = () => {
-  const dir = pos[0] || die('usage: keygen <outDir> --name "SemiTec Foundation" [--dev]');
-  const name = opt.name || 'SemiTec Foundation';
-  const base = slug(name) + (opt.dev ? '-dev' : '');
-  fs.mkdirSync(dir, { recursive: true });
-  const kp = generateKeyPair();
-  const priv = path.join(dir, base + '.key.pem');
-  if (fs.existsSync(priv)) die(priv + ' already exists — not overwriting a key');
-  fs.writeFileSync(priv, kp.privateKey, { mode: 0o600 });
-  fs.writeFileSync(path.join(dir, base + '.pub.pem'), kp.publicKey);
-  writeJSON(path.join(dir, base + '.json'), { name: name + (opt.dev ? ' (development key)' : ''), development: !!opt.dev, keyId: keyId(kp.publicKey), created: new Date().toISOString() });
-  ok(`key ${keyId(kp.publicKey)} written to ${dir}\n  PRIVATE: ${priv}  ← keep secret, never commit, never ship\n  public:  ${base}.pub.pem + ${base}.json → copy both to app/trusted-keys/ and release a new app version`);
 };
 C['password-hash'] = () => {
   const password = process.env.STLP_PACKAGE_PASSWORD;

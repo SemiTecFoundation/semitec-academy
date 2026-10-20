@@ -7,20 +7,14 @@ The app ships no courses; real ones are built from sources kept outside this rep
 |---|---|
 | `fpga-starter/` | one package with an item of every type: 2 trainings, 2 labs, 4 readings (one a prerequisite, one Markdown), 2 videos, 4 materials, 1 project, a 7-week study plan |
 | `demo-partner/` | a second publisher, so the catalog checks see two |
-| `build.js` | builds both with a throwaway signing key |
+| `build.js` | builds both in a temporary folder |
 
 Both are **self-contained**: every `source` points inside its own folder, so the suite needs no second
 checkout and no signing key.
 
-## How signing works here
+## Running the fixtures
 
-`build.js` generates a **key for that run only**, writes the public half into a temp `trusted-keys/`,
-builds both packages with the private half, and the suite starts the app with
-`SEMITEC_TRUSTED_KEYS` pointing at that folder. So a fixture is trusted **inside this test and nowhere
-else** — a student's app rejects it as `untrusted-key`.
-
-That matters: a package signed with the production key would install in any student's app as verified
-SemiTec content. Nothing here is, and no key has to be committed for the tests to run.
+The builder creates disposable packages in a temporary folder for the tests.
 
 ```bash
 node app/test/fixtures/build.js      # see what it produces, in a temp folder
@@ -44,12 +38,12 @@ node packer/stlp.js check  app/test/fixtures/demo-partner/pack-spec.json
 The suite always uses these fixtures; it does not accept `STPACK` overrides. To check a real course,
 run `packer/stlp.js check` against its spec in the materials repository, then test it manually.
 Built `.stlp` files must stay outside this repository. The desktop suite removes its generated
-packages, throwaway key, profile and data directory after each run; screenshots remain in the ignored
+packages, profile and data directory after each run; screenshots remain in the ignored
 `app/test/screenshots/` folder for inspection.
 
 ## Content contract review fixture
 
-`contract.js` builds one unsigned fictional package for `test/content-e2e.js`: JSON training, custom web
+`contract.js` builds one fictional package for `test/content-e2e.js`: JSON training, custom web
 training with manual steps and an individual HTML certificate, automatic JavaScript bridge training,
 a complete lab, a complete project with source/SRS/attachments, a linked two-page PDF, and an MP4 video.
 Course order and a two-week study plan cover every counted item. A package HTML certificate is offered;
@@ -66,7 +60,7 @@ correct preview passwords; complete-folder exports, collision refusal and openin
 The test snapshots and restores clipboard contents. It uses a disposable app profile/data directory.
 
 `test/packages.test.js` covers publisher-password changes across versions and twenty-four malformed metadata
-cases in both unsigned/developer and trusted-signature modes. A rejected update must preserve installed
+cases, including legacy archive compatibility. A rejected update must preserve installed
 content and learning progress and leave no staging directory. See the local review guide for remaining
 human checks such as appearance, teaching quality and operating-system printer dialogs.
 

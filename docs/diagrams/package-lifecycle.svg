@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="760" viewBox="0 0 1600 760" role="img" aria-labelledby="title desc">
   <title id="title">SemiTec Academy package lifecycle</title>
-  <desc id="desc">The app receives signed course packages from the materials release, verifies their format and signature, installs safe content to a local package store, then gives students offline learning and progress tracking.</desc>
+  <desc id="desc">The app receives course packages from a catalog or local file, checks their format and contents, installs safe content to a local package store, then gives students offline learning and progress tracking.</desc>
   <defs>
     <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0 0 L12 6 L0 12 z" fill="#245b84"/></marker>
     <style>
@@ -21,13 +21,13 @@
   <text x="650" y="220" text-anchor="middle" class="label">Academy package gate</text>
   <text x="515" y="262" class="body">• valid reverse-domain package ID</text>
   <text x="515" y="296" class="body">• safe content paths and hashes</text>
-  <text x="515" y="330" class="body">• trusted signature or test mode</text>
+  <text x="515" y="330" class="body">• required course order and plan</text>
   <text x="515" y="364" class="body">• compatible content formats</text>
   <path d="M825 286 H960" class="arrow"/>
 
   <rect x="960" y="205" width="275" height="165" rx="18" fill="#edf8f0" stroke="#419160" class="box"/>
   <text x="1097" y="257" text-anchor="middle" class="label">Local package store</text>
-  <text x="1097" y="295" text-anchor="middle" class="body">verified copied content</text>
+  <text x="1097" y="295" text-anchor="middle" class="body">checked copied content</text>
   <text x="1097" y="327" text-anchor="middle" class="body">per-user progress database</text>
   <path d="M1235 286 H1370" class="arrow"/>
 

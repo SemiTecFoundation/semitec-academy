@@ -90,7 +90,7 @@ const MIGRATIONS = {
     UPDATE packs SET signed_dev = 1 WHERE signature = 'trusted' AND signed_by LIKE '%dev%';
   `,
   /* 2.0.0: per-user grants for optional package password gates. The password verifier stays
-     inside the signed package manifest; this table holds no password or password-derived value. */
+     inside the package manifest; this table holds no password or password-derived value. */
   5: `
     CREATE TABLE package_access (
       user_id INTEGER NOT NULL,

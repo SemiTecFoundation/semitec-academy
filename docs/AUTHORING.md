@@ -12,7 +12,7 @@ for skills, templates, validators and authoring guidance. It provides independen
 diploma documents, lab manuals and interactive trainings. Each can be used as a standalone editable result.
 
 Use its optional **package** skill only when selected materials should be delivered together through
-Academy. The package skill validates the selected sources, builds a `.stlp` archive and can sign a release.
+Academy. The package skill validates the selected sources, builds a `.stlp` archive.
 Its documentation is the current source for commands, folder layouts and material-specific formats:
 
 - [Academy Templates overview](https://github.com/SemiTecFoundation/semitec-academy-skills)
@@ -26,7 +26,7 @@ This Academy repository defines how the desktop application receives and present
 - [open publisher and recipient-trust flow](PUBLISHING.md);
 - [`pack-spec.json` fields and package checks](PACK-SPEC.md);
 - [the `.stlp` container and item formats](PACKAGE-FORMAT.md);
-- [package signing keys](KEYS.md).
+- [Foundation catalog sources](CATALOG-SOURCES.md).
 
 Academy Templates documentation is deliberately not copied into this page. That keeps its changing skill
 instructions in one maintained location and lets this repository focus on the application contract.
@@ -35,8 +35,7 @@ instructions in one maintained location and lets this repository focus on the ap
 
 The publisher remains responsible for reviewing content, citations, rights, author attribution and the
 optional feedback contact or certificate. A package can be published by any person, school or partner without
-a Foundation agreement or approval queue. Recipients independently choose which publisher public keys to
-trust in **Settings → Application → Trusted publishers**.
+a Foundation agreement or approval queue. Recipients choose catalog sources in **Settings → Application**.
 
 ## Current delivery contract
 

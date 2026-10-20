@@ -1,13 +1,12 @@
 # `.stlp` archive layout
 
 This is a fictional layout for authors. The archive is a ZIP; the builder writes `manifest.json` and
-file hashes and optionally signs them. Do not create a manifest by hand or publish test packages.
+file hashes. Do not create a manifest by hand or publish test packages.
 
 ```text
 course.stlp
 ├── manifest.json                  identity, authors/publisher, items, mandatory modules and schedule,
 │                                 optional certificate/access/branding, minimum app version, file hashes
-├── signature.json                 present when signed; Ed25519 key ID and signature
 └── content/
     ├── certificate/               optional package HTML/CSS/JS certificate
     │   ├── index.html
@@ -75,11 +74,11 @@ All downloaded editable sources are learner-owned local copies; the password is 
 ## Container and validation
 
 Container formats are independent of the two training formats: package 1 is the base, package 2 adds
-branding, and package 3 adds optional password access. New builds require Academy 2.1.0. `manifest.json`
+branding, and package 3 adds optional password access. New builds require Academy 2.2.0. `manifest.json`
 contains `id`, `version`, `title`, `publisher`, `authors`, `items`, `modules`, `schedule`, `minAppVersion`,
-`builder`, and `files`. `files` maps each `content/...` path to its byte size and SHA-256 hash. The signature
-covers the exact manifest bytes. The app refuses extra/missing/changed files and unsafe paths before
-installing, and then validates material content and plan/order metadata. See [KEYS.md](KEYS.md) for trust.
+`builder`, and `files`. `files` maps each `content/...` path to its byte size and SHA-256 hash. The app
+refuses extra/missing/changed files and unsafe paths, then validates material content and plan/order metadata.
+Hashes check consistency, not publisher identity. Older archives remain readable; their legacy signature metadata is ignored.
 
 Training format 1 uses the maintained JSON engine. Training format 2 uses its own sandboxed local
 HTML/CSS/JavaScript. Both allow optional certificates. Custom progress is either explicit bridge events

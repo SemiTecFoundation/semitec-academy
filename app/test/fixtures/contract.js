@@ -59,7 +59,7 @@ function build() {
     trainings:[{id:'json',source:'trainings/json'},{id:'web',source:'trainings/web'},{id:'bridge',source:'trainings/bridge'}],labs:[{id:'practice',source:'labs/practice'}],projects:[{id:'project',source:'projects/project'}],readings:[{id:'guide',title:'Linked PDF guide',source:'readings/guide.pdf'}],videos:[{id:'video',title:'Design flow video',source:'videos/design-flow.mp4'}],materials:[{id:'data',title:'Project data',source:'attachments/data.csv',for:'project'}],modules:[{id:'course',title:'Course',items:ids}],schedule:{weeks:2,entries:[{week:1,items:ids.slice(0,4)},{week:2,items:ids.slice(4)}]} };
   put('pack-spec.json',spec);
   const cli=path.join(__dirname,'../../../packer/stlp.js');
-  execFileSync(process.execPath,[cli,'create',path.join(root,'pack-spec.json'),'--unsigned','--out',root],{stdio:'pipe'});
+  execFileSync(process.execPath,[cli,'create',path.join(root,'pack-spec.json'),'--out',root],{stdio:'pipe'});
   return {root, spec, file:path.join(root,'org.example.contract-1.1.0.stlp'), engineDir};
 }
 module.exports={build,pdf};

@@ -102,7 +102,7 @@ function checkSpec(specPath) {
   cur = { type: 'schedule', id: '', title: '', source: '', errors: [], warnings: [] };
   checkSchedule(spec.schedule, ids, rep, new Set(items.filter(i => !i.for && !i.prerequisite).map(i => i.id)));
   if (cur.errors.length || cur.warnings.length) rows.push(cur);
-  const minApp = '2.1.0';
+  const minApp = '2.2.0';
   if (!minApp) errors.push('no app version supports this combination of formats ' + JSON.stringify(formats));
   return { errors, warnings, rows, items, formats, minApp, totalSize, spec, certificateOffered };
 }

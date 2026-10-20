@@ -1,7 +1,7 @@
 # SemiTec Academy
 
 **SemiTec Academy** is the SemiTec Foundation's desktop learning app. Students install it once, create a
-local account, and add **SemiTec Learning Packages** (`.stlp`) — one signed file per course with
+local account, and add **SemiTec Learning Packages** (`.stlp`) — one file per course with
 trainings, labs, readings, videos and other materials. Progress is saved per student in a local database.
 New packages and new versions of packages can be added at any time; the app does not need to change.
 
@@ -109,13 +109,11 @@ semitec-academy/
 │   │   ├── fixtures/         fictional packages and a throwaway key for tests only
 │   │   ├── packages.test.js  package validation and safe-installation tests
 │   │   └── e2e.js            Playwright + Electron desktop checks
-│   ├── trusted-keys/         public keys whose signatures the app accepts
 │   ├── build/                application and .stlp icons
 │   └── tools/                engine sync and local installer build scripts
-├── packer/stlp.js            CLI: check · create · inspect · keygen · bundle-skill
+├── packer/stlp.js            CLI: check · create · inspect · bundle-skill
 ├── installers/<version>/     local build outputs; published installers are GitHub release assets
 ├── .github/workflows/        CI and cross-platform installer releases
-└── keys/README.md            public key policy; see docs/KEYS.md
 ```
 
 The AI skill that builds packages is part of the **Academy Templates** plugin
@@ -139,25 +137,22 @@ npm test                          # package tests + desktop checks (Linux CI: xv
 npm run test:unit                 # package tests without opening Electron
 ```
 
-`npm test` needs no signing key and no second checkout: it builds its own fixture packages with a
-throwaway key ([`app/test/fixtures/build.js`](app/test/fixtures/build.js)) and points the app at that
-key, so nothing in this repository is signed with the production key.
+`npm test` needs no second checkout: it builds disposable fixture packages from
+[`app/test/fixtures/build.js`](app/test/fixtures/build.js).
 The desktop suite uses a temporary profile and data folder and removes its test data after the run.
 CI runs the package tests on Windows, macOS and Linux and the desktop checks on Linux for main-branch
 updates and pull requests. Built `.stlp` files are ignored and rejected by CI; keep only fixture sources here.
 
-To try a package in the app by hand, build it unsigned and switch on *Developer mode* in *Settings →
-Application* (the app installs unsigned packages only then):
+To try a package in Academy 2.2.0 or newer, build it and add it to the app:
 
 ```bash
 node packer/stlp.js check    <pack-spec.json>
-node packer/stlp.js create   <pack-spec.json> --unsigned --out /tmp
+node packer/stlp.js create   <pack-spec.json> --out /tmp
 #   → /tmp/<id>-<version>.stlp   (drag it onto the app window)
 ```
 
-A release package is signed with its publisher's key. A recipient adds that publisher's public key in
-*Settings → Application → Trusted publishers* after checking its fingerprint. See
-[`docs/PUBLISHING.md`](docs/PUBLISHING.md) and [`docs/KEYS.md`](docs/KEYS.md).
+Anyone can share packages directly or through a catalog. See [`docs/PUBLISHING.md`](docs/PUBLISHING.md)
+and the [Foundation catalog sources](docs/CATALOG-SOURCES.md).
 
 `npm run sync-engine` is the one command that needs the
 [skills repository](https://github.com/SemiTecFoundation/semitec-academy-skills) cloned next to this
@@ -166,7 +161,7 @@ one, so that `semitec-academy/` and `semitec-academy-skills/` share a parent fol
 ## Make a package (author)
 
 One **pack spec** lists all materials with their paths; `check` validates everything, `create` builds
-and signs. Format: [`docs/PACK-SPEC.md`](docs/PACK-SPEC.md) · guide: [`docs/AUTHORING.md`](docs/AUTHORING.md).
+the package. Format: [`docs/PACK-SPEC.md`](docs/PACK-SPEC.md) · guide: [`docs/AUTHORING.md`](docs/AUTHORING.md).
 With an AI assistant: the `academy-templates:package` skill writes the spec, runs the checker, fixes
 what it can and creates the package.
 
@@ -178,16 +173,15 @@ every package; a package has its own **content version** for updates. See [`docs
 
 | App | Added |
 |---|---|
-| 1.0.0 | accounts, library, signed packages, trainings, labs, PDF readings |
+| 1.0.0 | accounts, library, packages, trainings, labs, PDF readings |
 | 1.1.0 | sections by type, videos, other materials, pack specs |
 | 1.2.0 | lab source files, compact lab header |
 | 1.3.0 | name **SemiTec Academy**, `.stlp` packages, Markdown readings and materials |
 | 1.4.0 | installers; library search and filters; enrollment and study plans; calendar; Today panel and reminders; projects; certificates page |
 | 1.5.0 | dashboard; catalog (folders + catalog links); publishers with logos; My packages / Explore with groups; materials attached to labs; project categories; settings *My account / Application / About* |
 | 1.6.0 | prerequisites that are not counted in progress; course-order view; Markdown reading images; packer `catalog` command |
-| 1.6.1 | new development signing key — the first one was published by mistake and is no longer trusted |
-| 1.6.2 | production signing key `4c71eba82f86fcca`, the only trusted key; no development key is trusted any more; real contact details |
-| 1.7.0 | locally trusted partner publisher keys; optional publisher feedback contact and package certificate; clearer independent project plans |
+| 1.6.1–1.6.2 | package security and publisher contact updates |
+| 1.7.0 | optional publisher feedback contact and package certificate; clearer independent project plans |
 | 1.7.1 | projects follow each student's *My packages*; package removal stops active course and project plans after confirmation; stale plan references are cleaned on sign-in |
 | 1.8.0 | optional publisher package branding: accessible accent colours for package details, labs, projects, readings and materials; trainings and certificates retain their own designs |
 | 1.9.0 | self-contained local HTML/CSS/JavaScript trainings in a sandboxed frame, with a small progress bridge to Academy |
@@ -196,13 +190,14 @@ every package; a package has its own **content version** for updates. See [`docs
 | 2.1.1 | preview-password unlock opens each training's all-sections author preview; normal tracked study remains available separately |
 | 2.1.2 | release verification repair; same package and training compatibility as 2.1.1 |
 | 2.1.3 | cross-platform clipboard test repair; same package and training compatibility as 2.1.2 |
+| 2.2.0 | install packages without keys; Foundation catalog added as the initial source |
 
 ## License, package ownership and partner publishing
 
 SemiTec Academy source and documentation are available under [Apache-2.0](LICENSE). Anyone may build and
 share standalone materials or packages without a Foundation agreement or approval. The publisher remains
 responsible for the course content, its rights, author attribution, feedback contact and any optional
-certificate. A student or university chooses which publisher signing keys to trust locally. Read
+certificate. Students and universities choose their catalog sources. Read
 [the publishing workflow](docs/PUBLISHING.md), [NOTICE.md](NOTICE.md) and [trademark guidance](TRADEMARKS.md).
 
 ## Status

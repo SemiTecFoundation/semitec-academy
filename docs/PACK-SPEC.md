@@ -3,7 +3,7 @@
 Use `pack-spec.json` to select complete standalone materials. It is the editable build input;
 `manifest.json` is generated inside the `.stlp`. Paths in the spec are relative to the spec file.
 Use [Academy Templates](https://github.com/SemiTecFoundation/semitec-academy-skills) for authoring instructions.
-The current builder targets Academy 2.1.0 or later.
+The current builder targets Academy 2.2.0 or later.
 
 ```json
 {
@@ -132,7 +132,7 @@ entry. Authors must keep those two entries behaviorally distinct.
 
 Use `scope: "package"` to lock all content/progress/downloads. Existing packages with no scope retain
 that behavior. A wrong password changes nothing. Passwords are distributed separately; never commit
-plaintext passwords or private signing keys. A verifier is not encryption or DRM: `.stlp` is a ZIP and
+plaintext passwords. A verifier is not encryption or DRM: `.stlp` is a ZIP and
 someone with the archive or editable source can inspect/change its contents. This feature controls
 Academy delivery and section-review convenience, not secrecy of distributed learning materials.
 
@@ -140,13 +140,12 @@ Academy delivery and section-review convenience, not secrecy of distributed lear
 
 ```
 node packer/stlp.js check pack-spec.json
-node packer/stlp.js create pack-spec.json --unsigned --out /path/to/local-drafts
+node packer/stlp.js create pack-spec.json --out /path/to/local-drafts
 ```
 
-Use a publisher's private key instead of `--unsigned` for an authorized signed delivery. Signing is
-separate from certificates. The authoring checker checks identity, content references, supported formats,
+Any author can build and share packages without keys or Foundation approval. The authoring checker checks identity, content references, supported formats,
 order/plan coverage, training previews, progress declarations and certificate files. Creation checks again.
-Academy verifies archive paths, file hashes, signature/trust and compatibility, then runs the shared content
+Academy verifies archive paths, file hashes, and compatibility, then runs the shared content
 checker in a staging folder before replacing installed content. Errors name the missing file or field.
 Older packages missing mandatory metadata must be updated/repackaged before a new import; existing local
-learning records are preserved. Signing alone cannot make malformed content valid.
+learning records are preserved. Content hashes check consistency, not publisher identity.

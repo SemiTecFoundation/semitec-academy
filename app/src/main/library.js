@@ -7,7 +7,7 @@ const { supports, cmp } = require('../shared/versions');
 const S = require('../shared/schedule');
 const { validatePack } = require('../shared/validate');
 
-module.exports = function library({ db, dataDir, trustedKeys }) {
+module.exports = function library({ db, dataDir }) {
   const packsDir = path.resolve(dataDir, 'packs');
   fs.mkdirSync(packsDir, { recursive: true });
   const cache = {};
@@ -56,22 +56,17 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
   /* Inspect without installing: used for the confirmation dialog. */
   function inspect(filePath) {
     const bytes = fs.readFileSync(filePath);
-    const p = readPack(bytes, trustedKeys);
+    const p = readPack(bytes);
     const comp = supports(p.manifest);
     const inst = db.get('SELECT version FROM packs WHERE id=?', [p.manifest.id]);
     return { bytes, pack: p, compat: comp, installedVersion: inst ? inst.version : null };
   }
 
-  function importFile(filePath, { userId, devMode }) {
+  function importFile(filePath, { userId } = {}) {
     const { pack, compat, installedVersion } = inspect(filePath);
-    const m = pack.manifest, sig = pack.signature;
+    const m = pack.manifest;
     if (!compat.ok) throw new Error('This pack cannot be opened by this version of the app:\n• ' + compat.reasons.join('\n• '));
-    if (sig.status !== 'trusted' && !devMode) {
-      throw new Error(sig.status === 'unsigned'
-        ? 'This pack is not signed. Ask its publisher for a signed release, add a trusted publisher key in Settings, or use Developer mode only for a local draft.'
-        : 'This pack is signed with an unknown key (' + sig.keyId + '). Add the publisher’s public key in Settings → Application, or use Developer mode only for a local draft.');
-    }
-    if (installedVersion && cmp(m.version, installedVersion) < 0 && !devMode) {
+    if (installedVersion && cmp(m.version, installedVersion) < 0) {
       throw new Error(`A newer version (${installedVersion}) of this pack is already installed.`);
     }
     const dir = packDir(m.id);
@@ -100,14 +95,14 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
     db.run(`INSERT INTO packs(id,version,title,publisher,signature,signed_by,signed_dev,manifest,installed_at,installed_by) VALUES(?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(id) DO UPDATE SET version=excluded.version,title=excluded.title,publisher=excluded.publisher,signature=excluded.signature,
             signed_by=excluded.signed_by,signed_dev=excluded.signed_dev,manifest=excluded.manifest,installed_at=excluded.installed_at,installed_by=excluded.installed_by`,
-      [m.id, m.version, m.title, m.publisher || '', sig.status, sig.keyName || sig.keyId || null, sig.development ? 1 : 0, pack.manifestBytes.toString('utf8'), new Date().toISOString(), userId || null]);
+      [m.id, m.version, m.title, m.publisher || '', '', null, 0, pack.manifestBytes.toString('utf8'), new Date().toISOString(), userId || null]);
     /* An import is a new delivery of this package.  A publisher may replace an
        archive without increasing its semantic version, so a version alone
        cannot prove that a previous password approval still applies.  Progress
        remains intact, but each learner must unlock this delivered copy again. */
     db.run('DELETE FROM package_access WHERE pack_id=?', [m.id]);
     delete cache[m.id];
-    return { id: m.id, version: m.version, title: m.title, updatedFrom: installedVersion, signature: sig };
+    return { id: m.id, version: m.version, title: m.title, updatedFrom: installedVersion };
   }
 
   function progressRows(userId, packId) {
@@ -137,9 +132,9 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
       db.all('SELECT pack_id, item_id, percent, completed_at, updated_at FROM progress WHERE user_id=?', [userId]).forEach(r => {
         (allProgress[r.pack_id] ||= {})[r.item_id] = { percent: r.percent, completedAt: r.completed_at, updatedAt: r.updated_at };
       });
-      return db.all('SELECT id, version, title, publisher, signature, signed_by, signed_dev, installed_at FROM packs ORDER BY title').map(r => {
+      return db.all('SELECT id, version, title, publisher, installed_at FROM packs ORDER BY title').map(r => {
         const m = manifestOf(r.id);
-        return { id: r.id, version: r.version, title: r.title, publisher: r.publisher, signature: r.signature, signedBy: r.signed_by, signedDev: !!r.signed_dev,
+        return { id: r.id, version: r.version, title: r.title, publisher: r.publisher,
           installedAt: r.installed_at, description: m.description || '', cover: m.cover || null, language: m.language || '',
           counts: (m.items || []).reduce((a, it) => (a[it.type] = (a[it.type] || 0) + 1, a), {}),
           authors: m.authors || [], hasSchedule: !!(m.schedule && (m.schedule.entries || []).length),
@@ -152,7 +147,7 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
     },
     get(id, userId) {
       const m = manifestOf(id); if (!m) throw new Error('Pack not installed: ' + id);
-      const r = db.get('SELECT signature, signed_by, signed_dev, installed_at FROM packs WHERE id=?', [id]);
+      const r = db.get('SELECT installed_at FROM packs WHERE id=?', [id]);
       const prog = progressRows(userId, id);
       const size = (rel) => (m.files['content/' + rel] || {}).size || 0;
       const items = (m.items || []).map(it => {
@@ -163,7 +158,7 @@ module.exports = function library({ db, dataDir, trustedKeys }) {
       });
       const publicManifest = Object.assign({}, m, { files: undefined, items });
       delete publicManifest.access; // never send the password verifier to renderer content
-      return { manifest: publicManifest, access: accessState(userId, id, m), signature: r.signature, signedBy: r.signed_by, signedDev: !!r.signed_dev, installedAt: r.installed_at, progress: prog, summary: summary(m, prog) };
+      return { manifest: publicManifest, access: accessState(userId, id, m), installedAt: r.installed_at, progress: prog, summary: summary(m, prog) };
     },
     remove(id) {
       const dir = packDir(id); // reject unsafe ids before changing the database or filesystem

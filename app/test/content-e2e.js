@@ -92,7 +92,6 @@ async function checkOffline(file, text, mode) {
   await win.fill('#f-password','new-test-pass');await win.getByRole('button',{name:'Log in',exact:false}).click();
   await win.waitForSelector('.dash-card.welcome');
   console.log('✓ Password change UI: mismatch, wrong current, short password, old-login rejection and new-login success');
-  await win.evaluate(async()=>{await window.api.app.setDevMode(true);});
   // Exercise the same install IPC as the import dialog; unsigned test-only archive.
   await win.evaluate(file=>window.api.packs.install(file),fixture.file);
   const id=fixture.spec.pack.id;

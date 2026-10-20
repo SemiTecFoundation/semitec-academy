@@ -1,7 +1,7 @@
 {
   "name": "semitec-academy",
   "productName": "SemiTec Academy",
-  "version": "2.1.3",
+  "version": "2.2.0",
   "description": "Desktop learning app of the SemiTec Foundation: install course packs (.stlp) with trainings, readings and labs; local accounts and progress.",
   "author": {
     "name": "SemiTec Foundation",
@@ -44,7 +44,6 @@
     "artifactName": "SemiTec-Academy-${version}-${os}-${arch}.${ext}",
     "files": [
       "src/**",
-      "trusted-keys/**",
       "package.json",
       "!**/*.map",
       "!node_modules/**/{test,tests,__tests__,docs,example,examples,types}/**",

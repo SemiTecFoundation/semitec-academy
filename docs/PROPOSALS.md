@@ -56,7 +56,7 @@ marked done in ROADMAP.md (A7 prerequisites and A16 catalog are implemented).
 0. **v1.4.0 (done):** library search and filters, enrollment and study plans, calendar, Today panel,
    projects, certificates, installers.
 1. **v1.5.0 (done):** dashboard, A16 catalogue (folders and catalog links), publishers, package groups.
-2. **v1.6.x (done):** A7 Prerequisites, course-order view, reset progress; production signing key.
+2. **v1.6.x (done):** A7 Prerequisites, course-order view and reset progress.
 3. **v1.7.0 (done):** open partner publishing, optional course certificates and publisher contacts.
 4. **Next "self-study basics":** A1 My mistakes, A2 Notes and bookmarks, A15 Backup, A13 Armenian UI,
    A14 dark mode / text size. Small, no format change, big effect on daily use.

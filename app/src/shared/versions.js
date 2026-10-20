@@ -11,7 +11,7 @@ catch (e) { APP_VERSION = require('./app-version.json').version; }     // bundle
 const HISTORY = [
   {
     app: '1.0.0',
-    pack: [1],        // .stlp container: manifest.json + signature.json + content/ (see docs/PACKAGE-FORMAT.md)
+    pack: [1],        // .stlp container: manifest.json and content/ (see docs/PACKAGE-FORMAT.md)
     training: [1],    // training-template JSON (training.json, topics/*.json, certificate.json), engine "training-engine 1"
     reading: [1],     // PDF document + metadata
     lab: [1],         // lab.json: manual PDF + steps checklist + quiz
@@ -55,7 +55,7 @@ const HISTORY = [
   {
     app: '1.7.0',
     pack: [1], training: [1], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
-    notes: 'Locally trusted publisher keys, publisher feedback contact, optional package certificates, and clearer independent project plans.'
+    notes: 'Publisher feedback contact, optional package certificates, and clearer independent project plans.'
   },
   {
     app: '1.7.1',
@@ -96,6 +96,11 @@ const HISTORY = [
     app: '2.1.3',
     pack: [1, 2, 3], training: [1, 2], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
     notes: 'Keeps 2.1.2 compatibility and makes the PDF clipboard test work when the operating system has an empty clipboard entry.'
+  },
+  {
+    app: '2.2.0',
+    pack: [1, 2, 3], training: [1, 2], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
+    notes: 'Open package publishing, with a Foundation catalog and selectable catalog sources.'
   }
 ];
 

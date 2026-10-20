@@ -2,14 +2,14 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { unzipSync, zipSync } = require('fflate');
-const { buildPack, readPack, peekPack, generateKeyPair, passwordAccess, keyId, loadTrustedKeys } = require('../src/shared/packfmt');
+const { buildPack, readPack, peekPack, passwordAccess } = require('../src/shared/packfmt');
 const { standaloneTraining, copyItemFolder, copyItem, copyPack } = require('../src/main/export');
 const makeLibrary = require('../src/main/library');
+const makeCatalog = require('../src/main/catalog');
 const makeMine = require('../src/main/mine');
 const makePlanner = require('../src/main/planner');
 const { checkSpec, assemble } = require('../src/shared/spec');
@@ -17,25 +17,19 @@ const { validatePack, collectFiles } = require('../src/shared/validate');
 const { supports } = require('../src/shared/versions');
 const { DB } = require('../src/main/db');
 
-const keys = generateKeyPair();
-const trustedKeys = { [keyId(keys.publicKey)]: { pem: keys.publicKey, name: 'Disposable test key' } };
 const manifest = { format: 1, id: 'org.example.test-pack', version: '1.0.0', title: 'Test fixture', items: [{ id: 'notes', type: 'material', format: 1, title: 'Notes', file: 'test.txt' }], modules: [{ id: 'start', title: 'Start', items: ['notes'] }], schedule: { weeks: 1, entries: [{ week: 1, items: ['notes'] }] } };
 const files = { 'content/test.txt': Buffer.from('Test data only') };
 const invalidIds = ['../victim', '../../outside', '.', '..', '/absolute', '..\\victim', 'C:\\victim',
   'C:victim', 'org.example/child', 'org.example\\child', 'org.example..test', 'org.example.test\n',
   ' org.example.test', '', '__proto__', null, 123, ['org.example.test'], { id: 'org.example.test' }];
 
-/* Construct hostile input independently of the builder's id validation. Re-sign it when requested
-   so a valid signature cannot accidentally be the reason the importer rejects a bad id. */
+/* Construct hostile input independently of the builder's ID validation. */
 function hostilePack(id, signed) {
   const entries = unzipSync(buildPack({ manifest, files }).bytes);
   const m = JSON.parse(Buffer.from(entries['manifest.json']).toString());
   m.id = id;
   entries['manifest.json'] = Buffer.from(JSON.stringify(m));
-  if (signed) entries['signature.json'] = Buffer.from(JSON.stringify({
-    format: 1, alg: 'ed25519', keyId: keyId(keys.publicKey),
-    signature: crypto.sign(null, entries['manifest.json'], keys.privateKey).toString('base64')
-  }));
+  if (signed) entries['signature.json'] = Buffer.from('{}');
   return Buffer.from(zipSync(entries));
 }
 
@@ -45,7 +39,7 @@ async function setup(t) {
   fs.mkdirSync(dataDir);
   const db = await DB.open(dataDir);
   t.after(() => { db.close(); fs.rmSync(root, { recursive: true, force: true }); });
-  const lib = makeLibrary({ db, dataDir, trustedKeys });
+  const lib = makeLibrary({ db, dataDir });
   const victim = path.join(dataDir, 'victim');
   fs.mkdirSync(victim);
   fs.writeFileSync(path.join(victim, 'keep.txt'), 'Unrelated data');
@@ -71,13 +65,13 @@ test('builder, reader and catalog reject malformed package ids', () => {
     assert.throws(() => buildPack({ manifest: { ...manifest, id }, files }), /Invalid package id/, label);
     for (const signed of [false, true]) {
       const bytes = hostilePack(id, signed);
-      assert.throws(() => readPack(bytes, trustedKeys), /Invalid package id/, label);
-      assert.throws(() => peekPack(bytes, trustedKeys), /Invalid package id/, label);
+      assert.throws(() => readPack(bytes), /Invalid package id/, label);
+      assert.throws(() => peekPack(bytes), /Invalid package id/, label);
     }
   }
 });
 
-test('unsafe imports preserve unrelated files and the database, even with Developer mode or a trusted signature', async t => {
+test('unsafe imports preserve unrelated files and the database, including legacy archives', async t => {
   const { lib, db, victim, write } = await setup(t);
   const before = Buffer.from(db.sql.export());
   for (const id of [...invalidIds, victim]) {
@@ -106,16 +100,16 @@ test('unsafe lookup and removal ids cannot delete folders or database records', 
   }
 });
 
-test('signed test packages install, upgrade and remove within the packages folder', async t => {
+test('test packages install, upgrade and remove within the packages folder', async t => {
   const { lib, db, victim, write } = await setup(t);
-  const first = write(buildPack({ manifest, files, privateKeyPem: keys.privateKey }));
-  assert.equal(lib.importFile(first, { devMode: false }).signature.status, 'trusted');
+  const first = write(buildPack({ manifest, files }));
+  assert.equal(lib.importFile(first, {}).id, manifest.id);
   const installed = path.join(lib.packsDir, manifest.id);
   assert.equal(lib.packDir(manifest.id), installed);
   assert.equal(fs.readFileSync(path.join(installed, 'test.txt'), 'utf8'), 'Test data only');
   assert.equal(db.get('SELECT version FROM packs WHERE id=?', [manifest.id]).version, '1.0.0');
   const second = write(buildPack({ manifest: { ...manifest, version: '1.0.1', items: [{ ...manifest.items[0], file: 'replacement.txt' }] },
-    files: { 'content/replacement.txt': Buffer.from('Replacement test data') }, privateKeyPem: keys.privateKey }));
+    files: { 'content/replacement.txt': Buffer.from('Replacement test data') } }));
   assert.equal(lib.importFile(second, { devMode: false }).updatedFrom, '1.0.0');
   assert.equal(fs.existsSync(path.join(installed, 'test.txt')), false);
   assert.equal(fs.readFileSync(path.join(installed, 'replacement.txt'), 'utf8'), 'Replacement test data');
@@ -129,7 +123,7 @@ test('signed test packages install, upgrade and remove within the packages folde
 test('removing from My packages requires active project plans to be stopped first', async t => {
   const { lib, db, write } = await setup(t);
   const projectPack = { ...manifest, id: 'org.example.project-removal', items: [{ id: 'capstone', type: 'project', path: 'projects/capstone', format: 1, title: 'Memory BIST capstone' }], modules: [{ id: 'project', title: 'Project', items: ['capstone'] }], schedule: { weeks: 1, entries: [{ week: 1, items: ['capstone'] }] } };
-  lib.importFile(write(buildPack({ manifest: projectPack, files: { 'content/projects/capstone/project.json': Buffer.from(JSON.stringify({ format: 1, title: 'Test project', weeks: [{ week: 1, tasks: 'Test' }] })) }, privateKeyPem: keys.privateKey })), { devMode: false });
+  lib.importFile(write(buildPack({ manifest: projectPack, files: { 'content/projects/capstone/project.json': Buffer.from(JSON.stringify({ format: 1, title: 'Test project', weeks: [{ week: 1, tasks: 'Test' }] })) } })), {});
   const mine = makeMine({ db, lib });
   mine.add(7, projectPack.id);
   db.run('INSERT INTO enrollments(user_id,pack_id,item_id,start_date,plan,enrolled_at) VALUES(?,?,?,?,?,?)', [7, projectPack.id, '', '2026-10-16', '{}', '2026-10-16T09:00:00.000Z']);
@@ -158,12 +152,16 @@ test('sign-in cleanup removes only orphaned package selections and plans', async
   assert.equal(db.get('SELECT * FROM progress WHERE user_id=? AND pack_id=?', [5, orphan]).percent, 15, 'learning record remains available if the package is re-added');
 });
 
-test('unsigned test packages require Developer mode', async t => {
+test('new and legacy packages install without keys and still reject changed content', async t => {
   const { lib, write } = await setup(t);
   const file = write(buildPack({ manifest, files }));
-  assert.throws(() => lib.importFile(file, { devMode: false }), /not signed/);
-  assert.deepEqual(fs.readdirSync(lib.packsDir), []);
-  assert.equal(lib.importFile(file, { devMode: true }).signature.status, 'unsigned');
+  assert.equal(lib.importFile(file, {}).id, manifest.id);
+  const entries = unzipSync(fs.readFileSync(file));
+  assert.equal(entries['signature.json'], undefined);
+  entries['signature.json'] = Buffer.from('legacy metadata');
+  assert.equal(lib.importFile(write(zipSync(entries)), {}).id, manifest.id);
+  entries['content/test.txt'] = Buffer.from('tampered');
+  assert.throws(() => lib.importFile(write(zipSync(entries)), {}), /hash mismatch/);
 });
 
 test('empty test packages are rejected before installation', async t => {
@@ -172,20 +170,43 @@ test('empty test packages are rejected before installation', async t => {
   assert.equal(fs.existsSync(lib.packDir(manifest.id)), false);
 });
 
-test('fixture packages contain every declared file and are trusted only by their temporary key', t => {
+test('fixture packages contain every declared file', t => {
   const fixtures = require('./fixtures/build').build();
   t.after(() => fs.rmSync(fixtures.dir, { recursive: true, force: true }));
-  const fixtureKeys = loadTrustedKeys(fixtures.trustedDir);
-  const productionKeys = loadTrustedKeys(path.join(__dirname, '..', 'trusted-keys'));
   assert.equal(Object.keys(fixtures.packs).length, 2);
   for (const [id, file] of Object.entries(fixtures.packs)) {
     const bytes = fs.readFileSync(file);
-    const pack = readPack(bytes, fixtureKeys);
+    const pack = readPack(bytes);
     assert.equal(pack.manifest.id, id);
-    assert.equal(pack.signature.status, 'trusted');
     assert.ok(Object.keys(pack.files).length > 0);
-    assert.equal(readPack(bytes, productionKeys).signature.status, 'untrusted-key');
   }
+});
+
+test('Foundation catalog is an initial source without overriding existing choices', async t => {
+  const { db, lib } = await setup(t);
+  const catalog = makeCatalog({ db, lib });
+  const initial = catalog.sources();
+  assert.equal(initial.length, 1);
+  assert.equal(initial[0].url, 'https://semitecfoundation.github.io/semitec-academy-materials/catalog/catalog.json');
+  catalog.remove(initial[0].id);
+  assert.deepEqual(catalog.sources(), [], 'removing the default stays removed');
+  catalog.addUrl('https://example.org/catalog.json', 'Example');
+  assert.equal(catalog.sources()[0].name, 'Example');
+  assert.equal(makeCatalog({ db, lib }).sources().length, 1, 'existing settings survive restart');
+});
+
+test('catalog rejects a download whose identity differs from its listing', async t => {
+  const { db, lib } = await setup(t);
+  const catalog = makeCatalog({ db, lib });
+  const originalFetch = global.fetch;
+  const bytes = buildPack({ manifest, files }).bytes;
+  t.after(() => { global.fetch = originalFetch; });
+  global.fetch = async url => String(url).endsWith('catalog.json')
+    ? { ok: true, json: async () => ({ packages: [{ id: 'org.example.different', version: '1.0.0', url: 'package.stlp' }] }) }
+    : { ok: true, arrayBuffer: async () => bytes };
+  db.setting('catalogSources', [{ id: 'test', type: 'url', name: 'Test', url: 'https://example.org/catalog.json' }]);
+  await catalog.list();
+  await assert.rejects(catalog.fetchFile('org.example.different'), /identity or version does not match/);
 });
 
 test('a completed package receives a course certificate only when its publisher defines one', () => {
@@ -248,7 +269,7 @@ test('package branding is validated, assembled and requires the package-style ca
   const checked = checkSpec(specPath);
   assert.deepEqual(checked.errors, []);
   assert.equal(checked.formats.pack, 2);
-  assert.equal(checked.minApp, '2.1.0');
+  assert.equal(checked.minApp, '2.2.0');
   const pack = assemble(specPath, path.join(root, 'assembled'), checked);
   assert.deepEqual(pack.branding, branding);
   assert.equal(validatePack(path.join(root, 'assembled')).formats.pack, 2);
@@ -289,7 +310,7 @@ test('custom web training packages preserve local JavaScript and require the web
   const checked = checkSpec(specPath);
   assert.deepEqual(checked.errors, []);
   assert.equal(checked.formats.training, 2);
-  assert.equal(checked.minApp, '2.1.0');
+  assert.equal(checked.minApp, '2.2.0');
   const assembled = path.join(root, 'assembled');
   const pack = assemble(specPath, assembled, checked);
   assert.equal(pack.items[0].entry, 'index.html');
@@ -323,7 +344,7 @@ test('custom web format 2 keeps its certificate and requires Academy 2.1', t => 
   const checked = checkSpec(specPath);
   assert.deepEqual(checked.errors, []);
   assert.equal(checked.formats.training, 2);
-  assert.equal(checked.minApp, '2.1.0');
+  assert.equal(checked.minApp, '2.2.0');
   const assembled = path.join(root, 'assembled');
   const pack = assemble(specPath, assembled, checked);
   assert.equal(pack.items[0].entry, 'index.html');
@@ -410,7 +431,7 @@ test('a password-gated package hides its verifier, refuses content until unlocke
   const { lib, write } = await setup(t);
   const password = passwordAccess('correct horse battery staple');
   const source = { ...manifest, id: 'org.example.gated', version: '1.0.0', title: 'Gated package', publisher: 'Example publisher', access: { password: { ...password, hint: 'Four words' } } };
-  const pack = buildPack({ manifest: { ...source, format: 3, minAppVersion: '2.0.0' }, files, privateKeyPem: keys.privateKey });
+  const pack = buildPack({ manifest: { ...source, format: 3, minAppVersion: '2.0.0' }, files });
   lib.importFile(write(pack), { userId: 5, devMode: false });
   const before = lib.get(source.id, 5);
   assert.equal(before.access.required, true);
@@ -593,10 +614,9 @@ test('invalid metadata is rejected with a field-specific error before replacing 
   for (const [name, mutate, error] of cases) {
     await t.test(name, () => {
       const m = structuredClone(manifest); m.version = '1.0.1'; mutate(m);
-      // Test trusted signatures too: signing does not make broken metadata acceptable.
-      for (const signed of [false, true]) {
-        const pack = buildPack({ manifest: m, files, privateKeyPem: signed ? keys.privateKey : undefined });
-        assert.throws(() => lib.importFile(write(pack), { userId: 1, devMode: !signed }), error);
+      {
+        const pack = buildPack({ manifest: m, files });
+        assert.throws(() => lib.importFile(write(pack), { userId: 1 }), error);
         assert.equal(db.get('SELECT version FROM packs WHERE id=?', [manifest.id]).version, '1.0.0');
         assert.equal(lib.getProgress(1, manifest.id, 'notes').percent, 50);
         assert.equal(fs.readFileSync(path.join(lib.packDir(manifest.id), 'test.txt'), 'utf8'), 'Test data only');

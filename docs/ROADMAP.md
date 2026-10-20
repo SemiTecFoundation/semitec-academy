@@ -3,12 +3,12 @@
 ## v1.0.0 — prototype (done)
 - [x] First-run data folder, move data folder, local accounts (create on first login), change name / password
 - [x] Library: add `.stlp` by button, drag & drop, or double-click (file association), update, remove
-- [x] Signed packs (Ed25519) with per-file hashes; tamper / unsigned / unknown key refused; developer mode
+- [x] Package content hashes and validation; current releases accept packages without publisher keys
 - [x] Version checks: pack format, item formats, minimum app version
 - [x] Training player = web training template engine (platform mode), progress per user in SQLite
 - [x] PDF reader (pdf.js): outline, zoom, page jump, resume, read tracking, mark as finished
 - [x] Labs: manual PDF, steps checklist with code / hints / manual links, check quiz with review links
-- [x] Packer CLI: init, add-training, add-reading, add-lab, validate, build (target app), inspect, keygen
+- [x] Packer CLI: init, add-training, add-reading, add-lab, validate, build (target app), inspect
 - [x] Sample pack, end-to-end tests (Playwright + Electron)
 
 ## v1.1.0 — sections, videos, materials, pack specs (done)
@@ -50,7 +50,6 @@
 - [ ] Start the Windows installer on a real Windows machine
 - [ ] Code-sign the installers (Windows certificate, Apple Developer ID + notarisation)
 - [ ] Auto-update check (GitHub releases or Foundation server)
-- [x] Replace the development key by the production key (KEYS.md)
 
 ## v1.5.0 — dashboard, catalog, publishers, groups (done)
 - [x] Dashboard as the main page (numbers, continue learning, Today, next 14 days, certificates, catalog news)
@@ -61,20 +60,17 @@
 - [x] Project categories (research, diploma, thesis, course project, capstone, internship) with filter; fixed the My / All projects switch
 - [x] Settings split into My account · Application · About
 
-## v1.6.0 – 1.6.2 — prerequisites, course order, production key (done)
+## v1.6.0 – 1.6.2 — prerequisites and course order (done)
 - [x] Prerequisites (`"prerequisite": true`): shown before the course, not counted in progress,
       status or the certificate (A7); attached materials (`for`) no longer count either
 - [x] Course-order view with modules; reset the progress of a package
 - [x] Markdown readings load images from the package; packer `catalog` command
 - [x] Installers built on real Windows, macOS and Linux runners and attached to each release;
       first native macOS DMGs
-- [x] Production signing key `4c71eba82f86fcca` is the only trusted key; no development key is
-      trusted (KEYS.md). Real contact details in the installer metadata
+- [x] Real contact details in the installer metadata
 
 ## v1.7.0 — open partner publishing (done)
-- [x] Partners sign packages with their own Ed25519 key; each recipient can inspect its fingerprint
-      and add that publisher locally in **Settings → Application → Trusted publishers**. No Foundation
-      agreement or approval queue is involved.
+- [x] Independent partner publishing without a Foundation agreement or approval queue.
 - [x] Optional publisher feedback contact (`name`, e-mail, site or instructions) shown in package details.
 - [x] Optional package certificate: a package without `certificate` is complete and has no course
       certificate; training certificates still work.

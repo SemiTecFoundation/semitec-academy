@@ -64,9 +64,9 @@ SemiTec Academy/
 | Table | Columns |
 |---|---|
 | `users` | id, username (unique, case-insensitive), display_name, pass_hash, pass_salt, created_at, last_login |
-| `packs` | id, version, title, publisher, signature (trusted / untrusted-key / unsigned), signed_by, manifest (JSON), installed_at, installed_by |
+| `packs` | id, version, title, publisher, legacy compatibility columns, manifest (JSON), installed_at, installed_by |
 | `progress` | user_id, pack_id, item_id, item_type, state (JSON), percent, completed_at, updated_at — PK (user, pack, item) |
-| `settings` | key, value (JSON): lastUser, devMode, catalogSources (application settings, shared by all users) |
+| `settings` | key, value (JSON): lastUser, catalogSources (application settings, shared by all users) |
 | `user_packs` (v3, app 1.5.0) | user_id, pack_id, added_at — the user's *My packages* (installing, enrolling or starting a package adds it) |
 | `pack_groups` (v3) | id, user_id, name (unique per user), description, created_at, updated_at |
 | `pack_group_items` (v3) | group_id, pack_id, position — a package can be in several groups |
@@ -94,7 +94,7 @@ it can later be synchronised with the web platform's `training_progress` table u
 - Local accounts per computer; passwords hashed with **scrypt** (N=16384, r=8, p=1, 16-byte salt),
   constant-time comparison. No password recovery: a teacher can create a new account; progress
   can be exported per user (JSON).
-- Packs install only with a valid signature from a key in `trusted-keys/` (developer mode excepted).
+- Packages from any publisher may be installed after format, path, content hash and metadata checks. These checks do not authenticate publisher identity.
 - A package may include an optional scrypt password verifier. The main process checks it and stores only
   an unlock record per learner; a successful package install clears its previous unlock records, while locked content, progress and download IPC calls are
   refused. This is access control inside Academy, not encryption of the `.stlp` archive.

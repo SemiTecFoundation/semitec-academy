@@ -51,14 +51,11 @@ Unsigned installers work, but Windows SmartScreen and macOS Gatekeeper warn on f
   `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID` and add `"notarize": true` to `build.mac`.
   Without a certificate `"identity": "-"` signs ad-hoc (required to run on Apple-chip Macs).
 - Never commit certificates or passwords; keep them in the CI secrets or the release machine's keychain.
-- Package signing keys (`.stlp`) are separate — see KEYS.md.
 
 ## Before the first public release
 - [x] Real contact details in `app/package.json`: `info@semitec.org` (author, Linux maintainer) and
   `https://semitec.org` (homepage). They end up in the Debian `control` file and the Windows
   installer metadata, so check them with `npm run dist:linux` output before a release.
-- [x] No development key in `app/trusted-keys/` — since 1.6.2 it holds only the production key
-  (KEYS.md). Signing a release needs the offline private key; drafts use `--unsigned` + Developer mode.
 
 ## Which files a release has
 Five installers and `SHA256SUMS.txt`: one `.exe` (Windows), `mac-arm64.dmg` and `mac-x64.dmg` (Apple
@@ -67,7 +64,7 @@ chip / Intel — a single universal DMG would carry both and roughly double ever
 `electron-updater`; the app does not auto-update, so that target is off.
 
 ## Build history
-- **1.6.2** — same workflow; first release signed with the production key, and the first whose notes
+- **1.6.2** — same workflow and the first release whose notes
   come from `.github/release-notes.md`. Five installers (the macOS `.zip` copies were dropped).
 - **1.6.1** — built by the workflow on real `windows-latest`, `macos-latest` and `ubuntu-latest`
   runners: the first proper DMGs, and the 75 end-to-end checks ran under `xvfb` before packaging.

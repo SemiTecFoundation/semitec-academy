@@ -1,6 +1,6 @@
 /* e2e.js — end-to-end test of the desktop app with Playwright (Electron).
-   Runs a fresh profile: first-run setup, account creation, pack install (signed), training / reading / lab
-   progress, logout / login, second user, tampered and unsigned packs, restart.
+   Runs a fresh profile: first-run setup, account creation, pack install, training / reading / lab
+   progress, logout / login, second user, altered packs, restart.
    Usage:  npm test            (Linux CI: xvfb-run -a npm test)
    Env:    SHOTS=folder for screenshots (default: test/screenshots)
            E2E_EXECUTABLE=path to a built app (default: run the sources) */
@@ -10,12 +10,8 @@ const fs = require('fs'), os = require('os'), path = require('path');
 const { unzipSync, zipSync } = require('fflate');
 
 const APP = path.join(__dirname, '..');
-/* The suite builds its own fixture packages with a throwaway key (fixtures/build.js) and points the
-   app at that key with SEMITEC_TRUSTED_KEYS, so no package signed with the production key is ever
-   committed — a fixture installs in this test and nowhere else. The assertions require these
-   exact fixtures; use the packer to check other packages separately. */
+/* The suite builds disposable fixture packages; no real course packages are used. */
 const FIXTURES = require('./fixtures/build').build();
-process.env.SEMITEC_TRUSTED_KEYS = FIXTURES.trustedDir;
 const PACK = FIXTURES.packs['org.semitec.fpga-starter'];
 const SHOTS = path.resolve(process.env.SHOTS || path.join(__dirname, 'screenshots'));
 const HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'stl-test-'));
@@ -79,7 +75,7 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   check(true, 'empty library shown');
   await shot(win, '03-empty-library');
 
-  console.log('3. Install signed pack');
+  console.log('3. Install package');
   await sendPack(app, PACK);
   await win.waitForSelector('.modal >> text=Add course pack');
   await shot(win, '04-install-dialog');
@@ -380,6 +376,10 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   await new Promise(ok => srv.listen(0, '127.0.0.1', ok));
   const catUrl = 'http://127.0.0.1:' + srv.address().port + '/catalog.json';
   await win.click('.ui-nav a:has-text("Catalog")');
+  const initialSources = await win.evaluate(() => window.api.catalog.sources());
+  check(initialSources.some(s => s.id === 'semitec-foundation'), 'Foundation catalog is an initial source');
+  for (const source of initialSources) await win.evaluate(id => window.api.catalog.remove(id), source.id);
+  await win.reload();
   await win.waitForSelector('text=No catalog sources yet');
   check(true, 'catalog without sources explains how to add them');
   await win.evaluate((u) => window.api.catalog.addUrl(u, 'Test catalog'), catUrl);
@@ -468,7 +468,7 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   const flowSrc = await win.getAttribute('.about-diagram', 'src');
   check(await win.isVisible('text=About SemiTec Foundation') && /authoring-flow\.png/.test(flowSrc || '') && await win.isVisible('text=Academy Templates on GitHub'), 'settings: About links the Foundation and Academy Templates with the authoring flow');
 
-  console.log('8. Tampered and unsigned packs are refused');
+  console.log('8. File validation and installation');
   const files = unzipSync(new Uint8Array(fs.readFileSync(PACK)));
   const k = Object.keys(files).find(n => n.endsWith('training.json'));
   files[k] = new TextEncoder().encode(new TextDecoder().decode(files[k]).replace('Feature Tour', 'Hacked Tour'));
@@ -481,7 +481,7 @@ const sendPack = (app, file) => app.evaluate(({ BrowserWindow }, f) => BrowserWi
   files[k2] = orig[k2];
   const uns = path.join(HOME, 'unsigned.stlp'); fs.writeFileSync(uns, zipSync(files));
   const r2 = await win.evaluate((f) => window.api.packs.install(f).then(() => 'installed', e => e.message), uns);
-  check(/not signed/.test(r2), 'unsigned pack refused without developer mode');
+  check(r2 === 'installed', 'package installs without publisher keys or developer mode: ' + r2);
 
   console.log('9. Logout, wrong password, second user');
   await win.click('.ui-user > button'); await win.click('text=⎋ Log out');

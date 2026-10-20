@@ -1,8 +1,8 @@
 # Studying and downloading packages
 
-Install a `.stlp` from a publisher you trust. Academy checks its signature, files, content and study plan.
-If a file or field is missing, the error identifies it; ask the publisher for a corrected package. Developer
-mode allows unsigned drafts but does not skip content validation.
+Choose a `.stlp` from a source you trust. Academy checks its files, content, compatibility and study plan.
+If a file or field is missing, the error identifies it; ask the publisher for a corrected package.
+Anyone can publish a package. The publisher name is supplied by the package and is not authenticated.
 
 Use **By type**, **Course order** or **Study plan** on the package page. Order and plan are included by
 the publisher. The study plan starts on your selected enrollment date. Projects have their own tracker.

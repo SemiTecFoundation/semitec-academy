@@ -14,12 +14,16 @@ const MIME = { '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg
 const dataUrl = (name, buf) => buf && MIME[path.extname(name).toLowerCase()] ? 'data:' + MIME[path.extname(name).toLowerCase()] + ';base64,' + buf.toString('base64') : null;
 const slug = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-module.exports = function catalog({ db, lib, trustedKeys }) {
+module.exports = function catalog({ db, lib }) {
   const peekCache = {};       // file path -> { mtime, size, entry }
   const urlCache = {};        // url -> { at, data }
   let last = {};              // id -> entry of the last list() (install uses this, never data from the UI)
 
-  function sources() { return db.setting('catalogSources') || []; }
+  function sources() {
+    const saved = db.setting('catalogSources');
+    if (saved != null) return saved;
+    return save([{ id: 'semitec-foundation', type: 'url', name: 'SemiTec Foundation', url: 'https://semitecfoundation.github.io/semitec-academy-materials/catalog/catalog.json' }]);
+  }
   function save(list) { db.setting('catalogSources', list); return list; }
   function installedMap() {
     const m = {}; db.all('SELECT id, version FROM packs').forEach(r => { m[r.id] = r.version; }); return m;
@@ -32,7 +36,7 @@ module.exports = function catalog({ db, lib, trustedKeys }) {
     const c = cmp(entry.version, iv);
     return { status: c > 0 ? 'update' : c === 0 ? 'installed' : 'older', installedVersion: iv };
   }
-  function fromManifest(m, sig, imgs) {
+  function fromManifest(m, imgs) {
     const counts = {}; (m.items || []).forEach(it => { counts[it.type] = (counts[it.type] || 0) + 1; });
     const cats = [...new Set((m.items || []).filter(i => i.type === 'project' && i.category).map(i => i.category))];
     return { id: m.id, version: m.version, title: m.title, description: m.description || '', language: m.language || '', publisher: m.publisher || '',
@@ -40,7 +44,6 @@ module.exports = function catalog({ db, lib, trustedKeys }) {
       itemsFormats: (m.items || []).map(i => ({ id: i.id, type: i.type, format: i.format })), counts, projectCategories: cats,
       hasSchedule: !!(m.schedule && (m.schedule.entries || []).length), created: m.created || null,
       text: [m.title, m.description, m.publisher].concat((m.items || []).map(i => i.title)).join(' \n '),
-      signature: sig ? sig.status : 'unknown', signedBy: sig ? (sig.keyName || sig.keyId || '') : '',
       cover: imgs && imgs.cover ? dataUrl(imgs.cover.name, imgs.cover.data) : null, publisherLogo: imgs && imgs.logo ? dataUrl(imgs.logo.name, imgs.logo.data) : null };
   }
   function scanFolder(dir) {
@@ -56,8 +59,8 @@ module.exports = function catalog({ db, lib, trustedKeys }) {
             const st = fs.statSync(p);
             const c = peekCache[p];
             if (c && c.mtime === st.mtimeMs && c.size === st.size) { out.push(c.entry); continue; }
-            const pk = peekPack(fs.readFileSync(p), trustedKeys);
-            const entry = Object.assign(fromManifest(pk.manifest, pk.signature, pk.images), { file: p, size: st.size });
+            const pk = peekPack(fs.readFileSync(p));
+            const entry = Object.assign(fromManifest(pk.manifest, pk.images), { file: p, size: st.size });
             peekCache[p] = { mtime: st.mtimeMs, size: st.size, entry }; out.push(entry);
           } catch (e) { errors.push(n.name + ': ' + e.message); }
         }
@@ -98,7 +101,7 @@ module.exports = function catalog({ db, lib, trustedKeys }) {
         const e = { id: p.id, version: p.version, title: p.title || p.id, description: p.description || '', language: p.language || '', publisher: p.publisher || j.publisher || '',
           publisherId: slug(p.publisher || j.publisher), authors: p.authors || [], minAppVersion: p.minAppVersion || '1.0.0', format: p.format || 1, itemsFormats: p.items || [],
           counts: p.counts || {}, projectCategories: p.projectCategories || [], hasSchedule: !!p.hasSchedule, created: p.created || null,
-          text: [p.title, p.description, p.publisher].concat(p.itemTitles || []).join(' \n '), signature: p.signed ? 'signed' : 'unknown', signedBy: p.signedBy || '',
+          text: [p.title, p.description, p.publisher].concat(p.itemTitles || []).join(' \n '),
           download: abs(p.url), sha256: p.sha256 || null, size: p.size || 0 };
         [e.cover, e.publisherLogo] = await Promise.all([p.cover ? fetchImage(abs(p.cover)) : null, (p.publisherLogo || j.publisherLogo) ? fetchImage(abs(p.publisherLogo || j.publisherLogo)) : null]);
         data.entries.push(e);
@@ -146,8 +149,10 @@ module.exports = function catalog({ db, lib, trustedKeys }) {
       const r = await fetch(entry.download); if (!r.ok) throw new Error('Download failed: HTTP ' + r.status);
       const buf = Buffer.from(await r.arrayBuffer());
       if (entry.sha256 && crypto.createHash('sha256').update(buf).digest('hex') !== entry.sha256) throw new Error('The downloaded file does not match the catalog (sha256)');
+      const manifest = peekPack(buf).manifest;
+      if (manifest.id !== entry.id || manifest.version !== entry.version) throw new Error('The downloaded package identity or version does not match the catalog');
       const dir = path.join(os.tmpdir(), 'semitec-academy-downloads'); fs.mkdirSync(dir, { recursive: true });
-      const out = path.join(dir, `${entry.id}-${entry.version}.stlp`); fs.writeFileSync(out, buf);
+      const out = path.join(dir, `${crypto.randomUUID()}.stlp`); fs.writeFileSync(out, buf);
       return out;
     }
   };

@@ -14,15 +14,14 @@ student's progress locally.
 2. When a course should be delivered through Academy, the optional package skill selects and copies several
    materials into one `.stlp` archive.
 3. The materials repository releases the archive directly or through a catalog. The app repository never
-   publishes course content. Partners may use their own publisher name, signing key and catalog without
+   publishes course content. Partners may use their own publisher name, catalog without
    a Foundation approval process.
 
 ## What the app guarantees
 
-Before installation the app verifies the package ID, content paths and hashes, trusted signature and format
-compatibility. A recipient may add a publisher's public key in Settings after independently checking its
-fingerprint. It stages verified files inside the package store before replacing an installed version. A
-package cannot use an ID to escape that store, even in Developer mode.
+Before installation the app checks the package ID, content paths and hashes, compatibility, and required
+metadata. It stages checked files inside the package store before replacing an installed version. These
+checks do not authenticate a publisher: users choose the catalogs and files they wish to use.
 
 Course certificates are optional publisher features: a package without a certificate declaration remains
 complete but does not show a course credential. Projects are independently tracked advanced lab-style work;

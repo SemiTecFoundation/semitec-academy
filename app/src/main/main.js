@@ -6,14 +6,12 @@ const { app, BrowserWindow, protocol, ipcMain, dialog, shell } = require('electr
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const crypto = require('crypto');
 const { DB } = require('./db');
 const makeAuth = require('./auth');
 const makeLibrary = require('./library');
 const makePlanner = require('./planner');
 const makeCatalog = require('./catalog');
 const makeMine = require('./mine');
-const { loadTrustedKeys, keyId } = require('../shared/packfmt');
 const { copyPack, copyItem, isPreview } = require('./export');
 const versions = require('../shared/versions');
 
@@ -21,9 +19,6 @@ const ROOT = path.join(__dirname, '..');                       // src/
 const RENDERER = path.join(ROOT, 'renderer');
 const ENGINE = path.join(ROOT, 'engine', 'training');
 const PDFJS = path.dirname(require.resolve('pdfjs-dist/package.json'));
-/* SEMITEC_TRUSTED_KEYS lets the end-to-end suite point the app at a throwaway key, so the
-   repository never has to carry a package signed with the production key. Not used in a release. */
-const TRUSTED_KEYS = process.env.SEMITEC_TRUSTED_KEYS || path.join(ROOT, '..', 'trusted-keys');
 
 const argData = (process.argv.find(a => a.startsWith('--data-dir=')) || '').slice(11);
 const CONFIG_FILE = () => path.join(app.getPath('userData'), 'config.json');
@@ -34,32 +29,11 @@ protocol.registerSchemesAsPrivileged([{ scheme: 'stl', privileges: { standard: t
 /* ---------------- data folder ---------------- */
 function readConfig() { try { return JSON.parse(fs.readFileSync(CONFIG_FILE(), 'utf8')); } catch (e) { return null; } }
 function defaultDataDir() { return path.join(app.getPath('documents'), 'SemiTec Academy'); }
-function localKeysDir(dir = S.dataDir) { return path.join(dir, 'trusted-publishers'); }
-/* A computer owner chooses which publisher keys to trust. Importing a public key never asks for or
-   stores a publisher private key, and does not imply SemiTec Foundation approval. */
-function trustedKeys() {
-  const builtIn = loadTrustedKeys(TRUSTED_KEYS);
-  Object.values(builtIn).forEach(k => { k.origin = 'built-in'; });
-  const local = loadTrustedKeys(localKeysDir());
-  for (const [id, key] of Object.entries(local)) if (!builtIn[id]) { key.origin = 'local'; builtIn[id] = key; }
-  return builtIn;
-}
 function refreshServices() {
-  const keys = trustedKeys();
-  S.lib = makeLibrary({ db: S.db, dataDir: S.dataDir, trustedKeys: keys });
+  S.lib = makeLibrary({ db: S.db, dataDir: S.dataDir });
   S.plan = makePlanner({ db: S.db, lib: S.lib });
-  S.catalog = makeCatalog({ db: S.db, lib: S.lib, trustedKeys: keys });
+  S.catalog = makeCatalog({ db: S.db, lib: S.lib });
   S.mine = makeMine({ db: S.db, lib: S.lib });
-}
-function publicKeyInfo(file) {
-  const pem = fs.readFileSync(path.resolve(file), 'utf8');
-  if (/-----BEGIN (?:[A-Z ]+ )?PRIVATE KEY-----/.test(pem)) throw new Error('Choose a public key file, never a private key');
-  const key = crypto.createPublicKey(pem);
-  if (key.asymmetricKeyType !== 'ed25519') throw new Error('Publisher keys must be Ed25519 public keys (.pub.pem)');
-  return { file: path.resolve(file), pem, keyId: keyId(pem), suggestedName: path.basename(file).replace(/\.pub\.pem$/i, '').replace(/[-_]+/g, ' ') };
-}
-function publisherKeys() {
-  return Object.entries(loadTrustedKeys(localKeysDir())).map(([keyId, key]) => ({ keyId, name: key.name })).sort((a, b) => a.name.localeCompare(b.name));
 }
 async function openData(dir) {
   fs.mkdirSync(dir, { recursive: true });
@@ -70,7 +44,6 @@ async function openData(dir) {
   refreshServices();
 }
 const NOW = () => process.env.SEMITEC_NOW || undefined;   // tests may fix "today" (YYYY-MM-DD)
-const devMode = () => process.env.SEMITEC_DEV === '1' || !!(S.db && S.db.setting('devMode'));
 
 /* ---------------- stl:// protocol ---------------- */
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
@@ -191,7 +164,7 @@ function registerIpc() {
   api('app:info', () => ({
     version: versions.APP_VERSION, capabilities: versions.capabilities(), history: versions.HISTORY,
     engine: JSON.parse(fs.readFileSync(path.join(ENGINE, 'ENGINE.json'), 'utf8')),
-    dataDir: S.dataDir, defaultDataDir: defaultDataDir(), needsSetup: !S.db, devMode: devMode(),
+    dataDir: S.dataDir, defaultDataDir: defaultDataDir(), needsSetup: !S.db,
     platform: process.platform, electron: process.versions.electron, user: S.user
   }), { needsData: false });
   api('app:chooseFolder', async () => {
@@ -212,36 +185,12 @@ function registerIpc() {
     fs.mkdirSync(dir, { recursive: true });
     fs.copyFileSync(path.join(S.dataDir, 'learning.db'), path.join(dir, 'learning.db'));
     if (fs.existsSync(S.lib.packsDir)) fs.cpSync(S.lib.packsDir, path.join(dir, 'packs'), { recursive: true });
-    if (fs.existsSync(localKeysDir())) fs.cpSync(localKeysDir(), path.join(dir, 'trusted-publishers'), { recursive: true });
     const old = S.dataDir;
     await openData(dir);
     fs.writeFileSync(CONFIG_FILE(), JSON.stringify({ dataDir: dir }, null, 2));
     return { dataDir: dir, oldDataDir: old };
   }, { needsUser: true });
   api('app:openDataFolder', () => shell.openPath(S.dataDir));
-  api('app:setDevMode', (on) => { S.db.setting('devMode', !!on); return devMode(); }, { needsUser: true });
-  api('app:publisherKeys', () => publisherKeys(), { needsUser: true });
-  api('app:choosePublisherKey', async () => {
-    const r = await dialog.showOpenDialog(S.win, { title: 'Choose a publisher public key', filters: [{ name: 'Ed25519 public key', extensions: ['pem'] }], properties: ['openFile'] });
-    return r.canceled ? null : publicKeyInfo(r.filePaths[0]);
-  }, { needsUser: true });
-  api('app:addPublisherKey', (file, name) => {
-    const info = publicKeyInfo(file), label = String(name || '').trim();
-    if (!label || label.length > 100) throw new Error('Enter a publisher name (1–100 characters)');
-    if (loadTrustedKeys(TRUSTED_KEYS)[info.keyId]) throw new Error('This Foundation key is already included with the app');
-    const dir = localKeysDir(); fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, info.keyId + '.pub.pem'), info.pem);
-    fs.writeFileSync(path.join(dir, info.keyId + '.json'), JSON.stringify({ name: label }, null, 2) + '\n');
-    refreshServices();
-    return publisherKeys();
-  }, { needsUser: true });
-  api('app:removePublisherKey', (id) => {
-    if (!/^[a-f0-9]{16}$/.test(String(id || ''))) throw new Error('Invalid publisher key id');
-    fs.rmSync(path.join(localKeysDir(), id + '.pub.pem'), { force: true });
-    fs.rmSync(path.join(localKeysDir(), id + '.json'), { force: true });
-    refreshServices();
-    return publisherKeys();
-  }, { needsUser: true });
 
   api('auth:exists', (username) => S.auth.exists(username));
   api('auth:register', (data) => { S.user = S.auth.register(data); S.db.setting('lastUser', S.user.username); return S.user; });
@@ -337,10 +286,10 @@ function registerIpc() {
     const { pack, compat, installedVersion } = S.lib.inspect(file);
     const m = pack.manifest;
     return { file, id: m.id, version: m.version, title: m.title, description: m.description, publisher: m.publisher, minAppVersion: m.minAppVersion,
-      items: (m.items || []).map(it => ({ id: it.id, type: it.type, title: it.title })), signature: pack.signature, compat, installedVersion, devMode: devMode(),
+      items: (m.items || []).map(it => ({ id: it.id, type: it.type, title: it.title })), compat, installedVersion,
       size: fs.statSync(file).size };
   }, { needsUser: true });
-  api('packs:install', (file) => { const r = S.lib.importFile(file, { userId: S.user.id, devMode: devMode() }); S.mine.add(S.user.id, r.id); return r; }, { needsUser: true });
+  api('packs:install', (file) => { const r = S.lib.importFile(file, { userId: S.user.id }); S.mine.add(S.user.id, r.id); return r; }, { needsUser: true });
   api('packs:remove', (id) => S.lib.remove(id), { needsUser: true });
   api('packs:unlock', (id, password) => S.lib.unlock(S.user.id, id, String(password || '')), { needsUser: true });
   /* files of "material" items: save a copy / open with the system app (a temp copy, the pack stays untouched) */
