@@ -25,11 +25,11 @@ marked done in ROADMAP.md (A7 prerequisites and A16 catalog are implemented).
 | A1 | My mistakes | every wrong quiz answer in one list, with the page to re-read | S | — |
 | A2 | Notes, bookmarks, highlights | own notes on PDFs, Markdown, lab steps and trainings | M | — |
 | A3 | Search | find any word in a package and jump to it | M | — |
-| A4 | Study planner and goals | "finish by 20 Dec" → a weekly plan, reminders, streaks, time spent — **plans, calendar, Today: done in 1.4.0** | M | `schedule` ✓ |
+| A4 | Study planner and goals | "finish by 20 Dec" → a weekly plan, reminders, streaks, time spent — **plans, calendar, Today: done** | M | `schedule` ✓ |
 | A5 | Review and flashcards | short spaced-repetition sessions so knowledge stays | M | optional `glossary` |
 | A6 | Practice tests | timed self-tests from a question pool, score history | M | optional question pools |
 | A7 | Prerequisites and learning paths | items unlock in a sensible order; recommended next item | S | `requires` field |
-| A8 | Completion certificates | an optional publisher-provided certificate for a finished package, printable — **done in 1.7.0 (local)** | M | `certificate` ✓ |
+| A8 | Completion certificates | an optional publisher-provided certificate for a finished package, printable — **done (local)** | M | `certificate` ✓ |
 | A9 | HDL playground and self-checked exercises | write and simulate Verilog in the app; tests say what is wrong | L | new item `exercise` |
 | A10 | Lab bench tools | serial terminal, waveform viewer, board programmer, PC check | M–L | lab `requirements` |
 | A11 | Technical glossary EN / HY / RU | hover a term to see its meaning and translation | S–M | optional `glossary` |
@@ -37,11 +37,11 @@ marked done in ROADMAP.md (A7 prerequisites and A16 catalog are implemented).
 | A13 | Armenian / Russian interface | the app in the student's language | S | — |
 | A14 | Accessibility and comfort | dark mode, text size, captions, keyboard, playback speed | S–M | optional `.vtt` |
 | A15 | Backup and move to another computer | one file with all progress and notes; restore anywhere | S | — |
-| A16 | Package catalogue and updates | browse and download Foundation packages; update badges — **done in 1.5.0 (folders + catalog links)** | M | `catalog.json` ✓ |
+| A16 | Package catalogue and updates | browse and download Foundation packages; update badges — **done (folders + catalog links)** | M | `catalog.json` ✓ |
 | A17 | My learning record | a PDF / JSON record of finished packages, scores, certificates | S–M | — |
-| A18 | Contact the author | publisher feedback contact in package details — **done in 1.7.0**; contextual report form remains open | S | optional `contact` ✓ |
-| | **New sections and features (after 1.4.0)** | | | |
-| A19 | Home — my learning dashboard | time spent per week, streak, progress of all courses and projects, "continue" cards — **dashboard done in 1.5.0; time / streak open** | M | — |
+| A18 | Contact the author | publisher feedback contact in package details — **done**; contextual report form remains open | S | optional `contact` ✓ |
+| | **New sections and features** | | | |
+| A19 | Home — my learning dashboard | time spent per week, streak, progress of all courses and projects, "continue" cards — **dashboard done; time / streak open** | M | — |
 | A20 | Notes section | all notes (items, project weeks) in one place, search, export as Markdown | S–M | — |
 | A21 | Project workspace | links (git, Overleaf), files per deliverable, "submitted" ticks, weekly report for the supervisor meeting | M | — |
 | A22 | Sources and reading list | references of courses and project learning paths, mark as read, BibTeX for the thesis | M | optional `references` |
@@ -53,11 +53,9 @@ marked done in ROADMAP.md (A7 prerequisites and A16 catalog are implemented).
 | A28 | My files | every file received (lab sources, materials, briefs) in one place, open / save | S | — |
 
 **Suggested order**
-0. **v1.4.0 (done):** library search and filters, enrollment and study plans, calendar, Today panel,
-   projects, certificates, installers.
-1. **v1.5.0 (done):** dashboard, A16 catalogue (folders and catalog links), publishers, package groups.
-2. **v1.6.x (done):** A7 Prerequisites, course-order view and reset progress.
-3. **v1.7.0 (done):** open partner publishing, optional course certificates and publisher contacts.
+0. **Done in the initial release 2.2.0:** library search and filters, enrollment and study plans, calendar, Today panel,
+   projects, certificates, installers, dashboard, A16 catalogue, publishers, package groups, A7 prerequisites,
+   course-order view, open partner publishing, optional certificates and publisher contacts.
 4. **Next "self-study basics":** A1 My mistakes, A2 Notes and bookmarks, A15 Backup, A13 Armenian UI,
    A14 dark mode / text size. Small, no format change, big effect on daily use.
 5. **Then "learn better":** A5 Review, A6 Practice tests, A3 Search inside a course.
@@ -177,7 +175,7 @@ week's plan (from Today), time spent per day as a small heat-map, streak, totals
 certificates). Time is measured while an item is open and the window is focused.
 
 ## A20 — Notes section
-One page with every note the student wrote — project week notes (1.4.0), and later notes on PDFs,
+One page with every note the student wrote — project week notes (available), and later notes on PDFs,
 Markdown and lab steps (A2) — grouped by course / project, searchable, *Export as Markdown*.
 
 ## A21 — Project workspace

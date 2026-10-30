@@ -1,9 +1,41 @@
 # SemiTec Academy
 
-**SemiTec Academy** is the SemiTec Foundation's desktop learning app. Students install it once, create a
-local account, and add **SemiTec Learning Packages** (`.stlp`) — one file per course with
-trainings, labs, readings, videos and other materials. Progress is saved per student in a local database.
-New packages and new versions of packages can be added at any time; the app does not need to change.
+**A free, open-source desktop learning app for students.** Students install SemiTec Academy once, add
+course packages (`.stlp` files), and study on their own computer: interactive trainings with quizzes, labs
+with source files, readings, videos and projects, with their progress saved locally. No server, no sign-up
+and no internet connection are needed to study.
+
+**▶ [Introduction and presentation](https://semitecfoundation.github.io/semitec-academy/)** ·
+**⬇ [Download the app](https://github.com/SemiTecFoundation/semitec-academy/releases/latest)** ·
+**[Install guide](docs/INSTALLING.md)** · **[Learner guide](docs/LEARNING.md)**
+
+Current version: **2.2.0, the initial public release**. Source code under the [Apache-2.0](LICENSE) license.
+
+## For universities
+
+- **Free and open source.** Use it in your courses at no cost; the source code is public and can be
+  reviewed, built and adapted under Apache-2.0.
+- **Students work on their own computers.** Windows, macOS and Linux installers; accounts, progress and
+  packages stay in a local folder the student chooses. The app only goes online to read the catalogs
+  and download the packages the student selects.
+- **Course packages.** The SemiTec Foundation catalog is already set up in the app (*Catalog*), so students
+  can see and install the Foundation's published packages. A package can also be shared directly as a file
+  (e-mail, shared drive, USB).
+- **Your own materials.** Lecturers can publish their own packages and catalog without any agreement or
+  approval from the Foundation, using the [Academy Templates](https://github.com/SemiTecFoundation/semitec-academy-skills)
+  and the [publishing guide](docs/PUBLISHING.md). Each publisher remains responsible for its content.
+- **Questions and feedback:** open an [issue](https://github.com/SemiTecFoundation/semitec-academy/issues)
+  or write to info@semitec.org.
+
+### Getting a class started
+
+1. Each student downloads the installer for their computer from the
+   [latest release](https://github.com/SemiTecFoundation/semitec-academy/releases/latest) and installs it
+   (macOS needs one extra step, explained in the [install guide](docs/INSTALLING.md#macos)).
+2. On first start, the student chooses a data folder and creates a local account (just a username and password).
+3. The student opens **Catalog** and installs a package, or drags a `.stlp` file the lecturer shared onto the
+   app window.
+4. The student enrolls, follows the course order or study plan, and continues where they left off each time.
 
 ## SemiTec Foundation and source projects
 
@@ -143,7 +175,7 @@ The desktop suite uses a temporary profile and data folder and removes its test 
 CI runs the package tests on Windows, macOS and Linux and the desktop checks on Linux for main-branch
 updates and pull requests. Built `.stlp` files are ignored and rejected by CI; keep only fixture sources here.
 
-To try a package in Academy 2.2.0 or newer, build it and add it to the app:
+To try a package, build it and add it to the app:
 
 ```bash
 node packer/stlp.js check    <pack-spec.json>
@@ -171,26 +203,12 @@ The **app version** (`app/package.json`) decides which **content formats** it ca
 (`app/src/shared/versions.js`); the packer writes the formats used and the **minimum app version** into
 every package; a package has its own **content version** for updates. See [`docs/VERSIONING.md`](docs/VERSIONING.md).
 
-| App | Added |
-|---|---|
-| 1.0.0 | accounts, library, packages, trainings, labs, PDF readings |
-| 1.1.0 | sections by type, videos, other materials, pack specs |
-| 1.2.0 | lab source files, compact lab header |
-| 1.3.0 | name **SemiTec Academy**, `.stlp` packages, Markdown readings and materials |
-| 1.4.0 | installers; library search and filters; enrollment and study plans; calendar; Today panel and reminders; projects; certificates page |
-| 1.5.0 | dashboard; catalog (folders + catalog links); publishers with logos; My packages / Explore with groups; materials attached to labs; project categories; settings *My account / Application / About* |
-| 1.6.0 | prerequisites that are not counted in progress; course-order view; Markdown reading images; packer `catalog` command |
-| 1.6.1–1.6.2 | package security and publisher contact updates |
-| 1.7.0 | optional publisher feedback contact and package certificate; clearer independent project plans |
-| 1.7.1 | projects follow each student's *My packages*; package removal stops active course and project plans after confirmation; stale plan references are cleaned on sign-in |
-| 1.8.0 | optional publisher package branding: accessible accent colours for package details, labs, projects, readings and materials; trainings and certificates retain their own designs |
-| 1.9.0 | self-contained local HTML/CSS/JavaScript trainings in a sandboxed frame, with a small progress bridge to Academy |
-| 2.0.0 | optional password-gated packages; direct PDF downloads; export of complete course files and browser-ready trainings |
-| 2.1.0 | two training formats with optional HTML certificates; full-folder downloads; preview access; manual presentation progress; mandatory order/plan; selectable PDF text and links |
-| 2.1.1 | preview-password unlock opens each training's all-sections author preview; normal tracked study remains available separately |
-| 2.1.2 | release verification repair; same package and training compatibility as 2.1.1 |
-| 2.1.3 | cross-platform clipboard test repair; same package and training compatibility as 2.1.2 |
-| 2.2.0 | install packages without keys; Foundation catalog added as the initial source |
+**2.2.0 is the initial public release.** It includes: local accounts and library; dashboard, calendar,
+study plans and reminders; catalog sources and publishers; trainings in two formats (Academy JSON and
+custom HTML/CSS/JavaScript) with quizzes and optional certificates; labs with manuals and source files;
+PDF and Markdown readings; videos; other materials; projects; full-folder downloads; optional package
+passwords; and installers for Windows, macOS and Linux. The number starts at 2.2.0 because packages built
+by the current Academy Templates require app 2.1.0 or newer. See [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## License, package ownership and partner publishing
 
@@ -202,6 +220,7 @@ certificate. Students and universities choose their catalog sources. Read
 
 ## Status
 
-Current release: **v2.1.3**. It includes password-gated author previews, learner file exports and optional certificates for custom web trainings. All features are covered by `npm test`; installers for Windows, macOS and Linux
-are built on real runners for each system and attached to every release.
-Next: code signing (RELEASING.md), and the proposals in [`docs/PROPOSALS.md`](docs/PROPOSALS.md) — self-study features first; multi-user features belong to the Foundation platform.
+Current release: **v2.2.0, the initial public release**. All features are covered by `npm test`; installers
+for Windows, macOS and Linux are built on real runners for each system and attached to the release.
+Next: code signing ([RELEASING.md](docs/RELEASING.md)) and the self-study proposals in
+[`docs/PROPOSALS.md`](docs/PROPOSALS.md); multi-user features belong to the Foundation platform.

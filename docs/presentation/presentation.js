@@ -11,7 +11,7 @@
   const closeDialog = document.querySelector('.close-dialog');
   let index = 0;
 
-  total.textContent = ` / ${String(slides.length).padStart(2, '0')}`;
+  total.textContent = ` ${String(slides.length).padStart(2, '0')}`;
 
   function show(nextIndex, updateHash = true) {
     index = Math.max(0, Math.min(nextIndex, slides.length - 1));
@@ -43,7 +43,7 @@
 
   next.addEventListener('click', () => show(index === slides.length - 1 ? 0 : index + 1));
   previous.addEventListener('click', () => show(index - 1));
-  document.querySelector('.start').addEventListener('click', () => show(1));
+  document.querySelector('button.start').addEventListener('click', () => show(1));
   document.querySelector('.brand').addEventListener('click', () => show(0));
 
   document.addEventListener('keydown', event => {

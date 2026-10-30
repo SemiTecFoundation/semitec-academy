@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="An introduction to SemiTec Academy for learners, educators and publishers.">
     <title>Introducing SemiTec Academy</title>
-    <link rel="stylesheet" href="presentation.css?v=20261017-03">
+    <link rel="stylesheet" href="presentation.css?v=20261030-01">
   </head>
   <body>
     <main class="deck" aria-label="Introducing SemiTec Academy presentation">
@@ -21,11 +21,14 @@
         <div class="hero-copy">
           <p class="eyebrow">SemiTec Foundation</p>
           <h1 id="welcome-title">Learning materials that stay useful from authoring to achievement.</h1>
-          <p class="lead">SemiTec Academy is a desktop learning app for distributing course packages, studying them offline, and recognising completed learning.</p>
+          <p class="lead">SemiTec Academy is a free, open-source desktop learning app for distributing course packages, studying them offline, and recognising completed learning.</p>
           <div class="audiences">
-            <span>For learners</span><span>For educators</span><span>For publishers</span>
+            <a href="https://github.com/SemiTecFoundation/semitec-academy" target="_blank" rel="noreferrer">Free &amp; open source on GitHub ↗</a><span>Windows · macOS · Linux</span><span>For learners, universities and publishers</span>
           </div>
-          <button class="start primary" type="button">Explore the flow <span aria-hidden="true">→</span></button>
+          <div class="hero-actions">
+            <a class="start primary" href="https://github.com/SemiTecFoundation/semitec-academy/releases/latest" target="_blank" rel="noreferrer">Download the app <span aria-hidden="true">↓</span></a>
+            <button class="start ghost" type="button">Explore the flow <span aria-hidden="true">→</span></button>
+          </div>
         </div>
         <div class="hero-visual" aria-hidden="true">
           <div class="hero-orbit orbit-a"></div><div class="hero-orbit orbit-b"></div>
@@ -154,6 +157,22 @@
         <figure class="screenshot certificate-shot"><img src="assets/certificate.png" alt="SemiTec Academy course certificate issued to a learner"><figcaption>Certificate: publishers can create their own HTML layout and decide when it is issued.</figcaption></figure>
       </section>
 
+      <section class="slide flow-slide university-slide" id="universities" data-title="For universities" aria-labelledby="university-title" hidden>
+        <div class="slide-heading">
+          <p class="eyebrow">For universities</p>
+          <h2 id="university-title">Free for your students. Ready for a class today.</h2>
+          <p>SemiTec Academy is open source under Apache-2.0. Students use it on their own computers; there is no server to run, no licence fee and no sign-up with the Foundation.</p>
+        </div>
+        <ol class="flow" aria-label="Getting a class started">
+          <li><span class="flow-number">01</span><strong>Download</strong><small>Each student installs the app for Windows, macOS or Linux from the latest release.</small></li>
+          <li><span class="flow-number">02</span><strong>Create an account</strong><small>A local username and password; progress stays in a folder the student chooses.</small></li>
+          <li><span class="flow-number">03</span><strong>Add a package</strong><small>Install from the built-in SemiTec Foundation catalog, or drop in a <code>.stlp</code> file you share.</small></li>
+          <li><span class="flow-number">04</span><strong>Study</strong><small>Follow the course order or study plan; resume where you left off.</small></li>
+          <li><span class="flow-number">05</span><strong>Publish your own</strong><small>Lecturers can create packages and a catalog with the Academy Templates, no approval needed.</small></li>
+        </ol>
+        <div class="note"><span aria-hidden="true">⌁</span><p><strong>Open and reviewable.</strong> The app, its package format and its tests are public on GitHub. Questions and feedback: open an issue or write to info@semitec.org.</p></div>
+      </section>
+
       <section class="slide publisher-slide" id="publishers" data-title="For publishers" aria-labelledby="publisher-title" hidden>
         <div class="slide-heading centered narrow">
           <p class="eyebrow">For institutions and authors</p>
@@ -172,20 +191,21 @@
         <div>
           <p class="eyebrow">SemiTec Foundation</p>
           <h2 id="closing-title">Make learning materials practical, portable and recognisable.</h2>
-          <p class="lead">Explore the Academy app, use the Templates product to create material, or publish a catalog that serves your learners.</p>
-          <div class="link-cards">
-            <a href="https://github.com/SemiTecFoundation/semitec-academy" target="_blank" rel="noreferrer"><span>⌂</span><strong>Academy app</strong><small>Install and study packages</small></a>
+          <p class="lead">Download the Academy app, use the Templates to create material, or publish a catalog that serves your learners. Free and open source.</p>
+          <div class="link-cards is-four">
+            <a href="https://github.com/SemiTecFoundation/semitec-academy/releases/latest" target="_blank" rel="noreferrer"><span>↓</span><strong>Download Academy</strong><small>Windows, macOS and Linux installers</small></a>
+            <a href="https://github.com/SemiTecFoundation/semitec-academy" target="_blank" rel="noreferrer"><span>⌂</span><strong>Source and guides</strong><small>Code, install and learner guides</small></a>
             <a href="https://github.com/SemiTecFoundation/semitec-academy-skills" target="_blank" rel="noreferrer"><span>✦</span><strong>Academy Templates</strong><small>Create learning material</small></a>
             <a href="https://semitec.org" target="_blank" rel="noreferrer"><span>↗</span><strong>semitec.org</strong><small>Foundation goals and projects</small></a>
           </div>
         </div>
-        <p class="closing-mark">SemiTec Academy · tools and documentation © SemiTec Foundation</p>
+        <p class="closing-mark">SemiTec Academy 2.2.0 · initial public release · Apache-2.0 · © SemiTec Foundation</p>
       </section>
     </main>
 
     <nav class="controls" aria-label="Presentation controls">
       <button class="previous" type="button" aria-label="Previous slide">← Previous</button>
-      <div class="slide-counter" aria-live="polite"><b>01</b> <span>/</span> 10</div>
+      <div class="slide-counter" aria-live="polite"><b>01</b> <span>/</span> 11</div>
       <button class="next primary" type="button" aria-label="Next slide">Next →</button>
     </nav>
     <div class="progress" aria-hidden="true"><span></span></div>
@@ -196,6 +216,6 @@
       <p><kbd>Home</kbd> and <kbd>End</kbd> jump to the beginning or end.</p>
       <p><kbd>F</kbd> toggles fullscreen.</p>
     </dialog>
-    <script src="presentation.js?v=20261017-03"></script>
+    <script src="presentation.js?v=20261030-01"></script>
   </body>
 </html>
