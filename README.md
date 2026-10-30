@@ -18,9 +18,11 @@ Current version: **2.2.0, the initial public release**. Source code under the [A
 - **Students work on their own computers.** Windows, macOS and Linux installers; accounts, progress and
   packages stay in a local folder the student chooses. The app only goes online to read the catalogs
   and download the packages the student selects.
-- **Course packages.** The SemiTec Foundation catalog is already set up in the app (*Catalog*), so students
-  can see and install the Foundation's published packages. A package can also be shared directly as a file
-  (e-mail, shared drive, USB).
+- **Course packages, always up to date.** The SemiTec Foundation catalog is already set up in the app
+  (*Catalog*). Every package the Foundation publishes in
+  [SemiTec Academy Materials](https://github.com/SemiTecFoundation/semitec-academy-materials) appears there
+  automatically, with no app update or setup; a newer version of an installed package shows as an update.
+  A package can also be shared directly as a file (e-mail, shared drive, USB).
 - **Your own materials.** Lecturers can publish their own packages and catalog without any agreement or
   approval from the Foundation, using the [Academy Templates](https://github.com/SemiTecFoundation/semitec-academy-skills)
   and the [publishing guide](docs/PUBLISHING.md). Each publisher remains responsible for its content.

@@ -112,3 +112,4 @@ figcaption { margin-top: 14px; color: var(--muted); font-size: 12px; line-height
 .audiences a { padding: 7px 11px; color: #fff; border: 1px solid rgba(207,228,255,.6); border-radius: 999px; font-size: 13px; text-decoration: none; }
 .audiences a:hover { background: rgba(255,255,255,.1); }
 .hero .audiences { margin: 22px 0; }
+.callout a { color: var(--blue); font-weight: 700; }.callout strong { color: var(--ink); }
