@@ -18,7 +18,7 @@ on:
   push:
     tags: ['v*']
     branches: [main]
-    paths: ['app/package.json']
+    paths: ['app/package.json', '.github/workflows/build-installers.yml']   # a version change (or this workflow) on main
 permissions:
   contents: read          # the release job raises this to write for itself
 env:
