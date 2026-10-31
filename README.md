@@ -78,9 +78,9 @@ Downloads: **[latest release](https://github.com/SemiTecFoundation/semitec-acade
 | macOS (Apple chip / Intel) | `SemiTec-Academy-<v>-mac-arm64.dmg` / `-x64.dmg` — drag to Applications, then **one Terminal line** to clear the quarantine mark (the build is not notarised): `xattr -dr com.apple.quarantine "/Applications/SemiTec Academy.app"` |
 | Linux | `.AppImage` (run) or `.deb` (`sudo apt install ./…deb`) |
 
-Building them: [`docs/RELEASING.md`](docs/RELEASING.md) — push a tag `v<version>` and the
-[Build installers](../../actions/workflows/build-installers.yml) workflow builds all three on real
-Windows, macOS and Linux machines and attaches them to the release. Locally:
+Building them: [`docs/RELEASING.md`](docs/RELEASING.md) — raise the version in `app/package.json` and push to
+`main`: the [Build installers](../../actions/workflows/build-installers.yml) workflow builds all three on real
+Windows, macOS and Linux machines and publishes the release `v<version>` with them. Locally:
 `npm run dist:win|mac|linux`, or `app/tools/build-installers.sh` for this computer's system.
 
 ## What the student does

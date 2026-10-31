@@ -1,7 +1,10 @@
 # Build the SemiTec Academy installers on real Windows, macOS and Linux machines and
 # publish them as a GitHub release.
 #
-# Use:  push a tag  v<version>  that matches app/package.json (e.g. v1.6.2), or
+# Use:  raise the version in app/package.json and push to main: if no tag v<version> exists yet,
+#       the installers are built and tested on every system, then the release v<version> is
+#       published with its tag (created by this workflow).
+#   or  push a tag  v<version>  that matches app/package.json (e.g. v2.2.1), or
 #       Actions -> Build installers -> Run workflow
 #       (a manual run builds and uploads artifacts but publishes no release).
 #
@@ -14,12 +17,45 @@ on:
   workflow_dispatch:
   push:
     tags: ['v*']
+    branches: [main]
+    paths: ['app/package.json']
 permissions:
   contents: read          # the release job raises this to write for itself
 env:
   APP_DIR: app
 jobs:
+  # Which version is this, and should it be released? A push to main releases a version
+  # only when no tag for it exists yet; a tag push always does; a manual run never does.
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      release: ${{ steps.v.outputs.release }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(node -p "require('./app/package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          elif [ "$GITHUB_EVENT_NAME" = push ]; then
+            if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$version" >/dev/null 2>&1; then
+              echo "v$version already released: nothing to publish"; echo "release=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "new version v$version: build and release"; echo "release=true" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
+    needs: prepare
+    # a push to main that does not bring a new version builds nothing
+    if: github.event_name != 'push' || needs.prepare.outputs.release == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -90,9 +126,9 @@ jobs:
             installers/*/*.deb
 
   release:
-    # Only for a version tag; needs every platform to have built.
-    if: startsWith(github.ref, 'refs/tags/')
-    needs: build
+    # A version tag, or a new version pushed to main; needs every platform to have built.
+    if: needs.prepare.outputs.release == 'true'
+    needs: [prepare, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -103,7 +139,7 @@ jobs:
       - name: Render the release notes for this version
         run: |
           # every release carries the install instructions, above the generated changelog
-          sed "s/{{VERSION}}/${GITHUB_REF_NAME#v}/g" .github/release-notes.md > notes.md
+          sed "s/{{VERSION}}/${{ needs.prepare.outputs.version }}/g" .github/release-notes.md > notes.md
           grep -q '{{VERSION}}' notes.md && { echo "placeholder left unreplaced"; exit 1; } || true
           head -5 notes.md
       - name: Collect installers and checksums
@@ -118,6 +154,9 @@ jobs:
           ls -lh
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ needs.prepare.outputs.version }}   # created on this commit when it does not exist yet
+          target_commitish: ${{ github.sha }}
+          name: v${{ needs.prepare.outputs.version }}
           files: release/*
           body_path: notes.md          # install instructions …
           generate_release_notes: true  # … then the generated changelog underneath

@@ -13,9 +13,11 @@ Installers are made with **electron-builder** (configuration: `build` in `app/pa
 `node_modules` must be installed **on the system that builds** (`npm ci`): Electron downloads a
 binary for that system: a `node_modules` installed on Linux cannot build a Mac DMG.
 
-**All three at once (the normal way):** push a tag `v<version>` — `.github/workflows/build-installers.yml`
-builds on real Windows, macOS and Linux machines, then attaches every installer plus `SHA256SUMS.txt`
-to a GitHub release. A manual run (Actions → Build installers → Run workflow) builds the same files as
+**All three at once (the normal way):** raise `app/package.json → version` and push to `main`. When no tag
+`v<version>` exists yet, `.github/workflows/build-installers.yml` builds and tests on real Windows, macOS and
+Linux machines, then publishes the release `v<version>` (it creates the tag on that commit) with every
+installer plus `SHA256SUMS.txt`. A push that does not change the version, or brings a version that is already
+released, publishes nothing. Pushing a tag `v<version>` by hand still works too. A manual run (Actions → Build installers → Run workflow) builds the same files as
 downloadable artifacts without releasing.
 
 ## Checklist
@@ -27,8 +29,8 @@ downloadable artifacts without releasing.
 4. Release a compatible `academy-templates:package` skill product; run `bundle-skill` and record the
    Academy app version used to generate its scripts. The two repositories can use different release
    numbers.
-5. Tag the release (`git tag v<version> && git push origin v<version>`); add short release notes
-   (what's new, minimum versions) to the release the workflow created. Keep the older releases.
+5. Push to `main`: the workflow tags and publishes the release (or push a tag `v<version>` by hand). Add
+   short release notes (what's new, minimum versions) to the release it created if needed.
 
 ## Building locally on a Mac inside a synced folder (OneDrive / iCloud / Dropbox)
 `codesign` refuses files that carry extended attributes, which these clients add, so `npm run dist:mac`
