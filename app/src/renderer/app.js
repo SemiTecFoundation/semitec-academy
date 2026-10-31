@@ -114,7 +114,7 @@
     api.onOpenPack(function (file) { if (S.user) importFlow(file); else S.pendingPack = file; });
     window.addEventListener('hashchange', route);
     /* drag a .stlp anywhere onto the window */
-    var overlay = el('div.dropzone-overlay', { text: 'Drop the SemiTec Learning Package (.stlp) to add it to your library' });
+    var overlay = el('div.dropzone-overlay', { text: 'Drop the SemiTec Learning Package (.stlp or .zip) to add it to your library' });
     document.body.appendChild(overlay);
     var depth = 0;
     document.addEventListener('dragenter', function (e) { if (S.user && hasFiles(e)) { depth++; document.body.classList.add('dragging'); } });
@@ -125,7 +125,7 @@
       e.preventDefault(); depth = 0; document.body.classList.remove('dragging');
       if (!S.user) return;
       var f = e.dataTransfer.files[0]; if (!f) return;
-      if (!/\.stlp$/i.test(f.name)) return toast('Only SemiTec Learning Packages (.stlp files) can be added', true);
+      if (!/\.(stlp|zip)$/i.test(f.name)) return toast('Only SemiTec Learning Packages can be added (.stlp files, or a package renamed to .zip)', true);
       importFlow(api.pathForFile(f));
     });
   }
@@ -291,7 +291,7 @@
       var packs = res[0], groups = res[1];
       if (!packs.length) {
         page.appendChild(el('div.empty', null, [el('div', { style: { fontSize: '3rem' }, text: '📦' }), el('h2', { text: 'No course packs yet' }),
-          el('p', { text: 'Course packages are SemiTec Learning Packages (.stlp files). Get one from the Catalog, add a file with the button, or drag the file onto this window.' }),
+          el('p', { text: 'Course packages are SemiTec Learning Packages (.stlp files; a package renamed to .zip works too). Get one from the Catalog, add a file with the button, or drag the file onto this window.' }),
           el('div.ui-actions.center', null, [el('a.btn', { href: '#/catalog', text: '🛍 Open the catalog' }), el('button.btn.primary', { type: 'button', text: '＋ Add a .stlp file', onclick: chooseAndImport })])]));
         return;
       }

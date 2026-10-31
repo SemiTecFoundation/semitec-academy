@@ -279,7 +279,7 @@ function registerIpc() {
   }, { needsUser: true });
   api('packs:get', (id) => S.lib.get(id, S.user.id), { needsUser: true });
   api('packs:choose', async () => {
-    const r = await dialog.showOpenDialog(S.win, { title: 'Add a course pack', filters: [{ name: 'SemiTec Learning Package', extensions: ['stlp'] }], properties: ['openFile'] });
+    const r = await dialog.showOpenDialog(S.win, { title: 'Add a course pack', filters: [{ name: 'SemiTec Learning Package (.stlp, or renamed to .zip)', extensions: ['stlp', 'zip'] }], properties: ['openFile'] });
     return r.canceled ? null : r.filePaths[0];
   }, { needsUser: true });
   api('packs:inspect', (file) => {
@@ -341,7 +341,7 @@ function registerIpc() {
 }
 
 /* ---------------- window ---------------- */
-const PACK_EXT = /\.stlp$/i;   // SemiTec Learning Package
+const PACK_EXT = /\.(stlp|zip)$/i;   // SemiTec Learning Package (also when renamed to .zip; only .stlp is associated with the app)
 function packFromArgs(argv) { return argv.find(a => PACK_EXT.test(a) && fs.existsSync(a)) || null; }
 function offerPack(file) {
   if (!file) return;

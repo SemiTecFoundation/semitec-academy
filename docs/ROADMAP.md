@@ -4,6 +4,9 @@ SemiTec Academy's first public release is **2.2.0**. The version starts at 2.2.0
 course packages already built with the Academy Templates declare `minAppVersion: "2.1.0"`; keeping the
 number lets every existing package install. Earlier internal builds are not published.
 
+## 2.2.1 — packages renamed to .zip (done)
+- [x] File picker, drag and drop and catalog folders accept a package renamed to `.zip`; the content checks are the same. Ordinary ZIP files in a catalog folder are ignored; adding one directly says it is not a package. Only `.stlp` is associated with the app.
+
 ## 2.2.0 — initial public release (done)
 ### Foundations
 - [x] First-run data folder, move data folder, local accounts (create on first login), change name / password

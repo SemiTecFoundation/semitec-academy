@@ -54,7 +54,7 @@ module.exports = function catalog({ db, lib }) {
         if (n.name.startsWith('.')) continue;
         const p = path.join(d, n.name);
         if (n.isDirectory() && depth < 2) walk(p, depth + 1);
-        else if (n.isFile() && /\.stlp$/i.test(n.name)) {
+        else if (n.isFile() && /\.(stlp|zip)$/i.test(n.name)) {   // a package renamed to .zip (e-mail, LMS) counts too
           try {
             const st = fs.statSync(p);
             const c = peekCache[p];
@@ -62,7 +62,7 @@ module.exports = function catalog({ db, lib }) {
             const pk = peekPack(fs.readFileSync(p));
             const entry = Object.assign(fromManifest(pk.manifest, pk.images), { file: p, size: st.size });
             peekCache[p] = { mtime: st.mtimeMs, size: st.size, entry }; out.push(entry);
-          } catch (e) { errors.push(n.name + ': ' + e.message); }
+          } catch (e) { if (!/\.zip$/i.test(n.name)) errors.push(n.name + ': ' + e.message); }   // other ZIP archives in the folder are simply not packages
         }
       }
     };

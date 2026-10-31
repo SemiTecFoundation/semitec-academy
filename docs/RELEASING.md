@@ -64,6 +64,7 @@ chip / Intel — a single universal DMG would carry both and roughly double ever
 `electron-updater`; the app does not auto-update, so that target is off.
 
 ## Build history
+- **2.2.1** — accepts packages renamed to `.zip`; same package compatibility as 2.2.0.
 - **2.2.0** — the initial public release: five installers and `SHA256SUMS.txt`, built by the workflow on real
   `windows-latest`, `macos-latest` and `ubuntu-latest` runners after the end-to-end checks passed.
   Earlier internal builds were removed from the release list.

@@ -9,7 +9,7 @@ and no internet connection are needed to study.
 **⬇ [Download the app](https://github.com/SemiTecFoundation/semitec-academy/releases/latest)** ·
 **[Install guide](docs/INSTALLING.md)** · **[Learner guide](docs/LEARNING.md)**
 
-Current version: **2.2.0, the initial public release**. Source code under the [Apache-2.0](LICENSE) license.
+Current version: **2.2.1** (2.2.0 was the initial public release). Source code under the [Apache-2.0](LICENSE) license.
 
 ## For universities
 
@@ -37,6 +37,8 @@ Current version: **2.2.0, the initial public release**. Source code under the [A
 2. On first start, the student chooses a data folder and creates a local account (just a username and password).
 3. The student opens **Catalog** and installs a package, or drags a `.stlp` file the lecturer shared onto the
    app window.
+   If e-mail or a learning platform blocks `.stlp` files, share the package renamed to `.zip`: Academy 2.2.1 and
+   newer accept it as it is and check it like any package.
 4. The student enrolls, follows the course order or study plan, and continues where they left off each time.
 
 ## SemiTec Foundation and source projects
@@ -210,7 +212,8 @@ study plans and reminders; catalog sources and publishers; trainings in two form
 custom HTML/CSS/JavaScript) with quizzes and optional certificates; labs with manuals and source files;
 PDF and Markdown readings; videos; other materials; projects; full-folder downloads; optional package
 passwords; and installers for Windows, macOS and Linux. The number starts at 2.2.0 because packages built
-by the current Academy Templates require app 2.1.0 or newer. See [`docs/ROADMAP.md`](docs/ROADMAP.md).
+by the current Academy Templates require app 2.1.0 or newer. **2.2.1** also accepts a package renamed to `.zip`
+(for e-mail or learning platforms that block unknown file types). See [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## License, package ownership and partner publishing
 
@@ -222,7 +225,7 @@ certificate. Students and universities choose their catalog sources. Read
 
 ## Status
 
-Current release: **v2.2.0, the initial public release**. All features are covered by `npm test`; installers
+Current release: **v2.2.1** (packages renamed to `.zip` are accepted); v2.2.0 was the initial public release. All features are covered by `npm test`; installers
 for Windows, macOS and Linux are built on real runners for each system and attached to the release.
 Next: code signing ([RELEASING.md](docs/RELEASING.md)) and the self-study proposals in
 [`docs/PROPOSALS.md`](docs/PROPOSALS.md); multi-user features belong to the Foundation platform.

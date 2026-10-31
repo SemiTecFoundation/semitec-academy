@@ -1,6 +1,8 @@
 # Studying and downloading packages
 
 Choose a `.stlp` from a source you trust. Academy checks its files, content, compatibility and study plan.
+A package renamed to `.zip` (for example to pass an e-mail or learning-platform filter) can be added the same way
+in Academy 2.2.1 and newer; an ordinary ZIP archive is refused.
 If a file or field is missing, the error identifies it; ask the publisher for a corrected package.
 Anyone can publish a package. The publisher name is supplied by the package and is not authenticated.
 

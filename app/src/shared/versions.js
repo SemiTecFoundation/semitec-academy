@@ -101,6 +101,11 @@ const HISTORY = [
     app: '2.2.0',
     pack: [1, 2, 3], training: [1, 2], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
     notes: 'Open package publishing, with a Foundation catalog and selectable catalog sources.'
+  },
+  {
+    app: '2.2.1',
+    pack: [1, 2, 3], training: [1, 2], video: [1], material: [1], lab: [1, 2], reading: [1, 2], project: [1],
+    notes: 'Accepts a package renamed to .zip (file picker, drag and drop, catalog folders); the content checks are unchanged.'
   }
 ];
 

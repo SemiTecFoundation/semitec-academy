@@ -65,10 +65,10 @@ function buildPack({ manifest, files }) {
 /* Returns the manifest and content after checking paths and file hashes. Legacy signature files are ignored. */
 function readPack(bytes) {
   let entries;
-  try { entries = unzipSync(new Uint8Array(bytes)); } catch (e) { throw new Error('not a valid .stlp file (zip could not be read)'); }
+  try { entries = unzipSync(new Uint8Array(bytes)); } catch (e) { throw new Error('not a SemiTec Learning Package (the file could not be read as a package archive)'); }
   const names = Object.keys(entries).filter(n => !n.endsWith('/'));
   if (names.length > MAX_FILES) throw new Error('too many files in pack');
-  if (!entries['manifest.json']) throw new Error('manifest.json missing — not a SemiTec pack');
+  if (!entries['manifest.json']) throw new Error('not a SemiTec Learning Package (manifest.json missing). A package renamed to .zip works; an ordinary ZIP archive does not');
   const manifestBytes = Buffer.from(entries['manifest.json']);
   let manifest;
   try { manifest = JSON.parse(manifestBytes.toString('utf8')); } catch (e) { throw new Error('manifest.json is not valid JSON'); }
@@ -95,8 +95,8 @@ function readPack(bytes) {
 function peekPack(bytes) {
   const u8 = new Uint8Array(bytes);
   let e;
-  try { e = unzipSync(u8, { filter: (f) => f.name === 'manifest.json' }); } catch (x) { throw new Error('not a valid .stlp file'); }
-  if (!e['manifest.json']) throw new Error('manifest.json missing — not a SemiTec package');
+  try { e = unzipSync(u8, { filter: (f) => f.name === 'manifest.json' }); } catch (x) { throw new Error('not a SemiTec Learning Package (the file could not be read as a package archive)'); }
+  if (!e['manifest.json']) throw new Error('not a SemiTec Learning Package (manifest.json missing)');
   const manifestBytes = Buffer.from(e['manifest.json']);
   const manifest = JSON.parse(manifestBytes.toString('utf8'));
   assertPackId(manifest && manifest.id);

@@ -669,3 +669,20 @@ test('open packages omit author previews by default while retaining source previ
   const whole=copyPack({packDir,manifest:m,targetDir,engineDir:fixture.engineDir,allowPreview:lib.canPreview(1,m.id)});
   assert.equal(fs.readdirSync(whole,{recursive:true}).some(f=>/(?:index_preview|training-preview|certificate-preview)\.html?$/i.test(f)),false);
 });
+
+test('a package renamed to .zip installs and is listed from a catalog folder; other ZIP files are ignored', async t => {
+  const { root, db, lib, write } = await setup(t);
+  const renamed = write(buildPack({ manifest, files }), 'course.zip');
+  assert.equal(lib.importFile(renamed, {}).id, manifest.id);
+  assert.throws(() => lib.importFile(write(zipSync({ 'notes.txt': Buffer.from('hello') }), 'photos.zip'), {}), /not a SemiTec Learning Package/);
+  const folder = path.join(root, 'shared');
+  fs.mkdirSync(folder);
+  fs.writeFileSync(path.join(folder, 'course.zip'), buildPack({ manifest: { ...manifest, id: 'org.example.renamed', version: '1.2.0' }, files }).bytes);
+  fs.writeFileSync(path.join(folder, 'photos.zip'), zipSync({ 'notes.txt': Buffer.from('hello') }));
+  const catalog = makeCatalog({ db, lib });
+  for (const s of catalog.sources()) catalog.remove(s.id);
+  catalog.addFolder(folder);
+  const r = await catalog.list();
+  assert.deepEqual(r.entries.map(e => e.id), ['org.example.renamed']);
+  assert.deepEqual(r.problems, [], 'an ordinary ZIP archive in the folder is not reported as a broken package');
+});
